@@ -240,7 +240,10 @@
                     <li class="menu-item"><i class="fa-solid fa-user"></i> Nhân viên</li>
                     <li class="menu-item"><i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn</li>
                     <li class="menu-item"><i class="fa-solid fa-mug-saucer"></i> Menu</li>
-                    <li class="menu-item"><i class="fa-solid fa-chair"></i> Bàn</li>
+                    <li class="menu-item"
+                        onclick="location.href='${pageContext.request.contextPath}/ban'">
+                        <i class="fa-solid fa-chair"></i> Bàn
+                    </li>
                     <li class="menu-item"
                         onclick="location.href = '${pageContext.request.contextPath}/KhoServlet'">
                         <i class="fa-solid fa-box"></i> Kho
@@ -291,8 +294,11 @@
                     <p>Quản lý danh mục đồ uống và món ăn</p>
                 </div>
 
-                <div class="card">
-                    <div class="card-icon bg-purple"><i class="fa-solid fa-chair"></i></div>
+                <div class="card"
+                     onclick="location.href='${pageContext.request.contextPath}/ban'">
+                    <div class="card-icon bg-purple">
+                        <i class="fa-solid fa-chair"></i>
+                    </div>
                     <h3>Quản lý bàn</h3>
                     <p>Quản lý bàn, trạng thái và khu vực</p>
                 </div>
