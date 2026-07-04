@@ -295,7 +295,7 @@
                 </div>
 
                 <div class="card"
-                     onclick="location.href='${pageContext.request.contextPath}/ban'">
+                    onclick="location.href='${pageContext.request.contextPath}/ban'">
                     <div class="card-icon bg-purple">
                         <i class="fa-solid fa-chair"></i>
                     </div>

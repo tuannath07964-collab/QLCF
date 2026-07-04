@@ -38,100 +38,96 @@
             }
 
             body{
-                background:#f4f6f9;
+                display:flex;
+                height:100vh;
+                background-color:#fcf9f5;
+                color:#333;
             }
 
             .container{
                 display:flex;
-                min-height:100vh;
+                width:100%;
             }
 
             /* ================= SIDEBAR ================= */
 
             .sidebar{
-                width:260px;
-                background:#543d2b;
-                color:white;
+                width:250px;
+                background-color:#4a3b32;
+                color:#fff;
                 display:flex;
                 flex-direction:column;
                 justify-content:space-between;
-                position:fixed;
-                left:0;
-                top:0;
                 height:100vh;
             }
 
-            .logo{
-                padding:25px;
-                text-align:center;
-                border-bottom:1px solid rgba(255,255,255,.15);
-            }
-
-            .logo i{
-                font-size:35px;
-                margin-bottom:10px;
-                display:block;
-            }
-
-            .logo span{
-                font-size:15px;
+            .sidebar-header{
+                padding:20px;
+                font-size:16px;
                 font-weight:bold;
+                display:flex;
+                align-items:center;
+                gap:10px;
+                border-bottom:1px solid rgba(255,255,255,.1);
+                white-space:nowrap;
             }
 
             .menu{
                 list-style:none;
-                padding:20px 0;
+                flex-grow:1;
+                padding-top:10px;
+                overflow-y:auto;
             }
 
             .menu li{
-                margin:5px 15px;
+                list-style:none;
             }
 
             .menu li a{
-                text-decoration:none;
-                color:white;
-                padding:14px 18px;
-                border-radius:12px;
                 display:flex;
                 align-items:center;
-                gap:12px;
+                gap:15px;
+                padding:15px 20px;
+                color:#d1c9c4;
+                text-decoration:none;
                 transition:.3s;
             }
 
             .menu li a:hover{
-                background:#6a4d38;
+                background:#6a574b;
+                color:white;
             }
 
             .menu li.active a{
-                background:white;
-                color:#543d2b;
-                font-weight:600;
+                background:#6a574b;
+                color:white;
+                border-left:4px solid white;
             }
 
             .logout{
-                padding:20px;
+                border-top:1px solid rgba(255,255,255,.1);
             }
 
             .logout a{
+                display:flex;
+                align-items:center;
+                gap:15px;
+                padding:20px;
+                color:#d1c9c4;
                 text-decoration:none;
-                color:white;
-                display:block;
-                text-align:center;
-                padding:12px;
-                border-radius:10px;
-                background:#6a4d38;
-                transition:.3s;
             }
 
             .logout a:hover{
-                background:#7d5b42;
+                color:white;
             }
 
             /* ================= MAIN ================= */
 
             .main-content{
                 flex:1;
-                margin-left:260px;
+                display:flex;
+                flex-direction:column;
+                overflow-y:auto;
                 padding:30px;
             }
 
@@ -140,51 +136,35 @@
             .topbar{
                 display:flex;
                 justify-content:flex-end;
-                margin-bottom:30px;
+                align-items:center;
+                gap:35px;
+                padding:15px 30px;
+                margin:-30px -30px 30px -30px;
+                background:#fcf9f5;
+                border-bottom:1px solid rgba(255,255,255,.15);
             }
 
             .top-right{
                 display:flex;
                 align-items:center;
-                gap:25px;
-            }
-
-            .notification{
-                position:relative;
-                font-size:22px;
-                cursor:pointer;
-            }
-
-            .badge{
-                position:absolute;
-                top:-8px;
-                right:-10px;
-                background:red;
-                color:white;
-                width:18px;
-                height:18px;
-                border-radius:50%;
-                font-size:11px;
-                display:flex;
-                justify-content:center;
-                align-items:center;
+                gap:20px;
             }
 
             .user{
                 display:flex;
                 align-items:center;
                 gap:10px;
-                background:white;
-                padding:10px 18px;
-                border-radius:12px;
-                box-shadow:0 2px 10px rgba(0,0,0,.08);
+                font-weight:500;
+                color:#4a3b32;
             }
 
             .user i:first-child{
-                font-size:24px;
-                color:#543d2b;
+                font-size:20px;
             }
 
+            .user i:last-child{
+                font-size:12px;
+            }
             /* ================= HEADER ================= */
 
             .page-header{
@@ -318,7 +298,7 @@
             .table-container{
                 background:white;
                 border-radius:20px;
-                overflow:hidden;
+                overflow:auto;
                 box-shadow:0 2px 12px rgba(0,0,0,.08);
             }
             table{
@@ -437,7 +417,7 @@
 
             <aside class="sidebar">
 
-                <div class="logo">
+                <div class="sidebar-header">
 
                     <i class="fa-solid fa-mug-hot"></i>
 
@@ -523,19 +503,18 @@
 
                 <!-- HEADER -->
                 <header class="topbar">
-                    <div class="top-right">
-                        <div class="notification">
-                            <i class="fa-regular fa-bell"></i>
-                            <span class="badge">3</span>
-                        </div>
-                        <div class="user">
-                            <i class="fa-solid fa-circle-user"></i>
-                            <span>
-                                <%= maNV %> - <%= tenNV %>
-                            </span>
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </div>
+
+                    <div class="user">
+                        <i class="fa-solid fa-circle-user"></i>
+                        <span><%= maNV %> - <%= tenNV %></span>
+                        <i class="fa-solid fa-chevron-down"></i>
                     </div>
+
+                    <div class="notification">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+
                 </header>
 
                 <!-- ===========================
