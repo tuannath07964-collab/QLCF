@@ -3,328 +3,617 @@
     Created on : 26 thg 6, 2026, 20:31:29
     Author     : trung
 --%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<% 
+<%
     String maNV = (String) session.getAttribute("maNV");
     String tenNV = (String) session.getAttribute("tenNV");
-    if(maNV == null){
+
+    if (maNV == null) {
         response.sendRedirect(request.getContextPath() + "/loginform.jsp");
         return;
     }
 %>
+
 <!DOCTYPE html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Quản Lý Quán Cafe</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <style>
-            /* CSS Reset & Cơ bản */
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            }
-            body {
-                display: flex;
-                height: 100vh;
-                background-color: #fcf9f5; /* Màu nền be sáng */
-                color: #333;
-            }
 
-            /* --- SIDEBAR --- */
-            .sidebar {
-                width: 250px;
-                background-color: #4a3b32; /* Màu nâu đậm */
-                color: #fff;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
-            .sidebar-header {
-                padding: 20px;
-                font-size: 16px;
-                font-weight: bold;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                white-space: nowrap;
-            }
-            .menu-list {
-                list-style: none;
-                flex-grow: 1;
-                padding-top: 10px;
-                overflow-y: auto;
-            }
-            .menu-item {
-                padding: 15px 20px;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                cursor: pointer;
-                transition: 0.3s;
-                color: #d1c9c4;
-            }
-            .menu-item:hover, .menu-item.active {
-                background-color: #6a574b;
-                color: #fff;
-            }
-            .menu-item.active {
-                border-left: 4px solid #fff;
-            }
-            .menu-item i {
-                width: 20px;
-                text-align: center;
-            }
-            .logout-btn {
-                padding: 20px;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                cursor: pointer;
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-                color: #d1c9c4;
-                text-decoration: none;
-            }
-            .logout-btn:hover {
-                color: #fff;
-            }
+<head>
 
-            /* --- MAIN CONTENT --- */
-            .main-content {
-                flex-grow: 1;
-                display: flex;
-                flex-direction: column;
-                overflow-y: auto;
-            }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            /* Topbar */
-            .topbar {
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-                padding: 15px 30px;
-                background-color: #fcf9f5;
-                border-bottom: 1px solid #eae5df;
-            }
-            .user-info {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin-right: 20px;
-                font-weight: 500;
-            }
-            .user-info i {
-                font-size: 20px;
-                color: #4a3b32;
-            }
-            .notification {
-                position: relative;
-                cursor: pointer;
-            }
-            .notification i {
-                font-size: 20px;
-                color: #4a3b32;
-            }
-            .badge {
-                position: absolute;
-                top: -5px;
-                right: -8px;
-                background-color: #e74c3c;
-                color: white;
-                font-size: 10px;
-                padding: 2px 6px;
-                border-radius: 50%;
-            }
+<title>Quản Lý Quán Cafe</title>
 
-            /* Welcome Section */
-            .welcome-section {
-                padding: 30px;
-            }
-            .welcome-section h1 {
-                font-size: 24px;
-                color: #333;
-                margin-bottom: 5px;
-            }
-            .welcome-section p {
-                color: #666;
-            }
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-            /* Cards Grid */
-            .cards-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-                gap: 20px;
-                padding: 0 30px 30px 30px;
-            }
-            .card {
-                background-color: #fff;
-                padding: 30px 20px;
-                border-radius: 12px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-                text-align: center;
-                cursor: pointer;
-                transition: transform 0.2s, box-shadow 0.2s;
-                border: 1px solid #f0ebe4;
-            }
-            .card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            }
-            .card-icon {
-                width: 70px;
-                height: 70px;
-                border-radius: 50%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                margin: 0 auto 15px auto;
-                font-size: 30px;
-            }
-            .card h3 {
-                font-size: 16px;
-                margin-bottom: 10px;
-                color: #222;
-            }
-            .card p {
-                font-size: 13px;
-                color: #777;
-                line-height: 1.4;
-            }
+<style>
 
-            /* Màu sắc riêng cho từng Icon nền */
-            .bg-blue {
-                background-color: #eef2fa;
-                color: #4b7bec;
-            }
-            .bg-green {
-                background-color: #ebf5ee;
-                color: #20bf6b;
-            }
-            .bg-orange {
-                background-color: #fdf3e8;
-                color: #fa8231;
-            }
-            .bg-purple {
-                background-color: #f4f0fa;
-                color: #8854d0;
-            }
-            .bg-brown {
-                background-color: #f7f1eb;
-                color: #a55eea;
-            } /* Dùng màu tím nhạt thay thế nếu cần */
-            .bg-teal {
-                background-color: #ebf7f6;
-                color: #0fb9b1;
-            }
-            .bg-pink {
-                background-color: #faedf0;
-                color: #fc5c65;
-            }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
+}
 
-        </style>
-    </head>
-    <body>
+body{
+    display:flex;
+    height:100vh;
+    background:#f7f5f2;
+}
 
-        <aside class="sidebar">
-            <div>
-                <div class="sidebar-header">
-                    <i class="fa-solid fa-mug-hot"></i> QUẢN LÝ QUÁN CAFE
+/*================ SIDEBAR ================*/
+
+.sidebar{
+
+    width:250px;
+
+    background:#4b3a2f;
+
+    color:#fff;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:space-between;
+
+}
+
+.logo{
+
+    padding:22px;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    text-align:center;
+
+    border-bottom:1px solid rgba(255,255,255,.1);
+
+}
+
+.menu{
+
+    list-style:none;
+
+}
+
+.menu li{
+
+    padding:16px 22px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+}
+
+.menu li:hover{
+
+    background:#6b5648;
+
+}
+
+.menu li.active{
+
+    background:#6b5648;
+
+    border-left:5px solid white;
+
+}
+
+.menu li i{
+
+    width:22px;
+
+}
+
+.logout{
+
+    padding:18px 22px;
+
+    color:white;
+
+    text-decoration:none;
+
+    border-top:1px solid rgba(255,255,255,.1);
+
+    display:flex;
+
+    gap:15px;
+
+    align-items:center;
+
+}
+
+.logout:hover{
+
+    background:#6b5648;
+
+}
+
+/*================ CONTENT ================*/
+
+.content{
+
+    flex:1;
+
+    overflow:auto;
+
+}
+
+.topbar{
+
+    height:70px;
+
+    background:white;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    padding:0 30px;
+
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+
+}
+
+.user{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    font-weight:bold;
+
+}
+
+.user i{
+
+    font-size:24px;
+
+    color:#4b3a2f;
+
+}
+
+.container{
+
+    padding:30px;
+
+}
+
+.container h1{
+
+    margin-bottom:8px;
+
+    color:#333;
+
+}
+
+.container p{
+
+    color:#666;
+
+}
+
+/*================ CARDS ================*/
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+
+    gap:20px;
+
+    margin-top:25px;
+
+}
+
+.card{
+
+    background:white;
+
+    border-radius:12px;
+
+    padding:25px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+
+}
+
+.card:hover{
+
+    transform:translateY(-6px);
+
+}
+
+.icon{
+
+    width:70px;
+
+    height:70px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:28px;
+
+    margin-bottom:15px;
+
+}
+
+.blue{
+
+    background:#e9f1ff;
+
+    color:#1976d2;
+
+}
+
+.green{
+
+    background:#eaf8ef;
+
+    color:#1b9c5a;
+
+}
+
+.orange{
+
+    background:#fff3e8;
+
+    color:#f57c00;
+
+}
+
+.purple{
+
+    background:#efe8ff;
+
+    color:#7b4dd8;
+
+}
+
+.pink{
+
+    background:#ffeef2;
+
+    color:#d81b60;
+
+}
+
+.card h3{
+
+    margin-bottom:10px;
+
+}
+
+.card p{
+
+    color:#666;
+
+    line-height:22px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+<aside class="sidebar">
+
+    <div>
+
+        <div class="logo">
+            <i class="fa-solid fa-mug-hot"></i>
+            QUẢN LÝ QUÁN CAFE
+        </div>
+
+        <ul class="menu">
+
+            <li class="active">
+                <i class="fa-solid fa-house"></i>
+                Trang chủ
+            </li>
+
+            <li
+                onclick="location.href='${pageContext.request.contextPath}/NhanVienServlet'">
+
+                <i class="fa-solid fa-user"></i>
+
+                Nhân viên
+
+            </li>
+
+            <li>
+
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+
+                Hóa đơn
+
+            </li>
+
+            <li>
+
+                <i class="fa-solid fa-mug-saucer"></i>
+
+                Menu
+
+            </li>
+
+            <li
+                onclick="location.href='${pageContext.request.contextPath}/ban'">
+
+                <i class="fa-solid fa-chair"></i>
+
+                Bàn
+
+            </li>
+
+            <li
+                onclick="location.href='${pageContext.request.contextPath}/KhoServlet'">
+
+                <i class="fa-solid fa-box"></i>
+
+                Kho
+
+            </li>
+
+            <li>
+
+                <i class="fa-solid fa-users"></i>
+
+                Khách hàng
+
+            </li>
+
+            <li>
+
+                <i class="fa-solid fa-chart-column"></i>
+
+                Thống kê
+
+            </li>
+
+            <li>
+
+                <i class="fa-solid fa-gear"></i>
+
+                Cài đặt
+
+            </li>
+
+        </ul>
+
+    </div>
+
+    <a class="logout"
+       href="${pageContext.request.contextPath}/LogoutServlet">
+
+        <i class="fa-solid fa-right-from-bracket"></i>
+
+        Đăng xuất
+
+    </a>
+
+</aside>
+
+<div class="content">
+
+    <div class="topbar">
+
+        <div class="user">
+
+            <i class="fa-solid fa-circle-user"></i>
+
+            <%= maNV %> - <%= tenNV %>
+
+        </div>
+
+    </div>
+
+    <div class="container">
+
+        <h1>
+
+            Xin chào,
+            <%= tenNV %>
+
+        </h1>
+
+        <p>
+
+            Chào mừng bạn đến với hệ thống quản lý quán cafe
+
+        </p>
+
+        <div class="cards">
+
+            <div class="card"
+                 onclick="location.href='${pageContext.request.contextPath}/NhanVienServlet'">
+
+                <div class="icon blue">
+
+                    <i class="fa-solid fa-user-group"></i>
+
                 </div>
-                <ul class="menu-list">
-                    <li class="menu-item active"><i class="fa-solid fa-house"></i> Trang chủ</li>
-                    <li class="menu-item"><i class="fa-solid fa-user"></i> Nhân viên</li>
-                    <li class="menu-item"><i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn</li>
-                    <li class="menu-item"><i class="fa-solid fa-mug-saucer"></i> Menu</li>
-                    <li class="menu-item"
-                        onclick="location.href='${pageContext.request.contextPath}/ban'">
-                        <i class="fa-solid fa-chair"></i> Bàn
-                    </li>
-                    <li class="menu-item"
-                        onclick="location.href = '${pageContext.request.contextPath}/KhoServlet'">
-                        <i class="fa-solid fa-box"></i> Kho
-                    </li>
-                    <li class="menu-item"><i class="fa-solid fa-users"></i> Khách hàng</li>
-                    <li class="menu-item"><i class="fa-solid fa-chart-column"></i> Thống kê doanh thu</li>
-                    <li class="menu-item"><i class="fa-solid fa-gear"></i> Cài đặt</li>
-                </ul>
+
+                <h3>
+
+                    Quản lý nhân viên
+
+                </h3>
+
+                <p>
+
+                    Thêm, sửa, xóa và quản lý thông tin nhân viên.
+
+                </p>
+
             </div>
-            <a href="${pageContext.request.contextPath}/LogoutServlet" class="logout-btn">
-                <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-            </a>
-        </aside>
 
-        <main class="main-content">
-            <header class="topbar">
-                <div class="user-info">
-                    <i class="fa-solid fa-circle-user"></i>
-                    <%= maNV %> - <%= tenNV %> <i class="fa-solid fa-chevron-down" style="font-size: 12px;"></i>
-                </div>
-                <div class="notification">
-                    <i class="fa-regular fa-bell"></i>
-                    <span class="badge">3</span>
-                </div>
-            </header>
+            <div class="card">
 
-            <div class="welcome-section">
-                <h1>Xin chào, <%= tenNV %>!</h1>
-                <p>Chào mừng bạn đến với hệ thống quản lý quán cafe</p>
+                <div class="icon green">
+
+                    <i class="fa-solid fa-file-lines"></i>
+
+                </div>
+
+                <h3>
+
+                    Quản lý hóa đơn
+
+                </h3>
+
+                <p>
+
+                    Theo dõi hóa đơn và thanh toán.
+
+                </p>
+
             </div>
 
-            <div class="cards-grid">
-                <div class="card">
-                    <div class="card-icon bg-blue"><i class="fa-solid fa-user-group"></i></div>
-                    <h3>Quản lý nhân viên</h3>
-                    <p>Thêm, sửa, xóa và quản lý thông tin nhân viên</p>
+            <div class="card">
+
+                <div class="icon orange">
+
+                    <i class="fa-solid fa-mug-hot"></i>
+
                 </div>
 
-                <div class="card">
-                    <div class="card-icon bg-green"><i class="fa-solid fa-file-lines"></i></div>
-                    <h3>Quản lý hóa đơn</h3>
-                    <p>Xem, tạo và quản lý hóa đơn thanh toán</p>
-                </div>
+                <h3>
 
-                <div class="card">
-                    <div class="card-icon bg-orange"><i class="fa-solid fa-mug-hot"></i></div>
-                    <h3>Quản lý menu</h3>
-                    <p>Quản lý danh mục đồ uống và món ăn</p>
-                </div>
+                    Quản lý Menu
 
-                <div class="card"
-                    onclick="location.href='${pageContext.request.contextPath}/ban'">
-                    <div class="card-icon bg-purple">
-                        <i class="fa-solid fa-chair"></i>
-                    </div>
-                    <h3>Quản lý bàn</h3>
-                    <p>Quản lý bàn, trạng thái và khu vực</p>
-                </div>
+                </h3>
 
-                <div class="card"
-                     onclick="location.href = '${pageContext.request.contextPath}/KhoServlet'">
-                    <div class="card-icon bg-brown">
-                        <i class="fa-solid fa-box"></i>
-                    </div>
-                    <h3>Quản lý kho</h3>
-                    <p>Quản lý nguyên liệu, nhập xuất kho</p>
-                </div>
+                <p>
 
-                <div class="card">
-                    <div class="card-icon bg-teal"><i class="fa-solid fa-chart-simple"></i></div>
-                    <h3>Thống kê doanh thu</h3>
-                    <p>Xem báo cáo doanh thu, thống kê bán hàng</p>
-                </div>
+                    Quản lý đồ uống và món ăn.
 
-                <div class="card">
-                    <div class="card-icon bg-pink"><i class="fa-solid fa-users"></i></div>
-                    <h3>Quản lý khách hàng</h3>
-                    <p>Quản lý thông tin khách hàng và lịch sử mua hàng</p>
-                </div>
+                </p>
+
             </div>
-        </main>
+            <div class="card"
+                 onclick="location.href='${pageContext.request.contextPath}/ban'">
 
-    </body>
+                <div class="icon purple">
+
+                    <i class="fa-solid fa-chair"></i>
+
+                </div>
+
+                <h3>
+
+                    Quản lý bàn
+
+                </h3>
+
+                <p>
+
+                    Quản lý trạng thái bàn và khu vực phục vụ.
+
+                </p>
+
+            </div>
+
+            <div class="card"
+                 onclick="location.href='${pageContext.request.contextPath}/KhoServlet'">
+
+                <div class="icon green">
+
+                    <i class="fa-solid fa-box"></i>
+
+                </div>
+
+                <h3>
+
+                    Quản lý kho
+
+                </h3>
+
+                <p>
+
+                    Quản lý nhập, xuất và tồn kho nguyên liệu.
+
+                </p>
+
+            </div>
+
+            <div class="card">
+
+                <div class="icon orange">
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                </div>
+
+                <h3>
+
+                    Thống kê doanh thu
+
+                </h3>
+
+                <p>
+
+                    Xem báo cáo doanh thu theo ngày, tháng, năm.
+
+                </p>
+
+            </div>
+
+            <div class="card">
+
+                <div class="icon pink">
+
+                    <i class="fa-solid fa-users"></i>
+
+                </div>
+
+                <h3>
+
+                    Quản lý khách hàng
+
+                </h3>
+
+                <p>
+
+                    Theo dõi thông tin và lịch sử mua hàng.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
 </html>
