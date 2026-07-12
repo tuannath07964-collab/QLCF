@@ -1,24 +1,72 @@
 package model;
 
 public class Menu {
-    private String maMon;
+
+    private int maMon;
     private String tenMon;
     private String loai;
     private double gia;
+    private String trangThai;
     private String hinhAnh;
 
-    public Menu(String maMon, String tenMon, String loai, double gia, String hinhAnh) {
+    public Menu() {
+    }
+
+    public Menu(int maMon, String tenMon, String loai, double gia, String trangThai, String hinhAnh) {
         this.maMon = maMon;
         this.tenMon = tenMon;
         this.loai = loai;
         this.gia = gia;
+        this.trangThai = trangThai;
         this.hinhAnh = hinhAnh;
     }
 
-    // Getters
-    public String getMaMon() { return maMon; }
-    public String getTenMon() { return tenMon; }
-    public String getLoai() { return loai; }
-    public double getGia() { return gia; }
-    public String getHinhAnh() { return hinhAnh; }
+    public int getMaMon() {
+        return maMon;
+    }
+
+    public void setMaMon(int maMon) {
+        this.maMon = maMon;
+    }
+
+    public String getTenMon() {
+        return tenMon;
+    }
+
+    public void setTenMon(String tenMon) {
+        this.tenMon = tenMon;
+    }
+
+    public String getLoai() {
+        return loai;
+    }
+
+    public void setLoai(String loai) {
+        this.loai = loai;
+    }
+
+    public double getGia() {
+        return gia;
+    }
+
+    public void setGia(double gia) {
+        this.gia = gia;
+    }
+
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
+
+    public String getHinhAnh() {
+        return hinhAnh;
+    }
+
+    public void setHinhAnh(String hinhAnh) {
+        this.hinhAnh = hinhAnh;
+    }
+
 }
