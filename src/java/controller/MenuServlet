@@ -1,113 +1,167 @@
 package controller;
 
 import dao.MenuDAO;
+import model.Menu;
+
+import java.io.IOException;
+import java.util.List;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import model.Menu;
 
-@WebServlet(name = "MenuServlet", urlPatterns = {"/menu"})
+@WebServlet(name = "MenuServlet", urlPatterns = {
+    "/Menu",
+    "/themMenu",
+    "/suaMenu",
+    "/xoaMenu"
+})
 public class MenuServlet extends HttpServlet {
 
     MenuDAO dao = new MenuDAO();
 
     @Override
-    protected void doGet(HttpServletRequest request,
-            HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String action = request.getParameter("action");
-
-        if (action == null) {
-            action = "list";
-        }
+        String action = request.getServletPath();
 
         switch (action) {
 
-            case "add":
-
-                request.getRequestDispatcher("/WEB-INF/views/themMenu.jsp")
-                        .forward(request, response);
-
+            case "/Menu":
+                loadMenu(request, response);
                 break;
 
-            case "edit":
-
-                int id = Integer.parseInt(request.getParameter("id"));
-
-                Menu menu = dao.findById(id);
-
-                request.setAttribute("menu", menu);
-
-                request.getRequestDispatcher("/WEB-INF/views/suaMenu.jsp")
+            case "/themMenu":
+                request.getRequestDispatcher("views/themMenu.jsp")
                         .forward(request, response);
-
                 break;
 
-            case "delete":
+            case "/suaMenu":
+                showEdit(request, response);
+                break;
 
-                int maMon = Integer.parseInt(request.getParameter("id"));
-
-                dao.delete(maMon);
-
-                response.sendRedirect("menu");
-
+            case "/xoaMenu":
+                deleteMenu(request, response);
                 break;
 
             default:
-
-                ArrayList<Menu> list = dao.getAll();
-
-                request.setAttribute("listMenu", list);
-
-                request.getRequestDispatcher("/WEB-INF/views/menu.jsp")
-                        .forward(request, response);
-
+                loadMenu(request, response);
                 break;
         }
 
     }
 
     @Override
-    protected void doPost(HttpServletRequest request,
-            HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
 
-        String action = request.getParameter("action");
+        String action = request.getServletPath();
 
-        if (action.equals("insert")) {
+        switch (action) {
 
-            Menu m = new Menu();
+            case "/themMenu":
+                insertMenu(request, response);
+                break;
 
-            m.setTenMon(request.getParameter("tenMon"));
-            m.setLoai(request.getParameter("loai"));
-            m.setGia(Double.parseDouble(request.getParameter("gia")));
-            m.setTrangThai(request.getParameter("trangThai"));
-            m.setHinhAnh(request.getParameter("hinhAnh"));
-
-            dao.insert(m);
-
-        } else if (action.equals("update")) {
-
-            Menu m = new Menu();
-
-            m.setMaMon(Integer.parseInt(request.getParameter("maMon")));
-            m.setTenMon(request.getParameter("tenMon"));
-            m.setLoai(request.getParameter("loai"));
-            m.setGia(Double.parseDouble(request.getParameter("gia")));
-            m.setTrangThai(request.getParameter("trangThai"));
-            m.setHinhAnh(request.getParameter("hinhAnh"));
-
-            dao.update(m);
+            case "/suaMenu":
+                updateMenu(request, response);
+                break;
         }
 
-        response.sendRedirect("menu");
+    }
+
+    private void loadMenu(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
+
+        List<Menu> list = dao.getAll();
+
+        request.setAttribute("list", list);
+
+        request.getRequestDispatcher("views/Menu.jsp")
+                .forward(request, response);
+
+    }
+
+    private void insertMenu(HttpServletRequest request,
+            HttpServletResponse response)
+            throws IOException {
+
+        String ten = request.getParameter("tenMon");
+        String loai = request.getParameter("loai");
+        double gia = Double.parseDouble(request.getParameter("gia"));
+        String trangThai = request.getParameter("trangThai");
+        String hinh = request.getParameter("hinhAnh");
+
+        Menu m = new Menu();
+
+        m.setTenMon(ten);
+        m.setLoai(loai);
+        m.setGia(gia);
+        m.setTrangThai(trangThai);
+        m.setHinhAnh(hinh);
+
+        dao.insert(m);
+
+        response.sendRedirect("Menu");
+
+    }
+
+    private void showEdit(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
+
+        int id = Integer.parseInt(request.getParameter("id"));
+
+        Menu menu = dao.getById(id);
+
+        request.setAttribute("menu", menu);
+
+        request.getRequestDispatcher("views/suaMenu.jsp")
+                .forward(request, response);
+
+    }
+
+    private void updateMenu(HttpServletRequest request,
+            HttpServletResponse response)
+            throws IOException {
+
+        int id = Integer.parseInt(request.getParameter("maMon"));
+        String ten = request.getParameter("tenMon");
+        String loai = request.getParameter("loai");
+        double gia = Double.parseDouble(request.getParameter("gia"));
+        String trangThai = request.getParameter("trangThai");
+        String hinh = request.getParameter("hinhAnh");
+
+        Menu m = new Menu();
+
+        m.setMaMon(id);
+        m.setTenMon(ten);
+        m.setLoai(loai);
+        m.setGia(gia);
+        m.setTrangThai(trangThai);
+        m.setHinhAnh(hinh);
+
+        dao.update(m);
+
+        response.sendRedirect("Menu");
+
+    }
+
+    private void deleteMenu(HttpServletRequest request,
+            HttpServletResponse response)
+            throws IOException {
+
+        int id = Integer.parseInt(request.getParameter("id"));
+
+        dao.delete(id);
+
+        response.sendRedirect("Menu");
 
     }
 
