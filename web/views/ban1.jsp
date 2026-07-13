@@ -10,37 +10,24 @@
 <style>
     * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Arial, sans-serif; }
     body { display:flex; background:#f4f6f9; }
-
-    /* SIDEBAR */
     .sidebar { width:250px; height:100vh; background:#2d221d; color:white; position:fixed; }
     .logo { padding:25px; text-align:center; font-size: 18px; font-weight: bold; }
     .menu { margin-top:20px; }
     .menu a { display:block; padding:15px 25px; color:#bbb; text-decoration:none; transition:.3s; }
     .menu a:hover, .menu a.active { background:#423630; color:white; }
-
-    /* MAIN */
     .main { margin-left:250px; width:calc(100% - 250px); }
-    
-    /* HEADER MỚI */
     .header { height: 60px; background: white; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     .user-info { display: flex; align-items: center; gap: 15px; font-weight: 500; font-size: 14px; }
-
-    /* CONTENT */
     .content { padding: 30px; }
     .card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    
-    /* TABLE */
     table { width: 100%; border-collapse: collapse; }
     table th { background: #5d4037; color: white; padding: 15px; font-size: 14px; }
     table td { padding: 15px; border-bottom: 1px solid #eee; text-align: center; color: #333; }
-    
-    /* NÚT VÀ STATUS */
     .btn-add { background: #28a745; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-size: 14px; }
     .btn-edit { background: #ffc107; color: black; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; }
     .btn-delete { background: #dc3545; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; }
     button[type="submit"] { background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-    
     .trong { color: #28a745; font-weight: bold; }
     .dangphucvu { color: #ff9800; font-weight: bold; }
     .dathanhtoan { color: #2196f3; font-weight: bold; }
@@ -55,11 +42,21 @@
         <i class="fa-solid fa-house"></i> Trang chủ
         </a>
         <a class="active" href="ban"><i class="fa-solid fa-chair"></i> Quản lý bàn</a>
-        <a href="#"><i class="fa-solid fa-utensils"></i> Thực đơn</a>
-        <a href="#"><i class="fa-solid fa-receipt"></i> Hóa đơn</a>
-        <a href="#"><i class="fa-solid fa-users"></i> Nhân viên</a>
-        <a href="#"><i class="fa-solid fa-box"></i> Kho</a>
-        <a href="#"><i class="fa-solid fa-chart-line"></i> Thống kê</a>
+        <a href="${pageContext.request.contextPath}/views/menu.jsp">
+        <i class="fa-solid fa-utensils"></i> Thực đơn
+        </a>
+        <a href="${pageContext.request.contextPath}/views/homepage.jsp">
+            <i class="fa-solid fa-receipt"></i> Hóa đơn
+        </a>
+        <a href="${pageContext.request.contextPath}/views/nhanvien.jsp">
+            <i class="fa-solid fa-users"></i> Nhân viên
+        </a>
+        <a href="${pageContext.request.contextPath}/views/kho.jsp">
+            <i class="fa-solid fa-box"></i> Kho
+        </a>
+        <a href="${pageContext.request.contextPath}/views/ThongKeDoanhThu.jsp">
+            <i class="fa-solid fa-chart-line"></i> Thống kê
+        </a>
     </div>
 
     <div class="logout-section" style="position: absolute; bottom: 0; width: 100%;">

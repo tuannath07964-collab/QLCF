@@ -11,7 +11,7 @@ import java.sql.SQLException;
  * @author Admin
  */
 public class DBConnect {
-    public static final String HOSTNAME = "localhost";
+    public static final String HOSTNAME = "26.125.108.68";
     public static final String PORT = "1433";
     public static final String DBNAME = "QLCF1";
     public static final String USERNAME = "sa";
@@ -25,8 +25,7 @@ public class DBConnect {
     public static Connection getConnection() {
 
         // Create a variable for the connection string.
-        String connectionUrl = "jdbc:sqlserver://" + HOSTNAME + ":" + PORT + ";"
-                + "databaseName=" + DBNAME+";encrypt=false";
+        String connectionUrl = "jdbc:sqlserver://" + HOSTNAME + ":" + PORT + ";" + "databaseName=" + DBNAME + ";encrypt=true;trustServerCertificate=true;";
 
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
