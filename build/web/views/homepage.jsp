@@ -340,7 +340,7 @@ body{
             </li>
 
             <li
-                onclick="location.href='${pageContext.request.contextPath}/NhanVienServlet'">
+                onclick="location.href='${pageContext.request.contextPath}/nhanvien'">
 
                 <i class="fa-solid fa-user"></i>
 
@@ -356,8 +356,9 @@ body{
 
             </li>
 
-            <li>
-
+            <li
+                onclick="location.href='${pageContext.request.contextPath}/menu'">
+                
                 <i class="fa-solid fa-mug-saucer"></i>
 
                 Menu
@@ -382,8 +383,9 @@ body{
 
             </li>
 
-            <li>
-
+            <li
+                onclick="location.href='${pageContext.request.contextPath}/khachhang'">
+                
                 <i class="fa-solid fa-users"></i>
 
                 Khách hàng

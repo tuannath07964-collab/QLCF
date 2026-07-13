@@ -5,12 +5,20 @@
         <group>
             <file>file:/C:/Users/New/Downloads/QLCF/src/java/model/NguyenLieu.java</file>
             <file>file:/C:/Users/New/Downloads/QLCF/web/views/kho.jsp</file>
-            <file>file:/C:/Users/New/Downloads/QLCF/src/java/controller/khoServlet.java</file>
+            <file>file:/C:/Users/New/Downloads/QLCF/web/views/ThongKeDoanhThu.jsp</file>
+            <file>file:/C:/Users/New/Downloads/QLCF/web/META-INF/context.xml</file>
             <file>file:/C:/Users/New/Downloads/QLCF/web/index.html</file>
+            <file>file:/C:/Users/New/Downloads/QLCF/src/java/controller/NhanVienServlet.java</file>
+            <file>file:/C:/Users/New/Downloads/QLCF/web/views/ban2.jsp</file>
+            <file>file:/C:/Users/New/Downloads/QLCF/src/java/controller/khoServlet.java</file>
+            <file>file:/C:/Users/New/Downloads/QLCF/src/java/controller/MenuServlet.java</file>
+            <file>file:/C:/Users/New/Downloads/QLCF/web/views/menu.jsp</file>
             <file>file:/C:/Users/New/Downloads/QLCF/web/views/homepage.jsp</file>
             <file>file:/C:/Users/New/Downloads/QLCF/web/views/loginform.jsp</file>
             <file>file:/C:/Users/New/Downloads/QLCF/src/java/controller/LogoutServlet.java</file>
+            <file>file:/C:/Users/New/Downloads/QLCF/web/views/khachhang.jsp</file>
             <file>file:/C:/Users/New/Downloads/QLCF/src/java/controller/LoginServlet.java</file>
+            <file>file:/C:/Users/New/Downloads/QLCF/web/views/ban1.jsp</file>
         </group>
     </open-files>
 </project-private>
