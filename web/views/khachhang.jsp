@@ -34,15 +34,33 @@
 <div class="sidebar">
     <div class="logo">QUẢN LÝ QUÁN CAFE</div>
     <div class="menu">
-        <a href="${pageContext.request.contextPath}/views/homepage.jsp"><i class="fa-solid fa-house"></i> Trang chủ</a>
-        <a href="ban"><i class="fa-solid fa-chair"></i> Quản lý bàn</a>
-        <a href="#"><i class="fa-solid fa-utensils"></i> Thực đơn</a>
-        <a href="#"><i class="fa-solid fa-receipt"></i> Hóa đơn</a>
-        <a class="active" href="khachhang"><i class="fa-solid fa-users"></i> Quản lý khách hàng</a>
-        <a href="#"><i class="fa-solid fa-box"></i> Kho</a>
-        <a href="#"><i class="fa-solid fa-chart-line"></i> Thống kê</a>
+        <a href="${pageContext.request.contextPath}/views/homepage.jsp">
+        <i class="fa-solid fa-house"></i> Trang chủ
+        </a>
+        <a class="active" href="ban"><i class="fa-solid fa-chair"></i> Quản lý bàn</a>
+        <a href="${pageContext.request.contextPath}/views/menu.jsp">
+        <i class="fa-solid fa-utensils"></i> Thực đơn
+        </a>
+        <a href="${pageContext.request.contextPath}/views/homepage.jsp">
+            <i class="fa-solid fa-receipt"></i> Hóa đơn
+        </a>
+        <a href="${pageContext.request.contextPath}/views/nhanvien.jsp">
+            <i class="fa-solid fa-users"></i> Nhân viên
+        </a>
+        <a href="${pageContext.request.contextPath}/views/kho.jsp">
+            <i class="fa-solid fa-box"></i> Kho
+        </a>
+        <a href="${pageContext.request.contextPath}/views/ThongKeDoanhThu.jsp">
+            <i class="fa-solid fa-chart-line"></i> Thống kê
+        </a>
     </div>
-</div>
+
+    <div class="logout-section" style="position: absolute; bottom: 0; width: 100%;">
+        <a href="${pageContext.request.contextPath}/LoginServlet" style="display:block; padding:20px 25px; color:white; text-decoration:none; border-top:1px solid #423630;">
+        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+        </a>
+    </div>
+    </div>
 
 <div class="main">
     <div class="header">

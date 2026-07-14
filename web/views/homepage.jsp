@@ -392,7 +392,8 @@ body{
 
             </li>
 
-            <li>
+            <li
+                onclick="location.href='${pageContext.request.contextPath}/views/ThongKeDoanhThu.jsp'">
 
                 <i class="fa-solid fa-chart-column"></i>
 
@@ -477,7 +478,8 @@ body{
 
             </div>
 
-            <div class="card">
+            <div class="card"
+                onclick="location.href='${pageContext.request.contextPath}/ban'">
 
                 <div class="icon green">
 
@@ -499,7 +501,8 @@ body{
 
             </div>
 
-            <div class="card">
+            <div class="card"
+                 onclick="location.href='${pageContext.request.contextPath}/menu'">
 
                 <div class="icon orange">
 
@@ -566,7 +569,8 @@ body{
 
             </div>
 
-            <div class="card">
+            <div class="card"
+                 onclick="location.href='${pageContext.request.contextPath}/views/ThongKeDoanhThu.jsp'">
 
                 <div class="icon orange">
 
