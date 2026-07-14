@@ -2,8 +2,20 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%-- Kiểm tra đăng nhập --%>
+<%
+    String maNV = (String) session.getAttribute("maNV");
+    String tenNV = (String) session.getAttribute("tenNV");
+
+    if(maNV == null){
+        response.sendRedirect(request.getContextPath()+"/LoginServlet");
+        return;
+    }
+%>
+
 <!DOCTYPE html>
-<html>
+<html lang="vi">
     <head>
         <meta charset="UTF-8">
         <title>Thống kê doanh thu</title>
@@ -28,7 +40,7 @@
                 min-height: 100vh;
             }
 
-            /*================ Sidebar (Chuẩn theo ảnh) =================*/
+            /*================ Sidebar (Cố định chuẩn 260px) =================*/
             .sidebar {
                 width: 260px;
                 background: #4a372c; /* Màu nâu đậm đặc trưng */
@@ -40,6 +52,7 @@
                 height: 100vh;
                 left: 0;
                 top: 0;
+                z-index: 101;
             }
 
             .logo {
@@ -64,6 +77,7 @@
                 flex-direction: column;
                 flex: 1;
                 padding-top: 10px;
+                overflow-y: auto;
             }
 
             .menu a {
@@ -86,6 +100,8 @@
                 background: rgba(255, 255, 255, 0.1);
                 color: #ffffff;
                 font-weight: 500;
+                border-left: 4px solid #ffffff;
+                padding-left: 20px;
             }
 
             .menu i {
@@ -99,15 +115,39 @@
                 padding: 18px 24px;
             }
 
-            /*================ Main Content Layout =================*/
+            .logout-btn a {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                color: #cfc9c3;
+                text-decoration: none;
+                font-size: 16px;
+                transition: color 0.2s;
+            }
+
+            .logout-btn a:hover {
+                color: #ffffff;
+            }
+
+            /*================ Main Content Layout (Sửa triệt để lỗi nuốt click) =================*/
             .main {
                 flex: 1;
-                margin-left: 260px; /* Đẩy nội dung tránh sidebar fixed */
+                margin-left: 260px; /* Đẩy toàn bộ khối nội dung sang phải để CHỪA CHỖ cho Sidebar */
+                margin-top: 65px;   /* Đẩy toàn bộ khối nội dung xuống dưới để CHỪA CHỖ cho Topbar */
+                position: relative; /* Tạo ngữ cảnh hiển thị riêng biệt */
+                z-index: 1;         /* Nằm dưới Sidebar và Topbar */
+                min-height: calc(100vh - 65px);
                 display: flex;
                 flex-direction: column;
             }
 
-            /*================ Topbar (Chuẩn theo ảnh) =================*/
+            /*================ Vùng chứa các ô thống kê và bảng =================*/
+            .content {
+                padding: 35px;
+                position: relative;
+                z-index: 2; /* Đảm bảo các ô chức năng và bảng nổi lên trên, bấm được bình thường */
+            }
+            /*================ Topbar (Đã sửa lỗi đè màn hình) =================*/
             .topbar {
                 height: 65px;
                 background: #ffffff;
@@ -119,8 +159,25 @@
                 position: fixed;
                 top: 0;
                 right: 0;
-                left: 260px;
-                z-index: 100;
+                left: 260px; /* Chừa khoảng trống đúng bằng chiều rộng Sidebar */
+                width: calc(100% - 260px); /* Khống chế chiều rộng tuyệt đối không cho tràn ra ngoài */
+                z-index: 99; /* Để z-index của topbar nhỏ hơn sidebar */
+                pointer-events: auto; /* Chỉ nhận tương tác trong vùng hiển thị thực tế */
+            }
+
+            /*================ Sidebar (Đảm bảo luôn nổi lên trên cùng) =================*/
+            .sidebar {
+                width: 260px;
+                background: #4a372c;
+                color: #e0dcd8;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                position: fixed;
+                height: 100vh;
+                left: 0;
+                top: 0;
+                z-index: 101; /* z-index lớn hơn topbar để sidebar luôn nổi lên trên, dễ click */
             }
 
             .user-info {
@@ -138,6 +195,25 @@
                 color: #4a372c;
             }
 
+            .notification {
+                position: relative;
+                font-size: 20px;
+                color: #555;
+                cursor: pointer;
+            }
+
+            .notification .badge {
+                position: absolute;
+                top: -5px;
+                right: -8px;
+                background: #e74c3c;
+                color: white;
+                font-size: 11px;
+                padding: 2px 6px;
+                border-radius: 50%;
+                font-weight: 600;
+            }
+
             /*================ Content Area =================*/
             .content {
                 padding: 35px;
@@ -145,6 +221,9 @@
             }
 
             .title-section {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
                 margin-bottom: 30px;
             }
 
@@ -160,7 +239,24 @@
                 font-size: 15px;
             }
 
-            /*================ Summary Cards (Chuẩn vòng tròn Pastel) =================*/
+            .back-btn {
+                text-decoration: none;
+                background: #4a372c;
+                color: white;
+                padding: 10px 18px;
+                border-radius: 8px;
+                font-size: 14px;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: background 0.2s;
+            }
+
+            .back-btn:hover {
+                background: #362820;
+            }
+
+            /*================ Summary Cards (Pastel Circle) =================*/
             .summary-grid {
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
@@ -186,7 +282,6 @@
                 box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
             }
 
-            /* Bọc icon hình tròn màu pastel theo ảnh */
             .icon-wrapper {
                 width: 48px;
                 height: 48px;
@@ -197,21 +292,33 @@
                 font-size: 20px;
             }
 
-            /* Các mã màu pastel tương ứng từng loại dữ liệu */
-            .bg-blue { background-color: #e8f0fe; color: #1a73e8; }
-            .bg-green { background-color: #e6f4ea; color: #137333; }
-            .bg-orange { background-color: #fce8e6; color: #c5221f; }
-            .bg-purple { background-color: #f3e5f5; color: #8e24aa; }
+            /* Pastel Colors */
+            .bg-blue {
+                background-color: #e8f0fe;
+                color: #1a73e8;
+            }
+            .bg-green {
+                background-color: #e6f4ea;
+                color: #137333;
+            }
+            .bg-orange {
+                background-color: #fce8e6;
+                color: #c5221f;
+            }
+            .bg-purple {
+                background-color: #f3e5f5;
+                color: #8e24aa;
+            }
 
             .stat-info h3 {
-                font-size: 16px;
+                font-size: 15px;
                 font-weight: 600;
-                color: #222222;
+                color: #666666;
                 margin-bottom: 6px;
             }
 
             .stat-info p {
-                font-size: 22px;
+                font-size: 24px;
                 font-weight: 700;
                 color: #4a372c;
             }
@@ -222,14 +329,26 @@
                 border-radius: 12px;
                 padding: 25px;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+                margin-bottom: 25px;
             }
 
             .filter-form {
                 display: flex;
                 gap: 12px;
-                margin-bottom: 25px;
                 flex-wrap: wrap;
                 align-items: center;
+            }
+
+            .filter-group {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .filter-group label {
+                font-size: 13px;
+                font-weight: 600;
+                color: #666;
             }
 
             .filter-form input[type="date"],
@@ -242,6 +361,7 @@
                 background-color: #ffffff;
                 outline: none;
                 transition: border-color 0.2s;
+                height: 40px;
             }
 
             .filter-form input[type="date"]:focus,
@@ -253,14 +373,16 @@
                 background: #4a372c;
                 color: #ffffff;
                 border: none;
-                padding: 10px 20px;
+                padding: 0 20px;
+                height: 40px;
                 border-radius: 6px;
                 font-size: 14px;
                 font-weight: 500;
                 cursor: pointer;
-                display: flex;
+                display: inline-flex;
                 align-items: center;
                 gap: 8px;
+                margin-top: 21px; /* Cân bằng với labels của các filter-group */
                 transition: background 0.2s;
             }
 
@@ -307,173 +429,353 @@
                 color: #137333;
                 font-weight: 600;
             }
+
+            .empty {
+                text-align: center;
+                padding: 30px;
+                color: #999;
+                font-style: italic;
+            }
+
+            /*================ Table Footer =================*/
+            .table-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 20px;
+                border-top: 1px solid #eae8e4;
+                margin-top: 15px;
+            }
+
+            .table-info {
+                color: #666;
+                font-size: 14px;
+            }
+
+            .pagination {
+                display: flex;
+                gap: 6px;
+            }
+
+            .page-btn {
+                border: 1px solid #dddcd8;
+                background: #fff;
+                width: 34px;
+                height: 34px;
+                border-radius: 6px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                color: #555;
+                transition: all 0.2s;
+            }
+
+            .page-btn:hover {
+                border-color: #4a372c;
+                color: #4a372c;
+            }
+
+            .active-page {
+                background: #4a372c;
+                color: white;
+                border-color: #4a372c;
+            }
+
+            .active-page:hover {
+                color: white;
+            }
+
+            /*================ Responsive =================*/
+            @media(max-width: 1200px){
+                .summary-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            @media(max-width: 768px){
+                .sidebar {
+                    display: none;
+                }
+                .main {
+                    margin-left: 0;
+                }
+                .topbar {
+                    left: 0;
+                }
+                .summary-grid {
+                    grid-template-columns: 1fr;
+                }
+                .filter-form {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+                .btn-submit {
+                    margin-top: 10px;
+                }
+            }
         </style>
     </head>
     <body>
         <div class="wrapper">
-            
-            <!-- Left Sidebar -->
+
+            <!-- ==========================================
+                    LEFT SIDEBAR
+            =========================================== -->
             <div class="sidebar">
                 <div class="menu">
                     <div class="logo">
                         <i class="fa-solid fa-mug-hot"></i>
                         <span>Quản lý quán cafe</span>
                     </div>
-                    <a href="${pageContext.request.contextPath}/TrangChuServlet"><i class="fa-solid fa-house"></i> Trang chủ</a>
-                    <a href="${pageContext.request.contextPath}/NhanVienServlet"><i class="fa-solid fa-user"></i> Nhân viên</a>
-                    <a href="${pageContext.request.contextPath}/HoaDonServlet"><i class="fa-solid fa-file-invoice"></i> Hóa đơn</a>
-                    <a href="${pageContext.request.contextPath}/MenuServlet"><i class="fa-solid fa-mug-saucer"></i> Menu</a>
-                    <a href="${pageContext.request.contextPath}/BanServlet"><i class="fa-solid fa-chair"></i> Bàn</a>
-                    <a href="${pageContext.request.contextPath}/KhoServlet"><i class="fa-solid fa-box"></i> Kho</a>
-                    <a href="${pageContext.request.contextPath}/KhachHangServlet"><i class="fa-solid fa-users"></i> Khách hàng</a>
-                    <a href="${pageContext.request.contextPath}/ThongKeServlet" class="active"><i class="fa-solid fa-chart-line"></i> Thống kê</a>
-                    <a href="${pageContext.request.contextPath}/CaiDatServlet"><i class="fa-solid fa-gear"></i> Cài đặt</a>
+
+                    <a href="${pageContext.request.contextPath}/views/homepage.jsp">
+                        <i class="fa-solid fa-house"></i> Trang chủ
+                    </a>
+
+                    <a href="#">
+                        <i class="fa-solid fa-user"></i> Nhân viên
+                    </a>
+
+                    <a href="#">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
+                    </a>
+
+                    <a href="#">
+                        <i class="fa-solid fa-mug-hot"></i> Menu
+                    </a>
+
+                    <a href="#">
+                        <i class="fa-solid fa-chair"></i> Bàn
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/KhoServlet">
+                        <i class="fa-solid fa-box"></i> Kho
+                    </a>
+
+                    <a href="#">
+                        <i class="fa-solid fa-users"></i> Khách hàng
+                    </a>
+
+                    <a href="${pageContext.request.contextPath}/ThongKeServlet" class="active">
+                        <i class="fa-solid fa-chart-simple"></i> Thống kê doanh thu
+                    </a>
+
+                    <a href="#">
+                        <i class="fa-solid fa-gear"></i> Cài đặt
+                    </a>
                 </div>
+
                 <div class="logout-btn">
-                    <a href="${pageContext.request.contextPath}/DangXuatServlet" style="color: #cfc9c3; text-decoration: none; display: flex; align-items: center; gap: 14px;">
+                    <a href="${pageContext.request.contextPath}/LogoutServlet">
                         <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
                     </a>
                 </div>
             </div>
 
-            <!-- Right Main Pane -->
+            <!-- ==========================================
+                    MAIN CONTENT
+            =========================================== -->
             <div class="main">
-                
-                <!-- Topbar Header (Đã dọn lỗi lặp thẻ và tối ưu hiển thị) -->
-                <div class="topbar">
+
+                <!-- TOPBAR -->
+                <header class="topbar">
                     <div class="user-info">
                         <i class="fa-solid fa-circle-user"></i>
-                        <span>
-                            <c:choose>
-                                <c:when test="${not empty sessionScope.user}">
-                                    <c:out value="${not empty sessionScope.user.maNV ? sessionScope.user.maNV : sessionScope.user.username}" /> - <c:out value="${sessionScope.user.hoTen}" />
-                                </c:when>
-                                <c:otherwise>
-                                    Khách ghé thăm
-                                </c:otherwise>
-                            </c:choose>
-                        </span>
+                        <span><%= maNV %> - <%= tenNV %></span>
                     </div>
-                </div>
+                    <div class="notification" style="margin-left: 25px;">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                </header>
 
-                <!-- Main Content Area -->
+                <!-- CONTENT -->
                 <div class="content">
+
+                    <!-- PAGE TITLE -->
                     <div class="title-section">
-                        <div class="title">Thống kê doanh thu</div>
-                        <div class="sub">Xem báo cáo doanh thu theo ngày, tháng, năm.</div>
+                        <div>
+                            <h1 class="title">Thống kê doanh thu</h1>
+                            <p class="sub">Theo dõi báo cáo, kiểm soát dòng tiền của quán</p>
+                        </div>
+                        <a href="${pageContext.request.contextPath}/views/homepage.jsp" class="back-btn">
+                            <i class="fa-solid fa-arrow-left"></i> Quay lại Trang chủ
+                        </a>
                     </div>
 
-                    <!-- Summary Grid Layout (Pastel Circles) -->
+                    <!-- ==========================================
+                            SUMMARY CARDS (Pastel Circle)
+                    =========================================== -->
                     <div class="summary-grid">
+
+                        <!-- Card 1: Tổng hóa đơn -->
                         <div class="stat-box">
                             <div class="icon-wrapper bg-blue">
-                                <i class="fa-solid fa-calendar-day"></i>
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
                             </div>
                             <div class="stat-info">
-                                <h3>Doanh thu hôm nay</h3>
-                                <p><fmt:formatNumber value="${doanhThuNgay}" pattern="#,##0"/>đ</p>
+                                <h3>Tổng số đơn</h3>
+                                <p>${fn:length(dsHoaDon)}</p>
                             </div>
                         </div>
+
+                        <!-- Card 2: Tổng doanh thu (Sử dụng biến từ Servlet tính sẵn hoặc tính bằng loop) -->
+                        <c:set var="tongDoanhThu" value="0" />
+                        <c:forEach var="hd" items="${dsHoaDon}">
+                            <c:set var="tongDoanhThu" value="${tongDoanhThu + hd.tongTien}" />
+                        </c:forEach>
 
                         <div class="stat-box">
                             <div class="icon-wrapper bg-green">
-                                <i class="fa-solid fa-calendar-days"></i>
+                                <i class="fa-solid fa-money-bill-trend-up"></i>
                             </div>
                             <div class="stat-info">
-                                <h3>Doanh thu tháng</h3>
-                                <p><fmt:formatNumber value="${doanhThuThang}" pattern="#,##0"/>đ</p>
+                                <h3>Tổng doanh thu</h3>
+                                <p>
+                                    <fmt:formatNumber value="${tongDoanhThu}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                </p>
                             </div>
                         </div>
 
-                        <div class="stat-box">
-                            <div class="icon-wrapper bg-orange">
-                                <i class="fa-solid fa-chart-bar"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Doanh thu năm</h3>
-                                <p><fmt:formatNumber value="${doanhThuNam}" pattern="#,##0"/>đ</p>
-                            </div>
-                        </div>
-
+                        <!-- Card 3: Đơn hàng hoàn thành -->
+                        <c:set var="hoanThanh" value="0"/>
+                        <c:forEach var="hd" items="${dsHoaDon}">
+                            <c:if test="${hd.trangThai == 'Đã thanh toán' || hd.trangThai == 'Hoàn thành'}">
+                                <c:set var="hoanThanh" value="${hoanThanh + 1}"/>
+                            </c:if>
+                        </c:forEach>
                         <div class="stat-box">
                             <div class="icon-wrapper bg-purple">
-                                <i class="fa-solid fa-file-receipt"></i>
+                                <i class="fa-solid fa-circle-check"></i>
                             </div>
                             <div class="stat-info">
-                                <h3>Số hóa đơn</h3>
-                                <p>${tongHoaDon != null ? tongHoaDon : 0}</p>
+                                <h3>Đã hoàn thành</h3>
+                                <p>${hoanThanh} đơn</p>
                             </div>
                         </div>
+
+                        <!-- Card 4: Đơn chờ xử lý / Hủy bỏ -->
+                        <c:set var="choXuLy" value="0"/>
+                        <c:forEach var="hd" items="${dsHoaDon}">
+                            <c:if test="${hd.trangThai == 'Chờ thanh toán' || hd.trangThai == 'Chờ xử lý'}">
+                                <c:set var="choXuLy" value="${choXuLy + 1}"/>
+                            </c:if>
+                        </c:forEach>
+                        <div class="stat-box">
+                            <div class="icon-wrapper bg-orange">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Chờ xử lý</h3>
+                                <p>${choXuLy} đơn</p>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <!-- Filter Form and Table -->
+                    <!-- ==========================================
+                            FILTER FORM CARD
+                    =========================================== -->
                     <div class="card">
-                        <form action="${pageContext.request.contextPath}/ThongKeServlet" method="get" class="filter-form">
-                            <input type="date" name="fromDate" value="${param.fromDate}">
-                            <input type="date" name="toDate" value="${param.toDate}">
-                            <select name="type">
-                                <option value="day" ${empty param.type || param.type eq 'day' ? 'selected' : ''}>Theo ngày</option>
-                                <option value="month" ${param.type eq 'month' ? 'selected' : ''}>Theo tháng</option>
-                                <option value="year" ${param.type eq 'year' ? 'selected' : ''}>Theo năm</option>
-                            </select>
+                        <form action="${pageContext.request.contextPath}/ThongKeServlet" method="GET" class="filter-form">
 
-                            <button class="btn-submit" type="submit">
-                                <i class="fa fa-search"></i> Thống kê
+                            <div class="filter-group">
+                                <label for="tuNgay">Từ ngày</label>
+                                <input type="date" id="tuNgay" name="tuNgay" value="${param.tuNgay}">
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="denNgay">Đến ngày</label>
+                                <input type="date" id="denNgay" name="denNgay" value="${param.denNgay}">
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="phuongThuc">Phương thức thanh toán</label>
+                                <select id="phuongThuc" name="phuongThuc">
+                                    <option value="">Tất cả</option>
+                                    <option value="TienMat" ${param.phuongThuc == 'TienMat' ? 'selected' : ''}>Tiền mặt</option>
+                                    <option value="ChuyenKhoan" ${param.phuongThuc == 'ChuyenKhoan' ? 'selected' : ''}>Chuyển khoản</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn-submit">
+                                <i class="fa-solid fa-filter"></i> Lọc dữ liệu
                             </button>
                         </form>
+                    </div>
 
+                    <!-- ==========================================
+                            DATA TABLE
+                    =========================================== -->
+                    <div class="card" style="padding-top: 15px;">
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>
-                                            <c:choose>
-                                                <c:when test="${param.type eq 'month'}">Tháng</c:when>
-                                                <c:when test="${param.type eq 'year'}">Năm</c:when>
-                                                <c:otherwise>Ngày</c:otherwise>
-                                            </c:choose>
-                                        </th>
-                                        <th>Số hóa đơn</th>
-                                        <th>Khách hàng</th>
-                                        <th>Doanh thu</th>
-                                        <th>Lợi nhuận</th>
+                                        <th>Mã hóa đơn</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Thu ngân (Nhân viên)</th>
+                                        <th>Phương thức</th>
+                                        <th>Trạng thái</th>
+                                        <th style="text-align: right;">Tổng tiền</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <c:if test="${empty listThongKe}">
-                                        <tr>
-                                            <td colspan="5" style="text-align: center; color: #888; padding: 30px;">Không có dữ liệu thống kê.</td>
-                                        </tr>
-                                    </c:if>
-                                    <c:forEach items="${listThongKe}" var="tk">
-                                        <tr>
-                                            <td class="txt-bold">
-                                                <c:choose>
-                                                    <c:when test="${param.type eq 'month'}">
-                                                        <fmt:formatDate value="${tk.ngay}" pattern="MM/yyyy"/>
-                                                    </c:when>
-                                                    <c:when test="${param.type eq 'year'}">
-                                                        <fmt:formatDate value="${tk.ngay}" pattern="yyyy"/>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <fmt:formatDate value="${tk.ngay}" pattern="dd/MM/yyyy"/>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </td>
-                                            <td>${tk.soHoaDon}</td>
-                                            <td>${tk.soKhach}</td>
-                                            <td class="txt-bold"><fmt:formatNumber value="${tk.doanhThu}" pattern="#,##0"/> đ</td>
-                                            <td class="txt-profit"><fmt:formatNumber value="${tk.loiNhuan}" pattern="#,##0"/> đ</td>
-                                        </tr>
-                                    </c:forEach>
+                                    <c:choose>
+                                        <%-- Trường hợp có dữ liệu --%>
+                                        <c:when test="${not empty dsHoaDon}">
+                                            <c:forEach var="hd" items="${dsHoaDon}">
+                                                <tr>
+                                                    <td class="txt-bold">${hd.maHD}</td>
+                                                    <td>
+                                                        <fmt:formatDate value="${hd.ngayTao}" pattern="dd/MM/yyyy HH:mm"/>
+                                                    </td>
+                                                    <td>${hd.tenNV}</td>
+                                                    <td>${hd.phuongThucTT}</td>
+                                                    <td>
+                                                        <span class="txt-bold" style="color: ${hd.trangThai == 'Đã thanh toán' || hd.trangThai == 'Hoàn thành' ? '#137333' : '#e67e22'}">
+                                                            ${hd.trangThai}
+                                                        </span>
+                                                    </td>
+                                                    <td class="txt-profit" style="text-align: right;">
+                                                        <fmt:formatNumber value="${hd.tongTien}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                                    </td>
+                                                </tr>
+                                            </c:forEach>
+                                        </c:when>
+
+                                        <%-- Trường hợp danh sách trống --%>
+                                        <c:otherwise>
+                                            <tr>
+                                                <td colspan="6" class="empty">Không tìm thấy dữ liệu hóa đơn nào phù hợp.</td>
+                                            </tr>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Footer/Pagination -->
+                        <div class="table-footer">
+                            <div class="table-info">
+                                Hiển thị ${fn:length(dsHoaDon)} hóa đơn
+                            </div>
+                            <div class="pagination">
+                                <button class="page-btn">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                                <button class="page-btn active-page">1</button>
+                                <button class="page-btn">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
             </div>
-
         </div>
     </body>
 </html>
