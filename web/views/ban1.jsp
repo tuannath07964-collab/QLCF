@@ -4,84 +4,69 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Quản lý bàn</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-    body { display:flex; background:#f4f6f9; }
-    .sidebar { width:250px; height:100vh; background:#2d221d; color:white; position:fixed; }
-    .logo { padding:25px; text-align:center; font-size: 18px; font-weight: bold; }
-    .menu { margin-top:20px; }
-    .menu a { display:block; padding:15px 25px; color:#bbb; text-decoration:none; transition:.3s; }
-    .menu a:hover, .menu a.active { background:#423630; color:white; }
-    .main { margin-left:250px; width:calc(100% - 250px); }
-    .header { height: 60px; background: white; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .user-info { display: flex; align-items: center; gap: 15px; font-weight: 500; font-size: 14px; }
-    .content { padding: 30px; }
-    .card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    table th { background: #5d4037; color: white; padding: 15px; font-size: 14px; }
-    table td { padding: 15px; border-bottom: 1px solid #eee; text-align: center; color: #333; }
-    .btn-add { background: #28a745; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-size: 14px; }
-    .btn-edit { background: #ffc107; color: black; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; }
-    .btn-delete { background: #dc3545; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; }
-    button[type="submit"] { background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-    .trong { color: #28a745; font-weight: bold; }
-    .dangphucvu { color: #ff9800; font-weight: bold; }
-    .dathanhtoan { color: #2196f3; font-weight: bold; }
-</style>
+    <meta charset="UTF-8">
+    <title>Quản lý bàn</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { display: flex; height: 100vh; background: #f7f5f2; }
+
+        /* Sidebar */
+        .sidebar { width: 250px; background: #4b3a2f; color: #fff; display: flex; flex-direction: column; justify-content: space-between; }
+        .logo { padding: 22px; font-size: 20px; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,.1); }
+        .menu { list-style: none; }
+        .menu li { padding: 16px 22px; cursor: pointer; display: flex; align-items: center; gap: 15px; transition: .3s; }
+        .menu li:hover, .menu li.active { background: #6b5648; }
+        .logout { padding: 20px; color: white; text-decoration: none; border-top: 1px solid rgba(255,255,255,.1); display: flex; gap: 15px; align-items: center; }
+        .logout:hover { background: #6b5648; }
+
+        /* Main Content */
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .header { padding: 20px 30px; background: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .content { padding: 30px; overflow-y: auto; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        /* Table */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { color: #555; background: #fcfcfc; }
+        .btn-add { background: #1b9c5a; color: white; padding: 8px 15px; text-decoration: none; border-radius: 6px; }
+        .btn-edit { color: #1976d2; text-decoration: none; margin-right: 15px; }
+        .btn-delete { color: #d81b60; text-decoration: none; }
+        table form { display: flex; gap: 10px; align-items: center; }
+    </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="logo">QUẢN LÝ QUÁN CAFE</div>
-    <div class="menu">
-        <a href="${pageContext.request.contextPath}/views/homepage.jsp">
-        <i class="fa-solid fa-house"></i> Trang chủ
-        </a>
-        <a class="active" href="ban"><i class="fa-solid fa-chair"></i> Quản lý bàn</a>
-        <a href="${pageContext.request.contextPath}/views/menu.jsp">
-        <i class="fa-solid fa-utensils"></i> Thực đơn
-        </a>
-        <a href="${pageContext.request.contextPath}/views/homepage.jsp">
-            <i class="fa-solid fa-receipt"></i> Hóa đơn
-        </a>
-        <a href="${pageContext.request.contextPath}/views/nhanvien.jsp">
-            <i class="fa-solid fa-users"></i> Nhân viên
-        </a>
-        <a href="${pageContext.request.contextPath}/views/kho.jsp">
-            <i class="fa-solid fa-box"></i> Kho
-        </a>
-        <a href="${pageContext.request.contextPath}/views/ThongKeDoanhThu.jsp">
-            <i class="fa-solid fa-chart-line"></i> Thống kê
-        </a>
+<aside class="sidebar">
+    <div>
+        <div class="logo"><i class="fa-solid fa-mug-hot"></i> QUẢN LÝ CAFE</div>
+        <ul class="menu">
+            <li onclick="location.href='UI.jsp'"><i class="fa-solid fa-house"></i> Trang chủ</li>
+            <li onclick="location.href='nhanvien'"><i class="fa-solid fa-user"></i> Nhân viên</li>
+            <li onclick="location.href='hoadon'"><i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn</li>
+            <li onclick="location.href='menu'"><i class="fa-solid fa-mug-saucer"></i> Menu</li>
+            <li class="active" onclick="location.href='ban'"><i class="fa-solid fa-chair"></i> Bàn</li>
+            <li onclick="location.href='KhoServlet'"><i class="fa-solid fa-box"></i> Kho</li>
+            <li onclick="location.href='khachhang'"><i class="fa-solid fa-users"></i> Khách hàng</li>
+            <li onclick="location.href='ThongKeServlet'"><i class="fa-solid fa-chart-column"></i> Thống kê</li>
+        </ul>
     </div>
-
-    <div class="logout-section" style="position: absolute; bottom: 0; width: 100%;">
-        <a href="${pageContext.request.contextPath}/LoginServlet" style="display:block; padding:20px 25px; color:white; text-decoration:none; border-top:1px solid #423630;">
-        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-        </a>
-    </div>
-    </div>
+    <a class="logout" href="LogoutServlet"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+</aside>
 
 <div class="main">
     <div class="header">
         <h3>Quản lý bàn</h3>
-        <div class="user-info">
-            <span>TH08495 - Trần Dương Phương Hiếu</span>
-            <i class="fa-solid fa-bell"></i>
-        </div>
+        <div class="user-info">TH08495 - Trần Dương Phương Hiếu <i class="fa-solid fa-bell"></i></div>
     </div>
-
     <div class="content">
         <div class="card">
             <div class="top">
                 <h3>Danh sách bàn</h3>
                 <a class="btn-add" href="ban?action=new"><i class="fa-solid fa-plus"></i> Thêm bàn</a>
             </div>
-
             <table>
                 <tr>
                     <th>Mã bàn</th>
@@ -94,17 +79,13 @@
                     ArrayList<BanAn> list = (ArrayList<BanAn>) request.getAttribute("listBan");
                     if (list != null) {
                         for (BanAn ban : list) {
-                            String cssClass = "";
-                            if ("Trống".equals(ban.getTrangThai())) cssClass = "trong";
-                            else if ("Đang phục vụ".equals(ban.getTrangThai())) cssClass = "dangphucvu";
-                            else if ("Đã thanh toán".equals(ban.getTrangThai())) cssClass = "dathanhtoan";
                 %>
                 <tr>
                     <td><%= ban.getMaBan() %></td>
                     <td><%= ban.getTenBan() %></td>
-                    <td class="<%= cssClass %>"><%= ban.getTrangThai() %></td>
+                    <td><%= ban.getTrangThai() %></td>
                     <td>
-                        <form action="ban" method="post" style="display:flex; justify-content:center; gap:5px;">
+                        <form action="ban" method="post">
                             <input type="hidden" name="action" value="updateStatus">
                             <input type="hidden" name="maBan" value="<%= ban.getMaBan() %>">
                             <select name="trangThai">
@@ -112,7 +93,7 @@
                                 <option value="Đang phục vụ" <%= "Đang phục vụ".equals(ban.getTrangThai()) ? "selected" : "" %>>Đang phục vụ</option>
                                 <option value="Đã thanh toán" <%= "Đã thanh toán".equals(ban.getTrangThai()) ? "selected" : "" %>>Đã thanh toán</option>
                             </select>
-                            <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Lưu</button>
+                            <button type="submit">Lưu</button>
                         </form>
                     </td>
                     <td>

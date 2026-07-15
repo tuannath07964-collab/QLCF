@@ -7,60 +7,60 @@
 <title>Quản lý khách hàng</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
-    /* Bạn hãy để nguyên CSS cũ từ file Quản lý bàn vào đây */
-    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-    body { display:flex; background:#f4f6f9; }
-    .sidebar { width:250px; height:100vh; background:#2d221d; color:white; position:fixed; }
-    .logo { padding:25px; text-align:center; font-size: 18px; font-weight: bold; }
-    .menu { margin-top:20px; }
-    .menu a { display:block; padding:15px 25px; color:#bbb; text-decoration:none; transition:.3s; }
-    .menu a:hover, .menu a.active { background:#423630; color:white; }
-    .main { margin-left:250px; width:calc(100% - 250px); }
-    .header { height: 60px; background: white; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .user-info { display: flex; align-items: center; gap: 15px; font-weight: 500; font-size: 14px; }
-    .content { padding: 30px; }
-    .card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
+    body { display:flex; height:100vh; background:#f7f5f2; }
+
+    /* Sidebar */
+    .sidebar { width: 250px; background: #4b3a2f; color: #fff; display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; }
+    .logo { padding: 22px; font-size: 20px; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .menu { margin-top: 20px; list-style: none; }
+    .menu a { display: flex; align-items: center; gap: 15px; padding: 16px 25px; color: white; text-decoration: none; transition: .3s; }
+    .menu a:hover, .menu a.active { background: #6b5648; }
+    .logout-section { padding: 20px 25px; border-top: 1px solid #423630; }
+    .logout-section a { color: white; text-decoration: none; display: flex; align-items: center; gap: 15px; }
+
+    /* Main Content */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .header { height: 70px; background: white; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .user-info { display: flex; align-items: center; gap: 15px; font-weight: 600; font-size: 14px; }
+    .content { padding: 30px; overflow-y: auto; }
+    .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
     .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    table th { background: #5d4037; color: white; padding: 15px; font-size: 14px; }
-    table td { padding: 15px; border-bottom: 1px solid #eee; text-align: center; color: #333; }
-    .btn-add { background: #28a745; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-size: 14px; }
-    .btn-edit { background: #ffc107; color: black; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; }
-    .btn-delete { background: #dc3545; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+    th { color: #555; background: #fcfcfc; }
+    
+    /* Buttons */
+    .btn-add { background: #1b9c5a; color: white; padding: 8px 15px; text-decoration: none; border-radius: 6px; display: inline-block; }
+    .btn-edit { color: #1976d2; text-decoration: none; margin-right: 15px; font-weight: bold; }
+    .btn-delete { color: #d81b60; text-decoration: none; font-weight: bold; }
 </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="logo">QUẢN LÝ QUÁN CAFE</div>
-    <div class="menu">
-        <a href="${pageContext.request.contextPath}/views/homepage.jsp">
-        <i class="fa-solid fa-house"></i> Trang chủ
-        </a>
-        <a class="active" href="ban"><i class="fa-solid fa-chair"></i> Quản lý bàn</a>
-        <a href="${pageContext.request.contextPath}/views/menu.jsp">
-        <i class="fa-solid fa-utensils"></i> Thực đơn
-        </a>
-        <a href="${pageContext.request.contextPath}/views/homepage.jsp">
-            <i class="fa-solid fa-receipt"></i> Hóa đơn
-        </a>
-        <a href="${pageContext.request.contextPath}/views/nhanvien.jsp">
-            <i class="fa-solid fa-users"></i> Nhân viên
-        </a>
-        <a href="${pageContext.request.contextPath}/views/kho.jsp">
-            <i class="fa-solid fa-box"></i> Kho
-        </a>
-        <a href="${pageContext.request.contextPath}/views/ThongKeDoanhThu.jsp">
-            <i class="fa-solid fa-chart-line"></i> Thống kê
-        </a>
+    <div>
+        <div class="logo"><i class="fa-solid fa-mug-hot"></i> QUẢN LÝ CAFE</div>
+        <div class="menu">
+            <a href="${pageContext.request.contextPath}/views/homepage.jsp"><i class="fa-solid fa-house"></i> Trang chủ</a>
+            <a href="ban"><i class="fa-solid fa-chair"></i> Quản lý bàn</a>
+            <a href="${pageContext.request.contextPath}/views/menu.jsp"><i class="fa-solid fa-utensils"></i> Thực đơn</a>
+            <a href="${pageContext.request.contextPath}/views/homepage.jsp"><i class="fa-solid fa-receipt"></i> Hóa đơn</a>
+            <a href="${pageContext.request.contextPath}/views/nhanvien.jsp"><i class="fa-solid fa-users"></i> Nhân viên</a>
+            <a href="${pageContext.request.contextPath}/views/kho.jsp"><i class="fa-solid fa-box"></i> Kho</a>
+            <a class="active" href="khachhang"><i class="fa-solid fa-users"></i> Khách hàng</a>
+            <a href="${pageContext.request.contextPath}/views/ThongKeDoanhThu.jsp"><i class="fa-solid fa-chart-line"></i> Thống kê</a>
+        </div>
     </div>
 
-    <div class="logout-section" style="position: absolute; bottom: 0; width: 100%;">
-        <a href="${pageContext.request.contextPath}/LoginServlet" style="display:block; padding:20px 25px; color:white; text-decoration:none; border-top:1px solid #423630;">
-        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+    <div class="logout-section">
+        <a href="${pageContext.request.contextPath}/LoginServlet">
+            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
         </a>
     </div>
-    </div>
+</div>
 
 <div class="main">
     <div class="header">
