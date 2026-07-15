@@ -592,7 +592,8 @@ body{
 
             </div>
 
-            <div class="card">
+            <div class="card"
+                 onclick="location.href='${pageContext.request.contextPath}/khachhang'">
 
                 <div class="icon pink">
 

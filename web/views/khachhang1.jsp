@@ -135,7 +135,7 @@
             <div class="content">
                 <div class="card">
                     <form action="khachhang" method="post">
-                        <input type="hidden" name="action" value="${action == 'edit' ? 'update' : 'save'}">
+                        <input type="hidden" name="action" value="${action == 'edit' ? 'update' : 'insert'}">
 
                         <div class="form-group">
                             <label>Mã KH:</label>
