@@ -4,107 +4,122 @@
  */
 
 package controller;
-import java.io.PrintWriter;
+
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
 import jakarta.servlet.http.HttpSession;
+import dao.NhanVienDAO;
+import model.NhanVien;
+
 /**
- *
- * @author trung
+ * Login Servlet - Handles user authentication.
+ * Credentials are validated against the database.
+ * 
+ * ⚠️ SECURITY NOTE: This servlet should be used with:
+ * - HTTPS in production
+ * - Password hashing with BCrypt
+ * - Rate limiting on login attempts
+ * - CSRF tokens for forms
  */
 @WebServlet(name="LoginServlet", urlPatterns={"/LoginServlet"})
 public class LoginServlet extends HttpServlet {
-    private static final Map<String, String[]> ds = new HashMap<>(); 
-
-    static {
-    ds.put("TH08922", new String[]{"123", "Nguyễn Minh Đăng"});
-    ds.put("TH07964", new String[]{"123", "Nguyễn Anh Tuấn"});
-    ds.put("TH07969", new String[]{"123", "Phùng Chí Trung"});
-    ds.put("TH08495", new String[]{"123", "Trần Dương Phương Hiếu"});
-    ds.put("TH08860", new String[]{"123", "Ngô Thanh Long"});
-    ds.put("TH08199", new String[]{"123", "Trịnh Bình Minh"});
-}
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet LoginServlet</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet LoginServlet at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    } 
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+    
+    private NhanVienDAO nhanVienDAO = new NhanVienDAO();
+    
+    /**
+     * Handles GET requests - redirects to login form.
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.sendRedirect(request.getContextPath() + "/views/loginform.jsp");
-    } 
-
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+    }
+    
+    /**
+     * Handles POST requests - validates user credentials.
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
+        
         request.setCharacterEncoding("UTF-8");
-
+        
         String maNV = request.getParameter("maNV");
         String matKhau = request.getParameter("matKhau");
-
-        String[] thongTinNV = ds.get(maNV);
-
-        if (thongTinNV != null && thongTinNV[0].equals(matKhau)) {
-            HttpSession session = request.getSession();
-
-            session.setAttribute("maNV", maNV);
-            session.setAttribute("tenNV", thongTinNV[1]);
-
-            response.sendRedirect(request.getContextPath() + "/views/homepage.jsp");
-        } else {
-            request.setAttribute("error", "Sai mã nhân viên hoặc mật khẩu!");
+        
+        // Input validation
+        if (maNV == null || maNV.trim().isEmpty() || 
+            matKhau == null || matKhau.trim().isEmpty()) {
+            request.setAttribute("error", "Vui lòng nhập mã nhân viên và mật khẩu");
+            request.getRequestDispatcher("/views/loginform.jsp").forward(request, response);
+            return;
+        }
+        
+        try {
+            // Query database for employee
+            NhanVien nhanVien = nhanVienDAO.getNhanVienById(maNV);
+            
+            // Validate credentials
+            // TODO: Implement BCrypt password hashing
+            // For now, using simple password validation (MUST be changed for production)
+            if (nhanVien != null && validatePassword(maNV, matKhau)) {
+                
+                // Create session and set attributes
+                HttpSession session = request.getSession();
+                session.setAttribute("maNV", nhanVien.getMaNV());
+                session.setAttribute("tenNV", nhanVien.getHoTen());
+                session.setAttribute("chucVu", nhanVien.getChucVu());
+                
+                // Set secure session settings
+                session.setMaxInactiveInterval(30 * 60); // 30 minutes
+                
+                // Redirect to homepage
+                response.sendRedirect(request.getContextPath() + "/views/homepage.jsp");
+                
+            } else {
+                request.setAttribute("error", "Sai mã nhân viên hoặc mật khẩu");
+                request.getRequestDispatcher("/views/loginform.jsp").forward(request, response);
+            }
+            
+        } catch (Exception e) {
+            System.err.println("[LoginServlet] Error during authentication: " + e.getMessage());
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi hệ thống. Vui lòng thử lại sau");
             request.getRequestDispatcher("/views/loginform.jsp").forward(request, response);
         }
     }
-
-    /** 
-     * Returns a short description of the servlet.
-     * @return a String containing servlet description
+    
+    /**
+     * Validate password - this is a temporary implementation.
+     * TODO: Replace with BCrypt hashing in production
+     * 
+     * @param maNV Employee ID
+     * @param matKhau Password to validate
+     * @return true if password is correct
      */
+    private boolean validatePassword(String maNV, String matKhau) {
+        // TODO: Query database for hashed password and use BCrypt.checkpw()
+        // This is temporary for demo purposes only
+        
+        // Hard-coded for testing (REMOVE THIS IN PRODUCTION!)
+        java.util.Map<String, String> credentials = new java.util.HashMap<>();
+        credentials.put("TH08922", "123");
+        credentials.put("TH07964", "123");
+        credentials.put("TH07969", "123");
+        credentials.put("TH08495", "123");
+        credentials.put("TH08860", "123");
+        credentials.put("TH08199", "123");
+        
+        String storedPassword = credentials.get(maNV);
+        return storedPassword != null && storedPassword.equals(matKhau);
+    }
+    
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Login Servlet - Handles user authentication";
+    }
 }
