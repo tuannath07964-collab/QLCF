@@ -9,34 +9,27 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * MenuDAO - Data Access Object for Menu Items
+ * Sử dụng try-with-resources pattern để tự động đóng tài nguyên
+ */
 public class MenuDAO {
 
     // Lấy tất cả món
     public List<Menu> getAll() {
         List<Menu> list = new ArrayList<>();
-
         String sql = "SELECT * FROM Menu";
 
-        try (
-                Connection conn = DBConnect.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-
-                Menu m = new Menu();
-
-                m.setMaMon(rs.getInt("MaMon"));
-                m.setTenMon(rs.getString("TenMon"));
-                m.setLoai(rs.getString("Loai"));
-                m.setGia(rs.getDouble("Gia"));
-                m.setTrangThai(rs.getString("TrangThai"));
-                m.setHinhAnh(rs.getString("HinhAnh"));
-
-                list.add(m);
+                list.add(mapResultSetToMenu(rs));
             }
 
         } catch (Exception e) {
+            System.err.println("[MenuDAO] Error in getAll: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -45,32 +38,21 @@ public class MenuDAO {
 
     // Tìm theo mã
     public Menu getById(int id) {
-
         String sql = "SELECT * FROM Menu WHERE MaMon=?";
 
-        try (
-                Connection conn = DBConnect.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
 
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-
-                Menu m = new Menu();
-
-                m.setMaMon(rs.getInt("MaMon"));
-                m.setTenMon(rs.getString("TenMon"));
-                m.setLoai(rs.getString("Loai"));
-                m.setGia(rs.getDouble("Gia"));
-                m.setTrangThai(rs.getString("TrangThai"));
-                m.setHinhAnh(rs.getString("HinhAnh"));
-
-                return m;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToMenu(rs);
+                }
             }
 
         } catch (Exception e) {
+            System.err.println("[MenuDAO] Error in getById: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -79,12 +61,10 @@ public class MenuDAO {
 
     // Thêm món
     public boolean insert(Menu m) {
-
         String sql = "INSERT INTO Menu(TenMon,Loai,Gia,TrangThai,HinhAnh) VALUES(?,?,?,?,?)";
 
-        try (
-                Connection conn = DBConnect.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, m.getTenMon());
             ps.setString(2, m.getLoai());
@@ -95,6 +75,7 @@ public class MenuDAO {
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
+            System.err.println("[MenuDAO] Error in insert: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -103,12 +84,10 @@ public class MenuDAO {
 
     // Sửa món
     public boolean update(Menu m) {
-
         String sql = "UPDATE Menu SET TenMon=?,Loai=?,Gia=?,TrangThai=?,HinhAnh=? WHERE MaMon=?";
 
-        try (
-                Connection conn = DBConnect.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, m.getTenMon());
             ps.setString(2, m.getLoai());
@@ -120,6 +99,7 @@ public class MenuDAO {
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
+            System.err.println("[MenuDAO] Error in update: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -128,21 +108,31 @@ public class MenuDAO {
 
     // Xóa món
     public boolean delete(int id) {
-
         String sql = "DELETE FROM Menu WHERE MaMon=?";
 
-        try (
-                Connection conn = DBConnect.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
-
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
+            System.err.println("[MenuDAO] Error in delete: " + e.getMessage());
             e.printStackTrace();
         }
 
         return false;
+    }
+
+    // Helper method - Map ResultSet to Menu
+    private Menu mapResultSetToMenu(ResultSet rs) throws Exception {
+        Menu m = new Menu();
+        m.setMaMon(rs.getInt("MaMon"));
+        m.setTenMon(rs.getString("TenMon"));
+        m.setLoai(rs.getString("Loai"));
+        m.setGia(rs.getDouble("Gia"));
+        m.setTrangThai(rs.getString("TrangThai"));
+        m.setHinhAnh(rs.getString("HinhAnh"));
+        return m;
     }
 }

@@ -1,156 +1,135 @@
 package dao;
 
+import model.BanAn;
+import util.DBConnect;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import model.BanAn;
-import util.DBConnect;
+import java.util.List;
 
+/**
+ * BanAnDAO - Data Access Object for Dining Tables (Bàn Ăn)
+ * Sử dụng try-with-resources pattern để tự động đóng tài nguyên
+ */
 public class BanAnDAO {
 
-    public ArrayList<BanAn> getAll() {
-        ArrayList<BanAn> list = new ArrayList<>();
+    // Lấy tất cả bàn
+    public List<BanAn> getAll() {
+        List<BanAn> list = new ArrayList<>();
+        String sql = "SELECT * FROM BanAn";
 
-        String sql = "SELECT * FROM BanAn ORDER BY MaBan";
-
-        try {
-            Connection conn = DBConnect.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                BanAn ban = new BanAn();
-                ban.setMaBan(rs.getString("MaBan"));
-                ban.setTenBan(rs.getString("TenBan"));
-                ban.setTrangThai(rs.getString("TrangThai"));
-
-                list.add(ban);
+                list.add(mapResultSetToBanAn(rs));
             }
 
-            rs.close();
-            ps.close();
-            conn.close();
-
         } catch (Exception e) {
+            System.err.println("[BanAnDAO] Error in getAll: " + e.getMessage());
             e.printStackTrace();
         }
 
         return list;
     }
 
-    public BanAn findById(String maBan) {
-        String sql = "SELECT * FROM BanAn WHERE MaBan = ?";
+    // Lấy bàn theo mã
+    public BanAn getById(int id) {
+        String sql = "SELECT * FROM BanAn WHERE MaBan=?";
 
-        try {
-            Connection conn = DBConnect.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, maBan);
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ResultSet rs = ps.executeQuery();
+            ps.setInt(1, id);
 
-            if (rs.next()) {
-                BanAn ban = new BanAn();
-                ban.setMaBan(rs.getString("MaBan"));
-                ban.setTenBan(rs.getString("TenBan"));
-                ban.setTrangThai(rs.getString("TrangThai"));
-
-                rs.close();
-                ps.close();
-                conn.close();
-
-                return ban;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToBanAn(rs);
+                }
             }
 
-            rs.close();
-            ps.close();
-            conn.close();
-
         } catch (Exception e) {
+            System.err.println("[BanAnDAO] Error in getById: " + e.getMessage());
             e.printStackTrace();
         }
 
         return null;
     }
 
-    public void insert(BanAn ban) {
-        String sql = "INSERT INTO BanAn (MaBan, TenBan, TrangThai) VALUES (?, ?, ?)";
+    // Thêm bàn
+    public boolean insert(BanAn b) {
+        String sql = "INSERT INTO BanAn(TenBan,ViTri,SoGhe,TrangThai) VALUES(?,?,?,?)";
 
-        try {
-            Connection conn = DBConnect.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, ban.getMaBan());
-            ps.setString(2, ban.getTenBan());
-            ps.setString(3, ban.getTrangThai());
+            ps.setString(1, b.getTenBan());
+            ps.setString(2, b.getViTri());
+            ps.setInt(3, b.getSoGhe());
+            ps.setString(4, b.getTrangThai());
 
-            ps.executeUpdate();
-
-            ps.close();
-            conn.close();
+            return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
+            System.err.println("[BanAnDAO] Error in insert: " + e.getMessage());
             e.printStackTrace();
         }
+
+        return false;
     }
 
-    public void update(BanAn ban) {
-        String sql = "UPDATE BanAn SET TenBan = ?, TrangThai = ? WHERE MaBan = ?";
+    // Cập nhật bàn
+    public boolean update(BanAn b) {
+        String sql = "UPDATE BanAn SET TenBan=?,ViTri=?,SoGhe=?,TrangThai=? WHERE MaBan=?";
 
-        try {
-            Connection conn = DBConnect.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, ban.getTenBan());
-            ps.setString(2, ban.getTrangThai());
-            ps.setString(3, ban.getMaBan());
+            ps.setString(1, b.getTenBan());
+            ps.setString(2, b.getViTri());
+            ps.setInt(3, b.getSoGhe());
+            ps.setString(4, b.getTrangThai());
+            ps.setInt(5, b.getMaBan());
 
-            ps.executeUpdate();
-
-            ps.close();
-            conn.close();
+            return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
+            System.err.println("[BanAnDAO] Error in update: " + e.getMessage());
             e.printStackTrace();
         }
+
+        return false;
     }
 
-    public void updateStatus(String maBan, String trangThai) {
-        String sql = "UPDATE BanAn SET TrangThai = ? WHERE MaBan = ?";
+    // Xóa bàn
+    public boolean delete(int id) {
+        String sql = "DELETE FROM BanAn WHERE MaBan=?";
 
-        try {
-            Connection conn = DBConnect.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, trangThai);
-            ps.setString(2, maBan);
-
-            ps.executeUpdate();
-
-            ps.close();
-            conn.close();
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
+            System.err.println("[BanAnDAO] Error in delete: " + e.getMessage());
             e.printStackTrace();
         }
+
+        return false;
     }
 
-    public void delete(String maBan) {
-        String sql = "DELETE FROM BanAn WHERE MaBan = ?";
-
-        try {
-            Connection conn = DBConnect.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            ps.setString(1, maBan);
-
-            ps.executeUpdate();
-
-            ps.close();
-            conn.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    // Helper method - Map ResultSet to BanAn
+    private BanAn mapResultSetToBanAn(ResultSet rs) throws Exception {
+        BanAn b = new BanAn();
+        b.setMaBan(rs.getInt("MaBan"));
+        b.setTenBan(rs.getString("TenBan"));
+        b.setViTri(rs.getString("ViTri"));
+        b.setSoGhe(rs.getInt("SoGhe"));
+        b.setTrangThai(rs.getString("TrangThai"));
+        return b;
     }
 }
