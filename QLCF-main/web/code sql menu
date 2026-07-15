@@ -1,0 +1,141 @@
+-- ===========================
+-- TẠO DATABASE
+-- ===========================
+
+IF DB_ID('Menu') IS NOT NULL
+BEGIN
+    ALTER DATABASE Menu SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE Menu;
+END
+GO
+
+CREATE DATABASE Menu;
+GO
+
+USE Menu;
+GO
+
+-- ===========================
+-- TẠO BẢNG MENU
+-- ===========================
+
+CREATE TABLE Menu
+(
+    MaMon INT IDENTITY(1,1) PRIMARY KEY,
+    TenMon NVARCHAR(100) NOT NULL,
+    Loai NVARCHAR(50) NOT NULL,
+    Gia DECIMAL(10,2) NOT NULL,
+    TrangThai NVARCHAR(30) NOT NULL,
+    HinhAnh NVARCHAR(255)
+);
+GO
+
+-- ===========================
+-- DỮ LIỆU MẪU
+-- ===========================
+
+INSERT INTO Menu(TenMon, Loai, Gia, TrangThai, HinhAnh)
+VALUES
+(N'Cà phê đen',N'Cà phê',25000,N'Còn bán','capheden.jpg'),
+
+(N'Cà phê sữa',N'Cà phê',30000,N'Còn bán','caphesua.jpg'),
+
+(N'Bạc xỉu',N'Cà phê',35000,N'Còn bán','bacxiu.jpg'),
+
+(N'Trà đào',N'Trà',30000,N'Còn bán','tradao.jpg'),
+
+(N'Trà chanh',N'Trà',25000,N'Còn bán','trachanh.jpg'),
+
+(N'Trà sữa truyền thống',N'Trà sữa',35000,N'Còn bán','trasua.jpg'),
+
+(N'Trà sữa Matcha',N'Trà sữa',40000,N'Còn bán','matcha.jpg'),
+
+(N'Sinh tố bơ',N'Sinh tố',45000,N'Còn bán','bo.jpg'),
+
+(N'Sinh tố xoài',N'Sinh tố',45000,N'Còn bán','xoai.jpg'),
+
+(N'Nước cam',N'Nước ép',35000,N'Còn bán','cam.jpg'),
+
+(N'Nước chanh',N'Nước ép',30000,N'Còn bán','chanh.jpg'),
+
+(N'Bánh Tiramisu',N'Bánh',45000,N'Còn bán','tiramisu.jpg'),
+
+(N'Bánh Mousse',N'Bánh',50000,N'Còn bán','mousse.jpg'),
+
+(N'Cookie',N'Bánh',25000,N'Còn bán','cookie.jpg'),
+
+(N'Cappuccino',N'Cà phê',45000,N'Hết món','cappuccino.jpg');
+GO
+
+-- ===========================
+-- XEM DỮ LIỆU
+-- ===========================
+
+SELECT * FROM Menu;
+GO
+
+-- ===========================
+-- THÊM MÓN
+-- ===========================
+
+INSERT INTO Menu(TenMon, Loai, Gia, TrangThai, HinhAnh)
+VALUES
+(N'Americano',
+ N'Cà phê',
+ 40000,
+ N'Còn bán',
+ 'americano.jpg');
+GO
+
+-- ===========================
+-- SỬA MÓN
+-- ===========================
+
+UPDATE Menu
+SET Gia = 42000,
+    TrangThai = N'Còn bán'
+WHERE MaMon = 1;
+GO
+
+-- ===========================
+-- XÓA MÓN
+-- ===========================
+
+DELETE FROM Menu
+WHERE MaMon = 15;
+GO
+
+-- ===========================
+-- TÌM KIẾM
+-- ===========================
+
+SELECT *
+FROM Menu
+WHERE TenMon LIKE N'%Cà phê%';
+GO
+
+-- ===========================
+-- SẮP XẾP THEO GIÁ
+-- ===========================
+
+SELECT *
+FROM Menu
+ORDER BY Gia DESC;
+GO
+
+-- ===========================
+-- THỐNG KÊ
+-- ===========================
+
+SELECT COUNT(*) AS TongSoMon
+FROM Menu;
+
+SELECT AVG(Gia) AS GiaTrungBinh
+FROM Menu;
+
+SELECT MAX(Gia) AS GiaCaoNhat
+FROM Menu;
+
+SELECT MIN(Gia) AS GiaThapNhat
+FROM Menu;
+GO
