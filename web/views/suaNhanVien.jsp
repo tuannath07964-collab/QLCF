@@ -3,302 +3,283 @@
 <%@page import="model.NhanVien"%>
 
 <%
-    String ma = request.getParameter("maNV");
+    String maNV = request.getParameter("maNV");
 
     NhanVienDAO dao = new NhanVienDAO();
 
-    NhanVien nv = dao.getNhanVienById(ma);
+    NhanVien nv = dao.getNhanVienById(maNV);
+
+    if (nv == null) {
 %>
 
 <!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Lỗi</title>
+    </head>
 
+    <body>
+
+        <h2>Không tìm thấy nhân viên!</h2>
+
+        <p>Mã nhân viên: <%= maNV %></p>
+
+        <a href="<%=request.getContextPath()%>/nhanvien">
+            Quay lại
+        </a>
+
+    </body>
+
+</html>
+
+<%
+        return;
+    }
+%>
+
+<!DOCTYPE html>
 <html lang="vi">
 
-<head>
+    <head>
+
+        <meta charset="UTF-8">
+
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0">
+
+        <title>Sửa nhân viên</title>
+
+        <style>
+
+            *{
+                margin:0;
+                padding:0;
+                box-sizing:border-box;
+                font-family:Arial,sans-serif;
+            }
+
+            body{
+                background:#f5f5f5;
+            }
 
-<meta charset="UTF-8">
+            .container{
+                width:700px;
+                margin:40px auto;
+                background:white;
+                padding:30px;
+                border-radius:10px;
+                box-shadow:0 2px 10px rgba(0,0,0,.2);
+            }
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+            h2{
+                text-align:center;
+                margin-bottom:25px;
+                color:#4b3a2f;
+            }
 
-<title>Sửa nhân viên</title>
+            .row{
+                margin-bottom:15px;
+            }
 
-<style>
+            label{
+                display:block;
+                margin-bottom:5px;
+                font-weight:bold;
+            }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,sans-serif;
-}
+            input,
+            select{
+                width:100%;
+                padding:10px;
+                border:1px solid #ccc;
+                border-radius:6px;
+            }
 
-body{
+            .btn{
+                display:flex;
+                justify-content:center;
+                gap:20px;
+                margin-top:20px;
+            }
 
-    background:#f5f5f5;
+            .save{
+                background:#3498db;
+                color:white;
+                border:none;
+                padding:12px 30px;
+                border-radius:6px;
+                cursor:pointer;
+            }
 
-}
+            .cancel{
+                background:#e74c3c;
+                color:white;
+                text-decoration:none;
+                padding:12px 30px;
+                border-radius:6px;
+            }
 
-.container{
+        </style>
 
-    width:700px;
+    </head>
 
-    margin:40px auto;
+    <body>
 
-    background:white;
+        <div class="container">
 
-    border-radius:10px;
+            <h2>SỬA NHÂN VIÊN</h2>
 
-    padding:30px;
+            <form
+                action="${pageContext.request.contextPath}/nhanvien?action=edit"
+                method="post">
 
-    box-shadow:0 2px 10px rgba(0,0,0,.2);
+                <div class="row">
 
-}
+                    <label>Mã nhân viên</label>
 
-h2{
+                    <input
+                        type="text"
+                        name="maNV"
+                        value="<%=nv.getMaNV()%>"
+                        readonly>
 
-    text-align:center;
+                </div>
 
-    margin-bottom:25px;
+                <div class="row">
 
-    color:#4b3a2f;
+                    <label>Họ tên</label>
 
-}
+                    <input
+                        type="text"
+                        name="hoTen"
+                        value="<%=nv.getHoTen()%>"
+                        required>
 
-.row{
+                </div>
 
-    margin-bottom:15px;
+                <div class="row">
 
-}
+                    <label>Giới tính</label>
 
-label{
+                    <select name="gioiTinh">
 
-    display:block;
+                        <option value="Nam"
+                                <%=nv.getGioiTinh().equals("Nam")?"selected":""%>>
+                            Nam
+                        </option>
 
-    margin-bottom:5px;
+                        <option value="Nữ"
+                                <%=nv.getGioiTinh().equals("Nữ")?"selected":""%>>
+                            Nữ
+                        </option>
 
-    font-weight:bold;
+                    </select>
 
-}
+                </div>
 
-input,select{
+                <div class="row">
 
-    width:100%;
+                    <label>Ngày sinh</label>
 
-    padding:10px;
+                    <input
+                        type="date"
+                        name="ngaySinh"
+                        value="<%=new java.text.SimpleDateFormat("yyyy-MM-dd").format(nv.getNgaySinh())%>"
+                        required>
 
-    border:1px solid #ccc;
+                </div>
 
-    border-radius:6px;
+                <div class="row">
 
-}
+                    <label>Số điện thoại</label>
 
-.btn{
+                    <input
+                        type="text"
+                        name="sdt"
+                        value="<%=nv.getSdt()%>">
 
-    margin-top:20px;
+                </div>
 
-    display:flex;
+                <div class="row">
 
-    justify-content:center;
+                    <label>Địa chỉ</label>
 
-    gap:20px;
+                    <input
+                        type="text"
+                        name="diaChi"
+                        value="<%=nv.getDiaChi()%>">
 
-}
+                </div>
 
-.save{
+                <div class="row">
 
-    background:#3498db;
+                    <label>Chức vụ</label>
 
-    color:white;
+                    <input
+                        type="text"
+                        name="chucVu"
+                        value="<%=nv.getChucVu()%>"
+                        required>
 
-    border:none;
+                </div>
 
-    padding:12px 30px;
+                <div class="row">
 
-    border-radius:6px;
+                    <label>Lương</label>
 
-    cursor:pointer;
+                    <input
+                        type="number"
+                        step="0.01"
+                        name="luong"
+                        value="<%=nv.getLuong()%>"
+                        required>
 
-}
+                </div>
 
-.cancel{
+                <div class="row">
 
-    background:#e74c3c;
+                    <label>Trạng thái</label>
 
-    color:white;
+                    <select name="trangThai">
+                        <option value="Đang làm"
+                                <%=nv.getTrangThai().equals("Đang làm")?"selected":""%>>
+                            Đang làm
+                        </option>
 
-    text-decoration:none;
+                        <option value="Đã nghỉ"
+                                <%=nv.getTrangThai().equals("Đã nghỉ")?"selected":""%>>
+                            Đã nghỉ
+                        </option>
 
-    padding:12px 30px;
+                    </select>
 
-    border-radius:6px;
+                </div>
 
-}
+                <div class="btn">
 
-</style>
+                    <button
+                        type="submit"
+                        class="save">
 
-</head>
+                        Cập nhật
 
-<body>
+                    </button>
 
-<div class="container">
+                    <a
+                        class="cancel"
+                        href="${pageContext.request.contextPath}/nhanvien">
 
-<h2>
+                        Quay lại
 
-SỬA NHÂN VIÊN
+                    </a>
 
-</h2>
+                </div>
 
-<form
-action="${pageContext.request.contextPath}/NhanVienServlet?action=edit"
-method="post">
+            </form>
 
-<div class="row">
+        </div>
 
-<label>Mã nhân viên</label>
-
-<input
-type="text"
-name="maNV"
-value="<%= nv.getMaNV() %>"
-readonly>
-
-</div>
-
-<div class="row">
-
-<label>Họ tên</label>
-
-<input
-type="text"
-name="hoTen"
-value="<%= nv.getHoTen() %>"
-required>
-
-</div>
-
-<div class="row">
-
-<label>Giới tính</label>
-
-<select
-name="gioiTinh">
-
-<option
-<%= nv.getGioiTinh().equals("Nam") ? "selected" : "" %>>
-Nam
-</option>
-
-<option
-<%= nv.getGioiTinh().equals("Nữ") ? "selected" : "" %>>
-Nữ
-</option>
-
-</select>
-
-</div>
-
-<div class="row">
-
-<label>Ngày sinh</label>
-
-<input
-type="date"
-name="ngaySinh"
-value="<%= nv.getNgaySinh() %>"
-required>
-
-</div>
-
-<div class="row">
-
-<label>Số điện thoại</label>
-
-<input
-type="text"
-name="sdt"
-value="<%= nv.getSdt() %>">
-
-</div>
-<div class="row">
-
-<label>Địa chỉ</label>
-
-<input
-type="text"
-name="diaChi"
-value="<%= nv.getDiaChi() %>">
-
-</div>
-
-<div class="row">
-
-<label>Chức vụ</label>
-
-<input
-type="text"
-name="chucVu"
-value="<%= nv.getChucVu() %>"
-required>
-
-</div>
-
-<div class="row">
-
-<label>Lương</label>
-
-<input
-type="number"
-name="luong"
-value="<%= nv.getLuong() %>"
-required>
-
-</div>
-
-<div class="row">
-
-<label>Trạng thái</label>
-
-<select
-name="trangThai">
-
-<option value="Đang làm"
-<%= nv.getTrangThai().equals("Đang làm") ? "selected" : "" %>>
-Đang làm
-</option>
-
-<option value="Đã nghỉ"
-<%= nv.getTrangThai().equals("Đã nghỉ") ? "selected" : "" %>>
-Đã nghỉ
-</option>
-
-</select>
-
-</div>
-
-<div class="btn">
-
-<button
-type="submit"
-class="save">
-
-Cập nhật
-
-</button>
-
-<a
-class="cancel"
-href="${pageContext.request.contextPath}/NhanVienServlet">
-
-Quay lại
-
-</a>
-
-</div>
-
-</form>
-
-</div>
-
-</body>
+    </body>
 
 </html>

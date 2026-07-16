@@ -17,9 +17,15 @@ public class NhanVien {
     public NhanVien() {
     }
 
-    public NhanVien(String maNV, String hoTen, String gioiTinh,
-            Date ngaySinh, String sdt, String diaChi,
-            String chucVu, double luong, String trangThai) {
+    public NhanVien(String maNV,
+                     String hoTen,
+                     String gioiTinh,
+                     Date ngaySinh,
+                     String sdt,
+                     String diaChi,
+                     String chucVu,
+                     double luong,
+                     String trangThai) {
 
         this.maNV = maNV;
         this.hoTen = hoTen;
@@ -104,4 +110,18 @@ public class NhanVien {
         this.trangThai = trangThai;
     }
 
+    @Override
+    public String toString() {
+        return "NhanVien{" +
+                "maNV='" + maNV + '\'' +
+                ", hoTen='" + hoTen + '\'' +
+                ", gioiTinh='" + gioiTinh + '\'' +
+                ", ngaySinh=" + ngaySinh +
+                ", sdt='" + sdt + '\'' +
+                ", diaChi='" + diaChi + '\'' +
+                ", chucVu='" + chucVu + '\'' +
+                ", luong=" + luong +
+                ", trangThai='" + trangThai + '\'' +
+                '}';
+    }
 }
