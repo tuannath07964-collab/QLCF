@@ -11,16 +11,16 @@ import java.util.List;
 
 public class MenuDAO {
 
-    // Lấy tất cả món
+    // Lấy danh sách món
     public List<Menu> getAll() {
+
         List<Menu> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM Menu";
+        String sql = "SELECT * FROM Menu ORDER BY MaMon";
 
-        try (
-                Connection conn = DBConnect.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
 
@@ -43,14 +43,13 @@ public class MenuDAO {
         return list;
     }
 
-    // Tìm theo mã
+    // Tìm món theo mã
     public Menu getById(int id) {
 
         String sql = "SELECT * FROM Menu WHERE MaMon=?";
 
-        try (
-                Connection conn = DBConnect.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
 
@@ -82,9 +81,8 @@ public class MenuDAO {
 
         String sql = "INSERT INTO Menu(TenMon,Loai,Gia,TrangThai,HinhAnh) VALUES(?,?,?,?,?)";
 
-        try (
-                Connection conn = DBConnect.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, m.getTenMon());
             ps.setString(2, m.getLoai());
@@ -101,14 +99,13 @@ public class MenuDAO {
         return false;
     }
 
-    // Sửa món
+    // Cập nhật món
     public boolean update(Menu m) {
 
-        String sql = "UPDATE Menu SET TenMon=?,Loai=?,Gia=?,TrangThai=?,HinhAnh=? WHERE MaMon=?";
+        String sql = "UPDATE Menu SET TenMon=?, Loai=?, Gia=?, TrangThai=?, HinhAnh=? WHERE MaMon=?";
 
-        try (
-                Connection conn = DBConnect.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, m.getTenMon());
             ps.setString(2, m.getLoai());
@@ -131,9 +128,8 @@ public class MenuDAO {
 
         String sql = "DELETE FROM Menu WHERE MaMon=?";
 
-        try (
-                Connection conn = DBConnect.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
 

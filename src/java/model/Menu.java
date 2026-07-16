@@ -12,7 +12,8 @@ public class Menu {
     public Menu() {
     }
 
-    public Menu(int maMon, String tenMon, String loai, double gia, String trangThai, String hinhAnh) {
+    public Menu(int maMon, String tenMon, String loai,
+                double gia, String trangThai, String hinhAnh) {
         this.maMon = maMon;
         this.tenMon = tenMon;
         this.loai = loai;
@@ -69,4 +70,15 @@ public class Menu {
         this.hinhAnh = hinhAnh;
     }
 
+    @Override
+    public String toString() {
+        return "Menu{" +
+                "maMon=" + maMon +
+                ", tenMon='" + tenMon + '\'' +
+                ", loai='" + loai + '\'' +
+                ", gia=" + gia +
+                ", trangThai='" + trangThai + '\'' +
+                ", hinhAnh='" + hinhAnh + '\'' +
+                '}';
+    }
 }
