@@ -1,0 +1,30 @@
+/* Sử dụng cho cả Nhân viên và Hóa đơn */
+* { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+body { display:flex; background:#f4f6f9; }
+
+/* Sidebar - Đã căn chỉnh chính xác 260px */
+.sidebar { width: 260px; transition: all 0.3s ease; background: #2c3e50; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; flex: 0 0 260px; }
+.logo { padding: 20px; font-weight: bold; background: #1a252f; display: flex; align-items: center; justify-content: space-between; }
+.menu { padding: 0; margin: 0; list-style: none; }
+.menu li { padding: 15px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; border-left: 4px solid transparent; }
+.menu li:hover { background: #34495e; padding-left: 30px; border-left: 4px solid #3498db; }
+.menu li.active { background: #3498db !important; border-left: 4px solid #ffffff !important; }
+
+/* Main Content - Đồng bộ padding */
+.main { flex: 1; display: flex; flex-direction: column; padding: 0 30px; overflow-y: auto; }
+.header { background: white; padding: 15px 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-left: -30px; margin-right: -30px; }
+
+/* Bảng và Card */
+.card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+table th { background: #2c3e50; color: white; padding: 12px; text-align: center; }
+table td { border-bottom: 1px solid #f0f0f0; padding: 12px; text-align: center; }
+table tr:hover { background-color: #f9f9f9; }
+
+/* Nút bấm */
+.btn-add { background: #27ae60; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; }
+.btn-edit { background: #f39c12; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; }
+.btn-delete { background: #e74c3c; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; }
+.chuathanhtoan { color: #dc3545; font-weight: bold; }
+.dathanhtoan { color: #28a745; font-weight: bold; }
+.dahuy { color: #6c757d; font-weight: bold; text-decoration: line-through; }

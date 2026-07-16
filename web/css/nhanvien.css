@@ -1,0 +1,140 @@
+/* --- CSS Đồng Bộ Dashboard --- */
+body {
+    display: flex;
+    flex-direction: row; /* Hướng ngang */
+    margin: 0;
+    padding: 0;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    transition: all 0.3s ease;
+    background: #2c3e50;
+    color: white;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 0 0 260px; /* Cố định sidebar 260px, không bị co giãn */
+    min-height: 100vh;
+}
+
+.sidebar.collapsed {
+    flex: 0 0 80px; /* Thu hẹp chiều rộng */
+    width: 80px;
+}
+
+.sidebar.collapsed .logo-text, 
+.sidebar.collapsed .menu li span, 
+.sidebar.collapsed .logout span {
+    display: none;
+}
+
+.sidebar.collapsed .logo, 
+.sidebar.collapsed .menu li, 
+.sidebar.collapsed .logout {
+    justify-content: center;
+}
+
+.logo { 
+    padding: 20px; 
+    font-weight: bold; 
+    background: #1a252f; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+}
+
+.menu { padding: 0; margin: 0; list-style: none; }
+.menu li {
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu li:hover {
+    background: #34495e;
+    padding-left: 30px;
+    border-left: 4px solid #3498db;
+    color: #ffffff;
+}
+
+.menu li.active {
+    background: #3498db !important;
+    border-left: 4px solid #ffffff !important;
+}
+
+.logout {
+    padding: 20px;
+    color: white;
+    text-decoration: none;
+    background: #e74c3c;
+    text-align: center;
+    display: block;
+}
+
+/* Main Content Styling */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 30px; /* Thêm padding trái phải cho toàn bộ vùng nội dung */
+    overflow-y: auto;
+}
+
+.content { padding: 20px; }
+
+/* Table & Card Styling */
+.card { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+}
+
+.top { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+table th { background: #2c3e50; color: white; padding: 12px; text-align: center; }
+table td { border-bottom: 1px solid #f0f0f0; padding: 12px; text-align: center; }
+table tr:hover { background-color: #f9f9f9; }
+
+.btn-edit { background: #f39c12; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; margin-right: 5px; }
+.btn-delete { background: #e74c3c; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; }
+.btn-add { background: #27ae60; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; }
+
+#toggleBtn {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.header {
+    background: white;
+    padding: 15px 30px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between; /* Đẩy tiêu đề sang trái, user sang phải */
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.user-profile {
+    font-weight: 600;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa icon và chữ */
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}

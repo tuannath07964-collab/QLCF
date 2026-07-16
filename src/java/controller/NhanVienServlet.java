@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/nhanvien")
 public class NhanVienServlet extends HttpServlet {
@@ -84,6 +85,12 @@ public class NhanVienServlet extends HttpServlet {
             HttpServletResponse response)
             throws ServletException, IOException {
 
+        HttpSession session = request.getSession();
+        if (session.getAttribute("maNV") == null) { // Kiểm tra key "maNV" đã được lưu ở LoginServlet
+            response.sendRedirect(request.getContextPath() + "/LoginServlet");
+            return;
+        }
+
         ArrayList<NhanVien> listNV = dao.getAllNhanVien();
 
         request.setAttribute("listNV", listNV);
@@ -108,7 +115,7 @@ public class NhanVienServlet extends HttpServlet {
         nv.setNgaySinh(Date.valueOf(request.getParameter("ngaySinh")));
         nv.setSdt(request.getParameter("sdt"));
         nv.setDiaChi(request.getParameter("diaChi"));
-nv.setChucVu(request.getParameter("chucVu"));
+        nv.setChucVu(request.getParameter("chucVu"));
         nv.setLuong(Double.parseDouble(request.getParameter("luong")));
         nv.setTrangThai(request.getParameter("trangThai"));
 

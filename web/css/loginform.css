@@ -1,0 +1,61 @@
+:root {
+    --primary-color: #543d2b;
+    --bg-color: #fdfaf6;
+    --input-bg: #fff;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=1978&auto=format&fit=crop') no-repeat center center/cover;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.95); /* Hiệu ứng hơi trong suốt */
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 24px;
+    width: 380px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.logo-area { font-size: 50px; color: var(--primary-color); margin-bottom: 10px; }
+h2 { color: var(--primary-color); margin-bottom: 5px; }
+.subtitle { color: #888; margin-bottom: 30px; font-size: 14px; }
+
+.input-group { text-align: left; margin-bottom: 20px; }
+.input-group label { display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 5px; }
+
+.input-wrapper { position: relative; display: flex; align-items: center; }
+.input-wrapper i { position: absolute; left: 15px; color: #aaa; }
+.input-wrapper input {
+    width: 100%; padding: 12px 15px 12px 40px;
+    border: 1px solid #ddd; border-radius: 12px;
+    outline: none; transition: 0.3s;
+}
+.input-wrapper input:focus { border-color: var(--primary-color); }
+
+.suffix-icon { right: 15px; left: auto !important; cursor: pointer; }
+
+.btn-submit {
+    width: 100%; padding: 12px;
+    background: var(--primary-color); color: white;
+    border: none; border-radius: 12px; font-weight: bold;
+    cursor: pointer; margin-top: 10px;
+    transition: 0.3s;
+}
+.btn-submit:hover { transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+.error-message {
+    background-color: #ffebee; /* Nền đỏ nhạt */
+    color: #c62828;           /* Chữ đỏ đậm */
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    border: 1px solid #ffcdd2; /* Viền đỏ nhạt */
+}
