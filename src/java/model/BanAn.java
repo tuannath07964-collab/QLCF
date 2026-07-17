@@ -1,19 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author Admin
- */
 public class BanAn {
     private String maBan;
     private String tenBan;
     private String trangThai;
 
     public BanAn() {
+    }
+
+    public BanAn(String tenBan, String trangThai) {
+        this.tenBan = tenBan;
+        this.trangThai = trangThai;
     }
 
     public BanAn(String maBan, String tenBan, String trangThai) {

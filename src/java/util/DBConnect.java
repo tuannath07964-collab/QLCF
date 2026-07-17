@@ -13,7 +13,7 @@ import java.sql.SQLException;
 public class DBConnect {
     public static final String HOSTNAME = "26.125.108.68";
     public static final String PORT = "1433";
-    public static final String DBNAME = "QLCF1";
+    public static final String DBNAME = "QLCF2";
     public static final String USERNAME = "sa";
     public static final String PASSWORD = "123";
 
