@@ -29,9 +29,10 @@ public class BanAnServlet extends HttpServlet {
 
         switch (action) {
             case "getDetail":
-                // Xử lý AJAX để lấy nội dung HTML của hóa đơn
-                int maBanDetail = Integer.parseInt(request.getParameter("maBan"));
+                // Sửa thành:
+                String maBanDetail = request.getParameter("maBan");
                 String html = dao.getChiTietHtml(maBanDetail);
+
                 response.setContentType("text/html; charset=UTF-8");
                 response.getWriter().write(html);
                 break;

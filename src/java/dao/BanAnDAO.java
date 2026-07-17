@@ -125,9 +125,10 @@ public class BanAnDAO {
         }
     }
 
-    public String getChiTietHtml(int maBan) {
+    public String getChiTietHtml(String maBan) {
         StringBuilder html = new StringBuilder();
-        String sql = "SELECT H.NgayLap, M.TenMon, CT.SoLuong, CT.DonGia, (CT.SoLuong * CT.DonGia) AS ThanhTien "
+        // SỬA THÀNH:
+        String sql = "SELECT H.NgayTao, M.TenMon, CT.SoLuong, CT.DonGia, (CT.SoLuong * CT.DonGia) AS ThanhTien "
                 + "FROM HoaDon H "
                 + "JOIN ChiTietHoaDon CT ON H.MaHD = CT.MaHD "
                 + "JOIN Menu M ON CT.MaMon = M.MaMon "
@@ -136,7 +137,7 @@ public class BanAnDAO {
         try {
             Connection conn = DBConnect.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, maBan);
+            ps.setString(1, maBan);
             ResultSet rs = ps.executeQuery();
 
             ArrayList<String> rows = new ArrayList<>();
@@ -144,7 +145,7 @@ public class BanAnDAO {
             String ngayLap = "";
 
             while (rs.next()) {
-                ngayLap = rs.getString("NgayLap");
+                ngayLap = rs.getString("NgayTao");
                 double thanhTien = rs.getDouble("ThanhTien");
                 tongCong += thanhTien;
                 rows.add("<tr><td>" + rs.getString("TenMon") + "</td><td>" + rs.getInt("SoLuong")

@@ -1,9 +1,5 @@
 package model;
 
-
-/**
- * Model class đại diện cho thực thể Hóa đơn trong CSDL.
- */
 public class HoaDon {
     private String maHD;
     private String maBan;
@@ -12,9 +8,11 @@ public class HoaDon {
     private double tongTien;
     private String trangThai;
 
+    // Constructor không tham số
     public HoaDon() {
     }
 
+    // Constructor đầy đủ tham số (Dùng cho DAO khi lấy dữ liệu từ DB)
     public HoaDon(String maHD, String maBan, String maNV, String ngayTao, double tongTien, String trangThai) {
         this.maHD = maHD;
         this.maBan = maBan;
@@ -24,6 +22,7 @@ public class HoaDon {
         this.trangThai = trangThai;
     }
 
+    // Các phương thức Getter và Setter
     public String getMaHD() {
         return maHD;
     }

@@ -1,6 +1,5 @@
 package controller;
 
-
 import dao.HoaDonDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,38 +18,52 @@ public class HoaDonServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
         String action = request.getParameter("action");
-
         if (action == null) {
             action = "list";
         }
 
         switch (action) {
+            case "list":
+                ArrayList<HoaDon> list = dao.getAll();
+                // In ra console để kiểm tra xem có lấy được dữ liệu từ DB không
+                System.out.println("DEBUG: So luong hoa don lay duoc la: " + (list != null ? list.size() : "null"));
+
+                request.setAttribute("listHoaDon", list);
+                request.getRequestDispatcher("/views/hoadon.jsp").forward(request, response);
+                break;
+
             case "new":
-                request.getRequestDispatcher("/views/hoadon2.jsp").forward(request, response);
+                String today = new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date());
+                String nextMaHD = dao.getNextMaHD();
+
+                HoaDon hdNew = new HoaDon();
+                hdNew.setMaHD(nextMaHD);
+                hdNew.setNgayTao(today);
+
+                request.setAttribute("hoadon", hdNew);
+                request.getRequestDispatcher("/views/hoadon1.jsp").forward(request, response);
                 break;
 
             case "edit":
                 String maHDEdit = request.getParameter("maHD");
-                HoaDon hd = dao.findById(maHDEdit);
-                request.setAttribute("hoadon", hd);
-                request.getRequestDispatcher("/views/hoadon2.jsp").forward(request, response);
+                HoaDon hdEdit = dao.findById(maHDEdit);
+                request.setAttribute("hoadon", hdEdit);
+                request.getRequestDispatcher("/views/hoadon1.jsp").forward(request, response);
                 break;
 
             case "delete":
                 String maHDDelete = request.getParameter("maHD");
                 dao.delete(maHDDelete);
-                response.sendRedirect("hoadon");
+                response.sendRedirect("hoadon?action=list"); // Redirect về danh sách
                 break;
 
             default:
-                ArrayList<HoaDon> list = dao.getAll();
-                request.setAttribute("listHoaDon", list);
-                request.getRequestDispatcher("/views/hoadon1.jsp").forward(request, response);
+                response.sendRedirect("hoadon?action=list");
                 break;
         }
     }
@@ -58,18 +71,17 @@ public class HoaDonServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
         String action = request.getParameter("action");
-
         String maHD = request.getParameter("maHD");
         String maBan = request.getParameter("maBan");
         String maNV = request.getParameter("maNV");
         String ngayTao = request.getParameter("ngayTao");
         String trangThai = request.getParameter("trangThai");
-        
+
         double tongTien = 0;
         try {
             if (request.getParameter("tongTien") != null) {
@@ -82,13 +94,17 @@ public class HoaDonServlet extends HttpServlet {
         if ("insert".equals(action)) {
             HoaDon hd = new HoaDon(maHD, maBan, maNV, ngayTao, tongTien, trangThai);
             dao.insert(hd);
-        } 
-        else if ("update".equals(action)) {
+            // Khi tạo hóa đơn, bàn chuyển thành Đang phục vụ
+            dao.updateBanStatus(maBan, "Đang phục vụ");
+        } else if ("update".equals(action)) {
             HoaDon hd = new HoaDon(maHD, maBan, maNV, ngayTao, tongTien, trangThai);
             dao.update(hd);
-        } 
-        else if ("updateStatus".equals(action)) {
+        } else if ("updateStatus".equals(action)) {
             dao.updateStatus(maHD, trangThai);
+            // Nếu chuyển sang Đã thanh toán, dọn bàn về Trống
+            if ("Đã thanh toán".equals(trangThai)) {
+                dao.updateBanStatus(maBan, "Trống");
+            }
         }
 
         response.sendRedirect("hoadon");

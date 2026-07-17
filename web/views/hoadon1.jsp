@@ -1,71 +1,51 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<!DOCTYPE html>
-<html lang="vi">
-    <head>
-        <meta charset="UTF-8">
-        <title>Quản lý Hóa đơn</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-        <!-- Dùng chung file CSS với Nhân viên để đồng bộ giao diện -->
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/nhanvien.css">
-    </head>
-    <body>
-        <aside class="sidebar">
-            <div class="logo">
-                <i class="fa-solid fa-mug-hot"></i> 
-                <span class="logo-text">QUẢN LÝ QUÁN CAFE</span>
-                <button id="toggleBtn" type="button"><i class="fa-solid fa-bars"></i></button>
-            </div>
-            <ul class="menu">
-                <li onclick="location.href = '${pageContext.request.contextPath}/views/homepage.jsp'"><i class="fa-solid fa-house"></i> <span>Trang chủ</span></li>
-                <li onclick="location.href = '${pageContext.request.contextPath}/nhanvien'"><i class="fa-solid fa-user"></i> <span>Nhân viên</span></li>
-                <li class="active" onclick="location.href = '${pageContext.request.contextPath}/hoadon'"><i class="fa-solid fa-file-invoice-dollar"></i> <span>Hóa đơn</span></li>
-                <li onclick="location.href = '${pageContext.request.contextPath}/menu'"><i class="fa-solid fa-mug-saucer"></i> <span>Menu</span></li>
-                <li onclick="location.href = '${pageContext.request.contextPath}/ban'"><i class="fa-solid fa-chair"></i> <span>Bàn</span></li>
-                <li onclick="location.href = '${pageContext.request.contextPath}/KhoServlet'"><i class="fa-solid fa-box"></i> <span>Kho</span></li>
-                <li onclick="location.href = '${pageContext.request.contextPath}/khachhang'"><i class="fa-solid fa-users"></i> <span>Khách hàng</span></li>
-                <li onclick="location.href = '${pageContext.request.contextPath}/ThongKeServlet'"><i class="fa-solid fa-chart-column"></i> <span>Thống kê</span></li>
-            </ul>
-            <a class="logout" href="${pageContext.request.contextPath}/LogoutServlet"><i class="fa-solid fa-right-from-bracket"></i> <span>Đăng xuất</span></a>
-        </aside>
+<%@page import="model.HoaDon"%>
+<%
+    HoaDon hd = (HoaDon) request.getAttribute("hoadon");
+    boolean isEdit = (hd != null);
+%>
+<div class="card" style="box-shadow:none; border:none; padding:10px;">
+    <h3><i class="fa-solid fa-receipt"></i> <%= isEdit ? "THÊM HÓA ĐƠN" : "THÔNG TIN HÓA ĐƠN MỚI" %></h3>
+    <form action="hoadon" method="post">
+        <input type="hidden" name="action" value="<%= isEdit ? "update" : "insert" %>">
 
-        <div class="main">
-            <div class="header">
-                <h2>Quản lý Hóa đơn</h2>
-                <div class="user-profile">
-                    <i class="fa-solid fa-user"></i> 
-                    <span>${sessionScope.maNV} - ${sessionScope.tenNV}</span>
-                </div>
-            </div>
-            <div class="content">
-                <div class="card">
-                    <div class="top">
-                        <form class="search-form" action="${pageContext.request.contextPath}/hoadon" method="get">
-                            <input type="hidden" name="action" value="search">
-                            <input type="text" name="keyword" placeholder="Nhập mã hóa đơn...">
-                            <button type="submit"><i class="fa-solid fa-search"></i></button>
-                        </form>
-                        <a class="btn-add" href="${pageContext.request.contextPath}/hoadon?action=new"><i class="fa-solid fa-plus"></i> Thêm hóa đơn</a>
-                    </div>
-                    <table>
-                        <tr><th>Mã HĐ</th><th>Mã Bàn</th><th>Ngày tạo</th><th>Tổng tiền</th><th>Trạng thái</th><th>Thao tác</th></tr>
-                        <c:forEach var="hd" items="${listHoaDon}">
-                            <tr>
-                                <td>${hd.maHD}</td>
-                                <td>${hd.maBan}</td>
-                                <td>${hd.ngayTao}</td>
-                                <td>${hd.tongTien}</td>
-                                <td>${hd.trangThai}</td>
-                                <td>
-                                    <a class="btn-edit" href="${pageContext.request.contextPath}/hoadon?action=edit&maHD=${hd.maHD}"><i class="fa-solid fa-pen"></i></a>
-                                    <a class="btn-delete" href="${pageContext.request.contextPath}/hoadon?action=delete&maHD=${hd.maHD}" onclick="return confirm('Xóa hóa đơn này?');"><i class="fa-solid fa-trash"></i></a>
-                                </td>
-                            </tr>
-                        </c:forEach>
-                    </table>
-                </div>
-            </div>
+        <div style="margin-bottom:10px;">
+            <label>Mã hóa đơn</label><br>
+            <input type="text" name="maHD" value="<%= hd != null ? hd.getMaHD() : "" %>" readonly style="width:100%; padding:8px;">
         </div>
-        <script src="${pageContext.request.contextPath}/js/nhanvien.js"></script>
-    </body>
-</html>
+
+        <div style="margin-bottom:10px;">
+            <label>Mã bàn</label><br>
+            <input type="text" name="maBan" value="<%= isEdit ? hd.getMaBan() : "" %>" required style="width:100%; padding:8px;">
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <label>Mã nhân viên</label><br>
+            <input type="text" name="maNV" value="<%= isEdit ? hd.getMaNV() : (session.getAttribute("maNV") != null ? session.getAttribute("maNV") : "") %>" required style="width:100%; padding:8px;">
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <label>Ngày tạo</label><br>
+            <input type="text" name="ngayTao" value="<%= hd != null ? hd.getNgayTao() : "" %>" readonly style="width:100%; padding:8px;">
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <label>Tổng tiền (VNĐ)</label><br>
+            <input type="number" name="tongTien" value="<%= isEdit ? String.format("%.0f", hd.getTongTien()) : "0" %>" min="0" required style="width:100%; padding:8px;">
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <label>Trạng thái</label><br>
+            <select name="trangThai" style="width:100%; padding:8px;">
+                <option value="Chưa thanh toán" <%= isEdit && "Chưa thanh toán".equals(hd.getTrangThai()) ? "selected" : "" %>>Chưa thanh toán</option>
+                <option value="Đã thanh toán" <%= isEdit && "Đã thanh toán".equals(hd.getTrangThai()) ? "selected" : "" %>>Đã thanh toán</option>
+                <option value="Đã hủy" <%= isEdit && "Đã hủy".equals(hd.getTrangThai()) ? "selected" : "" %>>Đã hủy</option>
+            </select>
+        </div>
+
+        <div class="button-group" style="margin-top: 15px; display: flex; gap: 10px;">
+            <button class="btn-save" type="submit" style="padding:8px 15px;"><i class="fa-solid fa-floppy-disk"></i> <%= isEdit ? "Cập nhật" : "Tạo mới" %></button>
+            <button type="button" class="btn-back" onclick="closeHoaDonModal()" style="padding:8px 15px;"><i class="fa-solid fa-arrow-left"></i> Hủy</button>
+        </div>
+    </form>
+</div>

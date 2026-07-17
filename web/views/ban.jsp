@@ -46,29 +46,42 @@
             <div class="content">
                 <div class="card-container">
                     <%
-                        try {
-                            ArrayList<BanAn> list = (ArrayList<BanAn>) request.getAttribute("listBan");
-                            if (list != null && !list.isEmpty()) {
-                                for (BanAn ban : list) {
-                                    String statusClass = ban.getTrangThai().equals("Trống") ? "trang" : "phucvu";
-                    %>
-                    <div class="ban-card <%= statusClass %>">
-                        <div class="ban-title" style="font-weight:bold; font-size:1.1em;"><%= ban.getTenBan() %></div>
-                        <p>Trạng thái: <%= ban.getTrangThai() %></p>
-                        <div class="actions">
-                            <button class="btn-small" onclick="xemHoaDon('<%= ban.getMaBan() %>')">Xem</button>
-                            <button class="btn-small" onclick="location.href='ban?action=checkout&maBan=<%= ban.getMaBan() %>'">Thanh toán</button>
-                        </div>
+    try {
+        // Lấy list bàn từ request attribute (được truyền từ BanServlet)
+        ArrayList<BanAn> list = (ArrayList<BanAn>) request.getAttribute("listBan");
+        
+        if (list != null && !list.isEmpty()) {
+            for (BanAn ban : list) {
+                // Xác định class CSS dựa trên trạng thái
+                String statusClass = ban.getTrangThai().equals("Trống") ? "trang" : "phucvu";
+%>
+                <div class="ban-card <%= statusClass %>">
+                    <div class="ban-title" style="font-weight:bold; font-size:1.1em;"><%= ban.getTenBan() %></div>
+                    <p>Trạng thái: <%= ban.getTrangThai() %></p>
+                    
+                    <div class="actions">
+                        <!-- Nút Xem: Gọi modal -->
+                        <button class="btn-small" onclick="xemHoaDon('<%= ban.getMaBan() %>')">Xem</button>
+                        
+                        <!-- Nút Thanh toán: Chỉ hiện khi bàn đang phục vụ -->
+                        <% if ("Đang phục vụ".equals(ban.getTrangThai())) { %>
+                            <button class="btn-small" 
+                                    style="background: #e67e22; color: white; border: none;" 
+                                    onclick="location.href='hoadon?action=list'">
+                                Thanh toán
+                            </button>
+                        <% } %>
                     </div>
-                    <% 
-                                }
-                            } else {
-                                out.println("<p>Không có dữ liệu bàn</p>");
-                            }
-                        } catch (Exception e) {
-                            out.println("<p style='color:red;'>Lỗi: " + e.getMessage() + "</p>");
-                        }
-                    %>
+                </div>
+<% 
+            }
+        } else {
+            out.println("<p>Không có dữ liệu bàn</p>");
+        }
+    } catch (Exception e) {
+        out.println("<p style='color:red;'>Lỗi hiển thị bàn: " + e.getMessage() + "</p>");
+    }
+%>
                 </div>
             </div>
         </div>
