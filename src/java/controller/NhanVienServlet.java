@@ -34,11 +34,31 @@ public class NhanVienServlet extends HttpServlet {
 
         try {
             switch (action) {
-                case "loadForm": loadForm(request, response); break; // Mở form Thêm/Sửa
-                case "add": insertNhanVien(request, response); break;
-                case "edit": updateNhanVien(request, response); break;
-                case "delete": deleteNhanVien(request, response); break;
-                default: listNhanVien(request, response); break;
+                case "loadForm":
+                    loadForm(request, response);
+                    break; // Mở form Thêm/Sửa
+                case "loadCa":
+                    loadCaForm(request, response);
+                    break;
+                case "updateCa":
+                    try {
+                        updateCa(request, response);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case "add":
+                    insertNhanVien(request, response);
+                    break;
+                case "edit":
+                    updateNhanVien(request, response);
+                    break;
+                case "delete":
+                    deleteNhanVien(request, response);
+                    break;
+                default:
+                    listNhanVien(request, response);
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,11 +71,26 @@ public class NhanVienServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-        doGet(request, response);
+
+        // Lấy action từ input hidden trong form
+        String action = request.getParameter("action");
+
+        if ("updateCa".equals(action)) {
+            try {
+                // Gọi trực tiếp hàm updateCa
+                updateCa(request, response);
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.getWriter().println("Lỗi khi cập nhật ca làm: " + e.getMessage());
+            }
+        } else {
+            // Nếu không phải updateCa, gọi mặc định qua doGet
+            doGet(request, response);
+        }
     }
 
     // Hàm mới: Điều hướng sang form (Thêm hoặc Sửa)
-    private void loadForm(HttpServletRequest request, HttpServletResponse response) 
+    private void loadForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String maNV = request.getParameter("maNV");
         if (maNV != null && !maNV.trim().isEmpty()) {
@@ -99,9 +134,37 @@ public class NhanVienServlet extends HttpServlet {
     private void deleteNhanVien(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         String maNV = request.getParameter("maNV");
-        if (maNV != null) dao.deleteNhanVien(maNV);
+        if (maNV != null) {
+            dao.deleteNhanVien(maNV);
+        }
         response.sendRedirect(request.getContextPath() + "/nhanvien?action=list");
     }
+
+    private void loadCaForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String maNV = request.getParameter("maNV");
+        NhanVien nv = dao.getNhanVienById(maNV);
+        request.setAttribute("nv", nv);
+        request.getRequestDispatcher("/views/nhanvien2.jsp").forward(request, response);
+    }
+
+    // Phương thức xử lý lưu Ca làm (Bạn cần cập nhật DAO sau)
+private void updateCa(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    String maNV = request.getParameter("maNV");
+
+    boolean caSang = request.getParameter("caSang") != null;
+    boolean caChieu = request.getParameter("caChieu") != null;
+    boolean caToi = request.getParameter("caToi") != null;
+
+    String gioBatDau = request.getParameter("gioBatDau");
+    String gioKetThuc = request.getParameter("gioKetThuc");
+
+    // Gọi DAO cập nhật
+    dao.updateCaLam(maNV, caSang, caChieu, caToi, gioBatDau, gioKetThuc);
+    
+    // BỎ COMMENT DÒNG NÀY VÀ THÊM RETURN
+    response.sendRedirect(request.getContextPath() + "/nhanvien");
+}
 
     private NhanVien buildNhanVienFromRequest(HttpServletRequest request) {
         NhanVien nv = new NhanVien();
@@ -110,13 +173,21 @@ public class NhanVienServlet extends HttpServlet {
         nv.setGioiTinh(request.getParameter("gioiTinh"));
         nv.setSdt(request.getParameter("sdt"));
         nv.setChucVu(request.getParameter("chucVu"));
-        
+        nv.setCaSang(request.getParameter("caSang") != null);
+        nv.setCaChieu(request.getParameter("caChieu") != null);
+        nv.setCaToi(request.getParameter("caToi") != null);
+        nv.setGioBatDau(request.getParameter("gioBatDau"));
+        nv.setGioKetThuc(request.getParameter("gioKetThuc"));
         String ns = request.getParameter("ngaySinh");
-        if (ns != null && !ns.trim().isEmpty()) nv.setNgaySinh(Date.valueOf(ns));
-        
+        if (ns != null && !ns.trim().isEmpty()) {
+            nv.setNgaySinh(Date.valueOf(ns));
+        }
+
         String luong = request.getParameter("luongCoBan");
-        if (luong != null && !luong.trim().isEmpty()) nv.setLuongCoBan(Double.parseDouble(luong));
-        
+        if (luong != null && !luong.trim().isEmpty()) {
+            nv.setLuongCoBan(Double.parseDouble(luong));
+        }
+
         return nv;
     }
 }

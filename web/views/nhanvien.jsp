@@ -28,7 +28,6 @@
             <a class="logout" href="${pageContext.request.contextPath}/LogoutServlet"><i class="fa-solid fa-right-from-bracket"></i> <span>Đăng xuất</span></a>
         </aside>
 
-        <!-- Khối giao diện chính -->
         <div class="main">
             <div class="header">
                 <h2>Quản lý nhân viên</h2>
@@ -45,26 +44,47 @@
                             <input type="text" name="keyword" placeholder="Nhập mã hoặc tên...">
                             <button type="submit"><i class="fa-solid fa-search"></i></button>
                         </form>
-                        <!-- GỌI HÀM OPEN MODAL VỚI FETCH -->
                         <button type="button" class="btn-add" onclick="openModal('${pageContext.request.contextPath}/views/nhanvien1.jsp', 'Thêm nhân viên mới')">
                             <i class="fa-solid fa-plus"></i> Thêm nhân viên
                         </button>
                     </div>
                     <table>
-                        <tr><th>Mã NV</th><th>Họ tên</th><th>Giới tính</th><th>Ngày sinh</th><th>SĐT</th><th>Chức vụ</th><th>Thao tác</th></tr>
-                                <c:forEach var="nv" items="${listNV}">
+                        <tr>
+                            <th>Mã NV</th>
+                            <th>Họ tên</th>
+                            <th>Giới tính</th>
+                            <th>Ngày sinh</th>
+                            <th>SĐT</th>
+                            <th>Chức vụ</th>
+                            <th>Ca làm</th>
+                            <th>Thời gian</th>
+                            <th>Thao tác</th>
+                        </tr>
+                        <c:forEach var="nv" items="${listNV}">
                             <tr>
-                                <td>${nv.maNV}</td><td>${nv.hoTen}</td><td>${nv.gioiTinh}</td><td>${nv.ngaySinh}</td><td>${nv.sdt}</td><td>${nv.chucVu}</td>
+                                <td>${nv.maNV}</td>
+                                <td>${nv.hoTen}</td>
+                                <td>${nv.gioiTinh}</td>
+                                <td>${nv.ngaySinh}</td>
+                                <td>${nv.sdt}</td>
+                                <td>${nv.chucVu}</td>
                                 <td>
-                                    <!-- NÚT SỬA CŨNG DÙNG MODAL -->
-                                    <a href="javascript:void(0)" 
-                                       onclick="openModal('${pageContext.request.contextPath}/nhanvien?action=loadForm&maNV=${nv.maNV}', 'Sửa thông tin nhân viên')">
-                                        <i class="fa-solid fa-pen" style="color: #ffc107; margin-right: 10px; cursor: pointer;"></i>
+                                    <c:if test="${nv.caSang}">Sáng </c:if>
+                                    <c:if test="${nv.caChieu}">Chiều </c:if>
+                                    <c:if test="${nv.caToi}">Tối</c:if>
+                                    </td>
+                                    <td>${nv.gioBatDau} - ${nv.gioKetThuc}</td>
+                                <td>
+                                    <a href="javascript:void(0)" onclick="openModal('${pageContext.request.contextPath}/nhanvien?action=loadForm&maNV=${nv.maNV}', 'Sửa thông tin nhân viên')">
+                                        <i class="fa-solid fa-pen" style="color: #ffc107;"></i>
                                     </a>
-                                    <a class="btn-action btn-delete" 
-                                       href="${pageContext.request.contextPath}/nhanvien?action=delete&maNV=${nv.maNV}" 
-                                       onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên này?');">
-                                        <i class="fa-solid fa-trash"></i>
+                                    <!-- Nút gọi hàm JS tạo form Ca làm -->
+                                    <a href="javascript:void(0)" onclick="openCaModal('${nv.maNV}')">
+                                        <i class="fa-solid fa-clock" style="color: #17a2b8; margin: 0 10px;"></i>
+                                    </a>
+                                    <a href="nhanvien?action=delete&maNV=${nv.maNV}" 
+                                       style="background:white; color:red; padding:5px 10px; border-radius:5px; text-decoration:none;">
+                                        <i class="fa-solid fa-trash-can"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -74,28 +94,7 @@
             </div>
         </div> 
 
-        <!-- Khung Popup -->
-        <dialog id="nhanVienModal" style="width: 500px; padding: 20px; border-radius: 8px; border: none;">
-            <div id="modalContent"></div> <!-- Nội dung trang nhanvien1.jsp sẽ được nạp vào đây -->
-        </dialog>
-
-        <script>
-            function openModal(url) {
-                // Lấy nội dung từ trang nhanvien1.jsp và nạp vào modal
-                fetch(url)
-                        .then(response => response.text())
-                        .then(html => {
-                            document.getElementById('modalContent').innerHTML = html;
-                            document.getElementById('nhanVienModal').showModal();
-                        });
-            }
-
-            function closeModal() {
-                document.getElementById('nhanVienModal').close();
-            }
-        </script>
-
-        <!-- KHỐI MODAL ĐỒNG BỘ CẤU TRÚC VỚI HÓA ĐƠN -->
+        <!-- Khung Modal dùng chung -->
         <div id="myModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
             <div style="background:white; padding:25px; border-radius:12px; width:500px; box-shadow:0 4px 15px rgba(0,0,0,0.2); position:relative;">
                 <span class="close-btn" onclick="closeModal()" style="position:absolute; right:20px; top:10px; font-size:28px; cursor:pointer; font-weight:bold; color:#333;">&times;</span>
@@ -105,8 +104,8 @@
             </div>
         </div>
 
-        <!-- Điều khiển Logic đóng/mở Modal bằng fetch -->
         <script>
+            // Hàm dùng cho Thêm/Sửa nhân viên (load từ file JSP)
             function openModal(url, title) {
                 document.getElementById('modalTitle').innerText = title;
                 fetch(url)
@@ -120,7 +119,7 @@
 
             function closeModal() {
                 document.getElementById('myModal').style.display = 'none';
-                document.getElementById('modalBody').innerHTML = ""; // Xóa dữ liệu cũ
+                document.getElementById('modalBody').innerHTML = "";
             }
 
             window.onclick = function (event) {
@@ -130,6 +129,11 @@
                 }
             }
         </script>
+
+        <script>
+            var contextPath = "${pageContext.request.contextPath}";
+        </script>
+        <!-- File này chứa hàm openCaModal -->
         <script src="${pageContext.request.contextPath}/js/nhanvien.js"></script>
     </body>
 </html>

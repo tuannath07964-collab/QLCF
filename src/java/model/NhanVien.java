@@ -7,26 +7,22 @@ public class NhanVien {
     private String maNV;
     private String hoTen;
     private String gioiTinh;
+    private Date ngaySinh;
     private String sdt;
     private String chucVu;
-    private Date ngaySinh;
     private double luongCoBan;
 
+    // Thuộc tính mới cho Ca làm
+    private boolean caSang;
+    private boolean caChieu;
+    private boolean caToi;
+    private String gioBatDau;
+    private String gioKetThuc;
+
+    // Constructor mặc định
     public NhanVien() {
     }
 
-    // Constructor mới phải có đủ 7 tham số
-    public NhanVien(String maNV, String hoTen, String gioiTinh, Date ngaySinh, String sdt, String chucVu, double luongCoBan) {
-        this.maNV = maNV;
-        this.hoTen = hoTen;
-        this.gioiTinh = gioiTinh;
-        this.ngaySinh = ngaySinh;
-        this.sdt = sdt;
-        this.chucVu = chucVu;
-        this.luongCoBan = luongCoBan;
-    }
-
-    // --- CÁC GETTER VÀ SETTER ---
     public String getMaNV() {
         return maNV;
     }
@@ -79,7 +75,49 @@ public class NhanVien {
         return luongCoBan;
     }
 
+    // ... (Giữ nguyên các Getter/Setter cũ của bạn) ...
     public void setLuongCoBan(double luongCoBan) {
         this.luongCoBan = luongCoBan;
+    }
+
+    // Getter và Setter cho thuộc tính mới
+    public boolean isCaSang() {
+        return caSang;
+    }
+
+    public void setCaSang(boolean caSang) {
+        this.caSang = caSang;
+    }
+
+    public boolean isCaChieu() {
+        return caChieu;
+    }
+
+    public void setCaChieu(boolean caChieu) {
+        this.caChieu = caChieu;
+    }
+
+    public boolean isCaToi() {
+        return caToi;
+    }
+
+    public void setCaToi(boolean caToi) {
+        this.caToi = caToi;
+    }
+
+    public String getGioBatDau() {
+        return gioBatDau;
+    }
+
+    public void setGioBatDau(String gioBatDau) {
+        this.gioBatDau = gioBatDau;
+    }
+
+    public String getGioKetThuc() {
+        return gioKetThuc;
+    }
+
+    public void setGioKetThuc(String gioKetThuc) {
+        this.gioKetThuc = gioKetThuc;
     }
 }
