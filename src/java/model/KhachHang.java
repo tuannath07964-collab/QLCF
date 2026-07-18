@@ -1,23 +1,54 @@
 package model;
 
 public class KhachHang {
+
     private String maKH;
-    private String tenKH;
+    private String hoTen;
     private String sdt;
+    private String maGiamGia;
 
-    public KhachHang() {}
+    // Constructor mặc định
+    public KhachHang() {
+    }
 
-    public KhachHang(String maKH, String tenKH, String sdt) {
+    // Constructor đầy đủ
+    public KhachHang(String maKH, String hoTen, String sdt, String maGiamGia) {
         this.maKH = maKH;
-        this.tenKH = tenKH;
+        this.hoTen = hoTen;
+        this.sdt = sdt;
+        this.maGiamGia = maGiamGia;
+    }
+
+    // Các phương thức Getter và Setter
+    public String getMaKH() {
+        return maKH;
+    }
+
+    public void setMaKH(String maKH) {
+        this.maKH = maKH;
+    }
+
+    public String getHoTen() {
+        return hoTen;
+    }
+
+    public void setHoTen(String hoTen) {
+        this.hoTen = hoTen;
+    }
+
+    public String getSdt() {
+        return sdt;
+    }
+
+    public void setSdt(String sdt) {
         this.sdt = sdt;
     }
 
-    // Getters and Setters
-    public String getMaKH() { return maKH; }
-    public void setMaKH(String maKH) { this.maKH = maKH; }
-    public String getTenKH() { return tenKH; }
-    public void setTenKH(String tenKH) { this.tenKH = tenKH; }
-    public String getSdt() { return sdt; }
-    public void setSdt(String sdt) { this.sdt = sdt; }
+    public String getMaGiamGia() {
+        return maGiamGia;
+    }
+
+    public void setMaGiamGia(String maGiamGia) {
+        this.maGiamGia = maGiamGia;
+    }
 }

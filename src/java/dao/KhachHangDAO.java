@@ -1,135 +1,92 @@
 package dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
 import model.KhachHang;
 import util.DBConnect;
+import java.sql.*;
+import java.util.ArrayList;
 
 public class KhachHangDAO {
 
-    public ArrayList<KhachHang> getAll() {
+    public ArrayList<KhachHang> getAllKhachHang() {
         ArrayList<KhachHang> list = new ArrayList<>();
-        String sql = "SELECT * FROM KhachHang ORDER BY MaKH";
-
-        try {
-            Connection conn = DBConnect.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-
+        String sql = "SELECT MaKH, HoTen, SDT, MaGiamGia FROM KhachHang";
+        try (Connection conn = DBConnect.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql); 
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                KhachHang kh = new KhachHang();
-                kh.setMaKH(rs.getString("MaKH"));
-                kh.setTenKH(rs.getString("TenKH"));
-                kh.setSdt(rs.getString("SDT"));
-
-                list.add(kh);
+                list.add(mapRow(rs));
             }
-
-            rs.close();
-            ps.close();
-            conn.close();
-
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("LỖI KẾT NỐI DATABASE: " + e.getMessage());
         }
-
         return list;
     }
 
-    public KhachHang findById(String maKH) {
-        String sql = "SELECT * FROM KhachHang WHERE MaKH = ?";
-
-        try {
-            Connection conn = DBConnect.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
+    public KhachHang getKhachHangById(String maKH) {
+        String sql = "SELECT MaKH, HoTen, SDT, MaGiamGia FROM KhachHang WHERE MaKH = ?";
+        try (Connection conn = DBConnect.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maKH);
-
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                KhachHang kh = new KhachHang();
-                kh.setMaKH(rs.getString("MaKH"));
-                kh.setTenKH(rs.getString("TenKH"));
-                kh.setSdt(rs.getString("SDT"));
-
-                rs.close();
-                ps.close();
-                conn.close();
-
-                return kh;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
             }
-
-            rs.close();
-            ps.close();
-            conn.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
-    public void insert(KhachHang kh) {
-        String sql = "INSERT INTO KhachHang (MaKH, TenKH, SDT) VALUES (?, ?, ?)";
-
-        try {
-            Connection conn = DBConnect.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-
+    public boolean insertKhachHang(KhachHang kh) {
+        String sql = "INSERT INTO KhachHang(MaKH, HoTen, SDT, MaGiamGia) VALUES(?,?,?,?)";
+        try (Connection conn = DBConnect.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, kh.getMaKH());
-            ps.setString(2, kh.getTenKH());
+            ps.setString(2, kh.getHoTen());
             ps.setString(3, kh.getSdt());
-
-            ps.executeUpdate();
-
-            ps.close();
-            conn.close();
-
+            ps.setString(4, kh.getMaGiamGia());
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
-    public void update(KhachHang kh) {
-        String sql = "UPDATE KhachHang SET TenKH = ?, SDT = ? WHERE MaKH = ?";
-
-        try {
-            Connection conn = DBConnect.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            ps.setString(1, kh.getTenKH());
+    public boolean updateKhachHang(KhachHang kh) {
+        String sql = "UPDATE KhachHang SET HoTen=?, SDT=?, MaGiamGia=? WHERE MaKH=?";
+        try (Connection conn = DBConnect.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, kh.getHoTen());
             ps.setString(2, kh.getSdt());
-            ps.setString(3, kh.getMaKH());
-
-            ps.executeUpdate();
-
-            ps.close();
-            conn.close();
-
+            ps.setString(3, kh.getMaGiamGia());
+            ps.setString(4, kh.getMaKH());
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
-    public void delete(String maKH) {
-        String sql = "DELETE FROM KhachHang WHERE MaKH = ?";
-
-        try {
-            Connection conn = DBConnect.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-
+    public boolean deleteKhachHang(String maKH) {
+        String sql = "DELETE FROM KhachHang WHERE MaKH=?";
+        try (Connection conn = DBConnect.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maKH);
-
-            ps.executeUpdate();
-
-            ps.close();
-            conn.close();
-
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
+    }
+
+    // Phương thức ánh xạ dữ liệu từ ResultSet vào Object
+    private KhachHang mapRow(ResultSet rs) throws SQLException {
+        KhachHang kh = new KhachHang();
+        kh.setMaKH(rs.getString("MaKH"));
+        kh.setHoTen(rs.getString("HoTen"));
+        kh.setSdt(rs.getString("SDT"));
+        kh.setMaGiamGia(rs.getString("MaGiamGia"));
+        return kh;
     }
 }
