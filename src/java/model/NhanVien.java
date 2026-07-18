@@ -1,43 +1,32 @@
 package model;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class NhanVien {
 
     private String maNV;
     private String hoTen;
     private String gioiTinh;
-    private Date ngaySinh;
     private String sdt;
-    private String diaChi;
     private String chucVu;
-    private double luong;
-    private String trangThai;
+    private Date ngaySinh;
+    private double luongCoBan;
 
     public NhanVien() {
     }
 
-    public NhanVien(String maNV,
-                     String hoTen,
-                     String gioiTinh,
-                     Date ngaySinh,
-                     String sdt,
-                     String diaChi,
-                     String chucVu,
-                     double luong,
-                     String trangThai) {
-
+    // Constructor mới phải có đủ 7 tham số
+    public NhanVien(String maNV, String hoTen, String gioiTinh, Date ngaySinh, String sdt, String chucVu, double luongCoBan) {
         this.maNV = maNV;
         this.hoTen = hoTen;
         this.gioiTinh = gioiTinh;
         this.ngaySinh = ngaySinh;
         this.sdt = sdt;
-        this.diaChi = diaChi;
         this.chucVu = chucVu;
-        this.luong = luong;
-        this.trangThai = trangThai;
+        this.luongCoBan = luongCoBan;
     }
 
+    // --- CÁC GETTER VÀ SETTER ---
     public String getMaNV() {
         return maNV;
     }
@@ -78,14 +67,6 @@ public class NhanVien {
         this.sdt = sdt;
     }
 
-    public String getDiaChi() {
-        return diaChi;
-    }
-
-    public void setDiaChi(String diaChi) {
-        this.diaChi = diaChi;
-    }
-
     public String getChucVu() {
         return chucVu;
     }
@@ -94,34 +75,11 @@ public class NhanVien {
         this.chucVu = chucVu;
     }
 
-    public double getLuong() {
-        return luong;
+    public double getLuongCoBan() {
+        return luongCoBan;
     }
 
-    public void setLuong(double luong) {
-        this.luong = luong;
-    }
-
-    public String getTrangThai() {
-        return trangThai;
-    }
-
-    public void setTrangThai(String trangThai) {
-        this.trangThai = trangThai;
-    }
-
-    @Override
-    public String toString() {
-        return "NhanVien{" +
-                "maNV='" + maNV + '\'' +
-                ", hoTen='" + hoTen + '\'' +
-                ", gioiTinh='" + gioiTinh + '\'' +
-                ", ngaySinh=" + ngaySinh +
-                ", sdt='" + sdt + '\'' +
-                ", diaChi='" + diaChi + '\'' +
-                ", chucVu='" + chucVu + '\'' +
-                ", luong=" + luong +
-                ", trangThai='" + trangThai + '\'' +
-                '}';
+    public void setLuongCoBan(double luongCoBan) {
+        this.luongCoBan = luongCoBan;
     }
 }

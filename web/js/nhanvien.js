@@ -1,14 +1,21 @@
-// 1. Logic ẩn hiện Sidebar
-document.getElementById('toggleBtn').addEventListener('click', function() {
-    const sidebar = document.querySelector('.sidebar');
-    sidebar.classList.toggle('collapsed'); // Thêm class này để sidebar co lại
-});
+function openModal(url, title) {
+        document.getElementById('modalTitle').innerText = title;
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('modalBody').innerHTML = html;
+                document.getElementById('myModal').style.display = 'flex';
+            });
+    }
 
-// 2. Logic giữ màu khi click menu (Active class)
-const menuItems = document.querySelectorAll('.menu li');
-menuItems.forEach(item => {
-    item.addEventListener('click', function() {
-        menuItems.forEach(i => i.classList.remove('active'));
-        this.classList.add('active');
-    });
-});
+    function closeModal() {
+        document.getElementById('myModal').style.display = 'none';
+    }
+
+    // Đóng khi click ra ngoài
+    window.onclick = function (event) {
+        var modal = document.getElementById("myModal");
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
