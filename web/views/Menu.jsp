@@ -1,239 +1,148 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="jakarta.tags.core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Qu?n l˝ Menu - Preview</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Roboto', sans-serif; }
-        body { display:flex; min-height:100vh; background:#f4f6f8; }
+    <head>
+        <meta charset="UTF-8">
+        <title>Qu·∫£n l√Ω Menu</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/menu.css">
+    </head>
+    <body>
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-mug-hot"></i> 
+                <span class="logo-text">QU·∫¢N L√ù QU√ÅN CAFE</span>
+                <button id="toggleBtn" type="button"><i class="fa-solid fa-bars"></i></button>
+            </div>
+            <ul class="menu">
+                <li onclick="location.href = '${pageContext.request.contextPath}/views/homepage.jsp'"><i class="fa-solid fa-house"></i> <span>Trang ch·ªß</span></li>
+                <li onclick="location.href = '${pageContext.request.contextPath}/nhanvien'"><i class="fa-solid fa-user"></i> <span>Nh√¢n vi√™n</span></li>
+                <li onclick="location.href = '${pageContext.request.contextPath}/hoadon'"><i class="fa-solid fa-file-invoice-dollar"></i> <span>H√≥a ƒë∆°n</span></li>
+                <li class="active" onclick="location.href = '${pageContext.request.contextPath}/menu'"><i class="fa-solid fa-mug-saucer"></i> <span>Menu</span></li>
+                <li onclick="location.href = '${pageContext.request.contextPath}/ban'"><i class="fa-solid fa-chair"></i> <span>B√†n</span></li>
+                <li onclick="location.href = '${pageContext.request.contextPath}/KhoServlet'"><i class="fa-solid fa-box"></i> <span>Kho</span></li>
+                <li onclick="location.href = '${pageContext.request.contextPath}/khachhang'"><i class="fa-solid fa-users"></i> <span>Kh√°ch h√†ng</span></li>
+                <li onclick="location.href = '${pageContext.request.contextPath}/ThongKeServlet'"><i class="fa-solid fa-chart-column"></i> <span>Th·ªëng k√™</span></li>
+            </ul>
+            <a class="logout" href="${pageContext.request.contextPath}/LogoutServlet"><i class="fa-solid fa-right-from-bracket"></i> <span>ƒêƒÉng xu·∫•t</span></a>
+        </aside>
 
-        .sidebar { width:280px; background:#2c3e50; color:#fff; display:flex; flex-direction:column; min-height:100vh; }
-        .sidebar-logo { display:flex; align-items:center; gap:12px; padding:22px 24px; background:#1c2833; font-family:'Playfair Display', serif; font-weight:700; font-size:19px; letter-spacing:0.5px; }
-        .sidebar-nav { flex:1; padding-top:10px; }
-        .sidebar-nav a { display:flex; align-items:center; gap:14px; padding:16px 26px; color:#dfe6ec; text-decoration:none; font-size:15.5px; transition:background .2s; }
-        .sidebar-nav a:hover { background:#33495f; }
-        .sidebar-nav a.active { background:#2e9bee; color:#fff; font-weight:500; }
-        .logout { display:flex; align-items:center; justify-content:center; gap:10px; padding:20px; background:#e0503a; color:#fff; text-decoration:none; font-size:15.5px; font-weight:500; }
-        .logout:hover { background:#c74631; }
-
-        .main { flex:1; display:flex; flex-direction:column; }
-        .topbar { display:flex; justify-content:space-between; align-items:center; padding:20px 40px; background:#fff; border-bottom:1px solid #e6e9ec; }
-        .topbar h1 { font-family:'Playfair Display', serif; font-weight:700; font-size:30px; color:#1c2833; }
-        .user-info { display:flex; align-items:center; gap:10px; font-family:'Playfair Display', serif; font-weight:600; color:#1c2833; font-size:16px; }
-
-        .content { padding:36px 40px; }
-
-        .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:14px; }
-        .search-box { display:flex; gap:8px; }
-        .search-box input { width:280px; padding:9px 14px; border:1px solid #ccd2d8; border-radius:4px; font-size:14px; background:#fff; }
-        .search-box button { width:42px; border:1px solid #ccd2d8; background:#fff; border-radius:4px; cursor:pointer; font-size:15px; }
-        .search-box button:hover { background:#eef1f3; }
-
-        .btn-add { background:#27ae60; color:#fff; border:none; padding:11px 20px; border-radius:4px; font-size:14.5px; font-weight:500; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
-        .btn-add:hover { background:#219150; }
-
-        .category-tabs { display:flex; gap:10px; margin-bottom:26px; flex-wrap:wrap; }
-        .category-tabs a { padding:9px 18px; border-radius:20px; font-size:14px; font-weight:500; text-decoration:none; color:#5c6773; background:#fff; border:1px solid #e2e6ea; transition:.15s; }
-        .category-tabs a:hover { border-color:#2e9bee; color:#2e9bee; }
-        .category-tabs a.active { background:#2c3e50; border-color:#2c3e50; color:#fff; }
-
-        .menu-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:22px; }
-        .mon-card { background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.07); display:flex; flex-direction:column; transition:transform .15s, box-shadow .15s; }
-        .mon-card:hover { transform:translateY(-3px); box-shadow:0 6px 16px rgba(0,0,0,0.1); }
-
-        .mon-anh-wrap { position:relative; width:100%; height:150px; display:flex; align-items:center; justify-content:center; font-size:46px; }
-        .mon-badge { position:absolute; top:10px; right:10px; padding:4px 10px; border-radius:12px; font-size:11.5px; font-weight:600; }
-        .badge-con { background:#e3f9ec; color:#1f9d55; }
-        .badge-het { background:#fdeceb; color:#e0503a; }
-
-        .mon-info { padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; flex:1; }
-        .mon-loai { font-size:12px; color:#8a94a0; text-transform:uppercase; letter-spacing:.4px; }
-        .mon-ten { font-family:'Playfair Display', serif; font-weight:700; font-size:17px; color:#1c2833; line-height:1.25; }
-        .mon-ma { font-size:12px; color:#b0b7bd; }
-        .mon-gia { margin-top:auto; font-size:16px; font-weight:700; color:#c0392b; padding-top:8px; }
-
-        .mon-actions { display:flex; border-top:1px solid #eef0f2; }
-        .mon-actions a { flex:1; text-align:center; padding:10px 0; font-size:13px; font-weight:500; text-decoration:none; color:#5c6773; }
-        .mon-actions a.btn-sua { color:#2e9bee; border-right:1px solid #eef0f2; }
-        .mon-actions a.btn-sua:hover { background:#eaf3fc; }
-        .mon-actions a.btn-xoa { color:#e0503a; }
-        .mon-actions a.btn-xoa:hover { background:#fdeceb; }
-    </style>
-</head>
-<body>
-
-    <div class="sidebar">
-        <div class="sidebar-logo">? QU?N L› QU¡N CAFE</div>
-        <div class="sidebar-nav">
-            <a href="#">? Trang ch?</a>
-            <a href="#">? Nh‚n viÍn</a>
-            <a href="#">? HÛa ??n</a>
-            <a href="#" class="active">? Menu</a>
-            <a href="#">? B‡n</a>
-            <a href="#">? Kho</a>
-            <a href="#">? Kh·ch h‡ng</a>
-            <a href="#">? Th?ng kÍ</a>
-        </div>
-        <a href="#" class="logout">? ??ng xu?t</a>
-    </div>
-
-    <div class="main">
-        <div class="topbar">
-            <h1>Qu?n l˝ Menu</h1>
-            <div class="user-info">? TH08199 - Tr?nh BÏnh Minh</div>
-        </div>
-
-        <div class="content">
-
-            <div class="toolbar">
-                <form class="search-box">
-                    <input type="text" placeholder="Nh?p tÍn mÛn ho?c m„ mÛn...">
-                    <button type="submit">?</button>
-                </form>
-                <a href="#" class="btn-add">? ThÍm mÛn</a>
+        <div class="main">
+            <div class="header">
+                <h2>Qu·∫£n l√Ω Menu</h2>
+                <div class="user-profile">
+                    <i class="fa-solid fa-user"></i> 
+                    <span>${sessionScope.maNV} - ${sessionScope.tenNV}</span>
+                </div>
             </div>
 
-            <div class="category-tabs">
-                <a href="#" class="active">T?t c?</a>
-                <a href="#">C‡ phÍ</a>
-                <a href="#">Tr‡</a>
-                <a href="#">Sinh t? / N??c Èp</a>
-                <a href="#">B·nh / ?n v?t</a>
+            <div class="content">
+                <div class="card">
+                    <div class="top">
+                        <form class="search-form" action="${pageContext.request.contextPath}/menu" method="get">
+                            <input type="hidden" name="action" value="search">
+                            <input type="text" name="keyword" placeholder="Nh·∫≠p t√™n ho·∫∑c m√£ m√≥n...">
+                            <button type="submit"><i class="fa-solid fa-search"></i></button>
+                        </form>
+                        <button type="button" class="btn-add" onclick="openModal('${pageContext.request.contextPath}/views/Menu2.jsp', 'Th√™m m√≥n m·ªõi')">
+                            <i class="fa-solid fa-plus"></i> Th√™m m√≥n
+                        </button>
+                    </div>
+
+                    <!-- Category Tabs (Ph√¢n lo·∫°i danh m·ª•c) -->
+                    <div class="filter-buttons">
+                        <a href="${pageContext.request.contextPath}/menu?action=list&loaiMon=all" 
+                           class="btn-filter ${empty selectedLoai || selectedLoai == 'all' ? 'active' : ''}">T·∫•t c·∫£</a>
+
+                        <a href="${pageContext.request.contextPath}/menu?action=list&loaiMon=coffee" 
+                           class="btn-filter ${selectedLoai == 'coffee' ? 'active' : ''}">C√† ph√™</a>
+
+                        <a href="${pageContext.request.contextPath}/menu?action=list&loaiMon=tea" 
+                           class="btn-filter ${selectedLoai == 'tea' ? 'active' : ''}">Tr√†</a>
+
+                        <a href="${pageContext.request.contextPath}/menu?action=list&loaiMon=juice" 
+                           class="btn-filter ${selectedLoai == 'juice' ? 'active' : ''}">Sinh t·ªë / N∆∞·ªõc √©p</a>
+
+                        <a href="${pageContext.request.contextPath}/menu?action=list&loaiMon=snack" 
+                           class="btn-filter ${selectedLoai == 'snack' ? 'active' : ''}">B√°nh / ƒÇn v·∫∑t</a>
+                    </div>
+
+                    <!-- L∆∞·ªõi hi·ªÉn th·ªã danh s√°ch m√≥n (Menu Grid) -->
+                    <div class="menu-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px;">
+                        <c:forEach var="m" items="${listMenu}">
+                            <div class="mon-card" style="background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.07); display:flex; flex-direction:column;">
+                                <div class="mon-anh-wrap" style="position:relative; width:100%; height:150px; background:#e8dcc8; display:flex; align-items:center; justify-content:center; font-size:46px;">
+                                    <c:choose>
+                                        <c:when test="${m.trangThai}">
+                                            <span class="mon-badge badge-con" style="position:absolute; top:10px; right:10px; padding:4px 10px; border-radius:12px; font-size:11.5px; font-weight:600; background:#e3f9ec; color:#1f9d55;">C√≤n h√†ng</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="mon-badge badge-het" style="position:absolute; top:10px; right:10px; padding:4px 10px; border-radius:12px; font-size:11.5px; font-weight:600; background:#fdeceb; color:#e0503a;">H·∫øt h√†ng</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <i class="fa-solid fa-mug-saucer"></i>
+                                </div>
+                                <div class="mon-info" style="padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; flex:1;">
+                                    <span class="mon-loai" style="font-size:12px; color:#8a94a0; text-transform:uppercase;">${m.loaiMon}</span>
+                                    <span class="mon-ten" style="font-weight:700; font-size:17px; color:#1c2833;">${m.tenMon}</span>
+                                    <span class="mon-ma" style="font-size:12px; color:#b0b7bd;">M√£: ${m.maMon}</span>
+                                    <span class="mon-gia" style="margin-top:auto; font-size:16px; font-weight:700; color:#c0392b; padding-top:8px;">${m.gia} ƒë</span>
+                                </div>
+                                <div class="mon-actions" style="display:flex; border-top:1px solid #eef0f2;">
+                                    <!-- N√∫t S·ª≠a th√¥ng tin m√≥n -->
+                                    <a href="javascript:void(0)" onclick="openModal('${pageContext.request.contextPath}/menu?action=loadForm&maMon=${m.maMon}', 'S·ª≠a th√¥ng tin m√≥n')" class="btn-sua" style="flex:1; text-align:center; padding:10px 0; font-size:13px; color:#2e9bee; border-right:1px solid #eef0f2; text-decoration:none;">
+                                        <i class="fa-solid fa-pen"></i> S·ª≠a
+                                    </a>
+                                    <!-- N√∫t X√≥a m√≥n -->
+                                    <a href="${pageContext.request.contextPath}/menu?action=delete&maMon=${m.maMon}" class="btn-xoa" style="flex:1; text-align:center; padding:10px 0; font-size:13px; color:#e0503a; text-decoration:none;" onclick="return confirm('B·∫°n c√≥ ch·∫Øc ch·∫Øn mu·ªën x√≥a m√≥n n√†y kh√¥ng?');">
+                                        <i class="fa-solid fa-trash-can"></i> X√≥a
+                                    </a>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </div>
             </div>
-
-            <div class="menu-grid">
-
-                <div class="mon-card">
-                    <div class="mon-anh-wrap" style="background:#e8dcc8;">?</div>
-                    <div class="mon-info">
-                        <span class="mon-loai">C‡ phÍ</span>
-                        <span class="mon-ten">C‡ phÍ s?a ?·</span>
-                        <span class="mon-ma">M„: MON01</span>
-                        <span class="mon-gia">29.000 ?</span>
-                    </div>
-                    <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">XÛa</a>
-                    </div>
-                </div>
-
-                <div class="mon-card">
-                    <div class="mon-anh-wrap" style="background:#3a2b22; color:#fff;">
-                        <span class="mon-badge badge-con">CÚn h‡ng</span>?
-                    </div>
-                    <div class="mon-info">
-                        <span class="mon-loai">C‡ phÍ</span>
-                        <span class="mon-ten">B?c x?u</span>
-                        <span class="mon-ma">M„: MON02</span>
-                        <span class="mon-gia">32.000 ?</span>
-                    </div>
-                    <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">XÛa</a>
-                    </div>
-                </div>
-
-                <div class="mon-card">
-                    <div class="mon-anh-wrap" style="background:#d9ecd0;">
-                        <span class="mon-badge badge-con">CÚn h‡ng</span>?
-                    </div>
-                    <div class="mon-info">
-                        <span class="mon-loai">Tr‡</span>
-                        <span class="mon-ten">Tr‡ ?‡o cam s?</span>
-                        <span class="mon-ma">M„: MON03</span>
-                        <span class="mon-gia">39.000 ?</span>
-                    </div>
-                    <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">XÛa</a>
-                    </div>
-                </div>
-
-                <div class="mon-card">
-                    <div class="mon-anh-wrap" style="background:#fbe4d5;">
-                        <span class="mon-badge badge-het">H?t h‡ng</span>?
-                    </div>
-                    <div class="mon-info">
-                        <span class="mon-loai">Tr‡</span>
-                        <span class="mon-ten">H?ng tr‡ kem cheese</span>
-                        <span class="mon-ma">M„: MON04</span>
-                        <span class="mon-gia">42.000 ?</span>
-                    </div>
-                    <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">XÛa</a>
-                    </div>
-                </div>
-
-                <div class="mon-card">
-                    <div class="mon-anh-wrap" style="background:#fde3ec;">
-                        <span class="mon-badge badge-con">CÚn h‡ng</span>?
-                    </div>
-                    <div class="mon-info">
-                        <span class="mon-loai">Sinh t? / N??c Èp</span>
-                        <span class="mon-ten">Sinh t? d‚u t‚y</span>
-                        <span class="mon-ma">M„: MON05</span>
-                        <span class="mon-gia">35.000 ?</span>
-                    </div>
-                    <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">XÛa</a>
-                    </div>
-                </div>
-
-                <div class="mon-card">
-                    <div class="mon-anh-wrap" style="background:#fff2c9;">
-                        <span class="mon-badge badge-con">CÚn h‡ng</span>?
-                    </div>
-                    <div class="mon-info">
-                        <span class="mon-loai">Sinh t? / N??c Èp</span>
-                        <span class="mon-ten">N??c Èp cam</span>
-                        <span class="mon-ma">M„: MON06</span>
-                        <span class="mon-gia">30.000 ?</span>
-                    </div>
-                    <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">XÛa</a>
-                    </div>
-                </div>
-
-                <div class="mon-card">
-                    <div class="mon-anh-wrap" style="background:#f0e2d0;">
-                        <span class="mon-badge badge-con">CÚn h‡ng</span>?
-                    </div>
-                    <div class="mon-info">
-                        <span class="mon-loai">B·nh / ?n v?t</span>
-                        <span class="mon-ten">B·nh tiramisu</span>
-                        <span class="mon-ma">M„: MON07</span>
-                        <span class="mon-gia">45.000 ?</span>
-                    </div>
-                    <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">XÛa</a>
-                    </div>
-                </div>
-
-                <div class="mon-card">
-                    <div class="mon-anh-wrap" style="background:#e5d8c3;">
-                        <span class="mon-badge badge-het">H?t h‡ng</span>?
-                    </div>
-                    <div class="mon-info">
-                        <span class="mon-loai">B·nh / ?n v?t</span>
-                        <span class="mon-ten">B·nh croissant b?</span>
-                        <span class="mon-ma">M„: MON08</span>
-                        <span class="mon-gia">25.000 ?</span>
-                    </div>
-                    <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">XÛa</a>
-                    </div>
-                </div>
-
-            </div>
-
         </div>
-    </div>
 
-</body>
+        <!-- Khung Modal d√πng chung cho c·∫£ Th√™m/S·ª≠a Menu -->
+        <div id="myModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+            <div style="background:white; padding:25px; border-radius:12px; width:500px; box-shadow:0 4px 15px rgba(0,0,0,0.2); position:relative; max-height: 90vh; overflow-y: auto;">
+                <span class="close-btn" onclick="closeModal()" style="position:absolute; right:20px; top:10px; font-size:28px; cursor:pointer; font-weight:bold; color:#333;">&times;</span>
+                <h3 id="modalTitle" style="margin-top:0;">Ti√™u ƒë·ªÅ</h3>
+                <hr style="margin: 15px 0;">
+                <div id="modalBody"></div>
+            </div>
+        </div>
+
+        <script>
+            var contextPath = "${pageContext.request.contextPath}";
+
+            // H√†m d√πng chung ƒë·ªÉ load n·ªôi dung v√†o Modal (Th√™m/S·ª≠a)
+            function openModal(url, title) {
+                document.getElementById('modalTitle').innerText = title;
+                fetch(url)
+                        .then(response => response.text())
+                        .then(html => {
+                            document.getElementById('modalBody').innerHTML = html;
+                            document.getElementById('myModal').style.display = 'flex';
+                        })
+                        .catch(error => console.error("L·ªói khi load d·ªØ li·ªáu:", error));
+            }
+
+            function closeModal() {
+                document.getElementById('myModal').style.display = 'none';
+                document.getElementById('modalBody').innerHTML = "";
+            }
+
+            window.onclick = function (event) {
+                var modal = document.getElementById("myModal");
+                if (event.target == modal) {
+                    closeModal();
+                }
+            }
+        </script>
+        <script src="${pageContext.request.contextPath}/js/menu.js"></script>
+    </body>
 </html>

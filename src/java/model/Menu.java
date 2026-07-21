@@ -1,32 +1,30 @@
 package model;
 
-public class Menu {
+import java.math.BigDecimal;
 
-    private int maMon;
+public class Menu {
+    private String maMon;
     private String tenMon;
-    private String loai;
-    private double gia;
-    private String trangThai;
-    private String hinhAnh;
+    private String loaiMon;
+    private BigDecimal gia;
+    private boolean trangThai;
 
     public Menu() {
     }
 
-    public Menu(int maMon, String tenMon, String loai,
-                double gia, String trangThai, String hinhAnh) {
+    public Menu(String maMon, String tenMon, String loaiMon, BigDecimal gia, boolean trangThai) {
         this.maMon = maMon;
         this.tenMon = tenMon;
-        this.loai = loai;
+        this.loaiMon = loaiMon;
         this.gia = gia;
         this.trangThai = trangThai;
-        this.hinhAnh = hinhAnh;
     }
 
-    public int getMaMon() {
+    public String getMaMon() {
         return maMon;
     }
 
-    public void setMaMon(int maMon) {
+    public void setMaMon(String maMon) {
         this.maMon = maMon;
     }
 
@@ -38,47 +36,27 @@ public class Menu {
         this.tenMon = tenMon;
     }
 
-    public String getLoai() {
-        return loai;
+    public String getLoaiMon() {
+        return loaiMon;
     }
 
-    public void setLoai(String loai) {
-        this.loai = loai;
+    public void setLoaiMon(String loaiMon) {
+        this.loaiMon = loaiMon;
     }
 
-    public double getGia() {
+    public BigDecimal getGia() {
         return gia;
     }
 
-    public void setGia(double gia) {
+    public void setGia(BigDecimal gia) {
         this.gia = gia;
     }
 
-    public String getTrangThai() {
+    public boolean isTrangThai() {
         return trangThai;
     }
 
-    public void setTrangThai(String trangThai) {
+    public void setTrangThai(boolean trangThai) {
         this.trangThai = trangThai;
-    }
-
-    public String getHinhAnh() {
-        return hinhAnh;
-    }
-
-    public void setHinhAnh(String hinhAnh) {
-        this.hinhAnh = hinhAnh;
-    }
-
-    @Override
-    public String toString() {
-        return "Menu{" +
-                "maMon=" + maMon +
-                ", tenMon='" + tenMon + '\'' +
-                ", loai='" + loai + '\'' +
-                ", gia=" + gia +
-                ", trangThai='" + trangThai + '\'' +
-                ", hinhAnh='" + hinhAnh + '\'' +
-                '}';
     }
 }

@@ -1,0 +1,217 @@
+/* --- CSS Đồng Bộ Dashboard & Menu --- */
+body {
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background: #f4f6f8;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    transition: all 0.3s ease;
+    background: #2c3e50;
+    color: white;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 0 0 260px;
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.sidebar.collapsed { 
+    flex: 0 0 80px; 
+    width: 80px; 
+}
+.sidebar.collapsed .logo-text, 
+.sidebar.collapsed .menu li span, 
+.sidebar.collapsed .logout span { 
+    display: none; 
+}
+.sidebar.collapsed .logo, 
+.sidebar.collapsed .menu li, 
+.sidebar.collapsed .logout { 
+    justify-content: center; 
+}
+
+.logo { 
+    padding: 20px; 
+    font-weight: bold; 
+    background: #1a252f; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+}
+
+.menu { 
+    padding: 0; 
+    margin: 0; 
+    list-style: none; 
+    flex: 1;
+    overflow-y: auto;
+}
+
+.menu li { 
+    padding: 15px 20px; 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+    border-left: 4px solid transparent; 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+}
+
+.menu li:hover { 
+    background: #34495e; 
+    padding-left: 30px; 
+    border-left: 4px solid #3498db; 
+    color: #ffffff; 
+}
+
+.menu li.active { 
+    background: #3498db !important; 
+    border-left: 4px solid #ffffff !important; 
+}
+
+.logout { 
+    padding: 20px; 
+    color: white; 
+    text-decoration: none; 
+    background: #e74c3c; 
+    text-align: center; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Main Content Styling */
+.main { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.header { 
+    background: white; 
+    padding: 15px 30px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 20px; 
+}
+
+.header h2 { 
+    margin: 0; 
+    font-size: 1.5rem; 
+    color: #2c3e50;
+}
+
+.user-profile { 
+    font-weight: 600; 
+    color: #2c3e50; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+}
+
+.content { 
+    padding: 0 30px 30px 30px; 
+    flex: 1;
+}
+
+/* Card & Toolbar Styling */
+.card { 
+    background: white; 
+    padding: 25px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+}
+
+.top { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 20px; 
+    align-items: center; 
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-form {
+    display: flex;
+    gap: 8px;
+}
+
+.search-form input {
+    width: 280px;
+    padding: 9px 14px;
+    border: 1px solid #ccd2d8;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.search-form button {
+    width: 42px;
+    border: 1px solid #ccd2d8;
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    color: #5c6773;
+}
+
+.btn-add { 
+    background: #27ae60; 
+    color: white; 
+    padding: 10px 20px; 
+    text-decoration: none; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    border: none; 
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#toggleBtn { 
+    background: transparent; 
+    border: none; 
+    color: white; 
+    cursor: pointer; 
+    font-size: 1.2rem; 
+}
+
+/* --- CSS cho cụm nút lọc danh mục Menu --- */
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.btn-filter {
+    padding: 8px 18px;
+    border: 1px solid #dcdcdc;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #333;
+    background: #fff;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.btn-filter:hover, 
+.btn-filter.active {
+    background: #2c3e50;
+    color: #fff;
+    border-color: #2c3e50;
+}
