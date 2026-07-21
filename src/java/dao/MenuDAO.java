@@ -4,6 +4,7 @@ import model.Menu;
 import util.DBConnect;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MenuDAO {
 
@@ -97,6 +98,31 @@ public class MenuDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+    
+    public List<Menu> searchMenu(String keyword) {
+    List<Menu> list = new ArrayList<>();
+    String sql = "SELECT * FROM Menu WHERE tenMon LIKE ? OR maMon LIKE ?";
+    try {
+        Connection con = DBConnect.getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);
+        String searchKey = "%" + keyword + "%";
+        ps.setString(1, searchKey);
+        ps.setString(2, searchKey);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Menu m = new Menu();
+            m.setMaMon(rs.getString("maMon"));
+            m.setTenMon(rs.getString("tenMon"));
+            m.setLoaiMon(rs.getString("loaiMon"));
+            m.setGia(rs.getBigDecimal("gia"));
+            m.setTrangThai(rs.getBoolean("trangThai"));
+            list.add(m);
         }
     } catch (Exception e) {
         e.printStackTrace();

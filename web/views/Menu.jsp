@@ -42,7 +42,7 @@
                     <div class="top">
                         <form class="search-form" action="${pageContext.request.contextPath}/menu" method="get">
                             <input type="hidden" name="action" value="search">
-                            <input type="text" name="keyword" placeholder="Nhập tên hoặc mã món...">
+                            <input type="text" name="keyword" placeholder="Nhập tên hoặc mã món..." value="${param.keyword}">
                             <button type="submit"><i class="fa-solid fa-search"></i></button>
                         </form>
                         <button type="button" class="btn-add" onclick="openModal('${pageContext.request.contextPath}/views/Menu2.jsp', 'Thêm món mới')">

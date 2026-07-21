@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import dao.MenuDAO;
 
 @WebServlet("/menu")
 public class MenuServlet extends HttpServlet {
@@ -34,6 +36,12 @@ public class MenuServlet extends HttpServlet {
 
         try {
             switch (action) {
+                case "search":
+                    String keyword = request.getParameter("keyword");
+                    List<Menu> searchList = dao.searchMenu(keyword);
+                    request.setAttribute("listMenu", searchList);
+                    request.getRequestDispatcher("/views/Menu.jsp").forward(request, response);
+                    break;
                 case "loadForm":
                     loadForm(request, response);
                     break; // Mở form Thêm/Sửa món (Menu1.jsp)
@@ -97,10 +105,10 @@ public class MenuServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/LoginServlet");
             return;
         }
-        
+
         String loaiMon = request.getParameter("loaiMon");
         ArrayList<Menu> listMenu;
-        
+
         if (loaiMon != null && !loaiMon.trim().isEmpty() && !loaiMon.equals("all")) {
             listMenu = dao.getMenuByType(loaiMon);
             request.setAttribute("selectedLoai", loaiMon);
@@ -108,7 +116,7 @@ public class MenuServlet extends HttpServlet {
             listMenu = dao.getAllMenu();
             request.setAttribute("selectedLoai", "all");
         }
-        
+
         request.setAttribute("listMenu", listMenu);
         request.getRequestDispatcher("/views/Menu.jsp").forward(request, response);
     }
@@ -136,21 +144,21 @@ public class MenuServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/menu?action=list");
     }
 
-private Menu buildMenuFromRequest(HttpServletRequest request) {
-    Menu m = new Menu();
-    m.setMaMon(request.getParameter("maMon"));
-    m.setTenMon(request.getParameter("tenMon"));
-    m.setLoaiMon(request.getParameter("loaiMon"));
+    private Menu buildMenuFromRequest(HttpServletRequest request) {
+        Menu m = new Menu();
+        m.setMaMon(request.getParameter("maMon"));
+        m.setTenMon(request.getParameter("tenMon"));
+        m.setLoaiMon(request.getParameter("loaiMon"));
 
-    String giaStr = request.getParameter("gia");
-    if (giaStr != null && !giaStr.trim().isEmpty()) {
-        m.setGia(new BigDecimal(giaStr));
+        String giaStr = request.getParameter("gia");
+        if (giaStr != null && !giaStr.trim().isEmpty()) {
+            m.setGia(new BigDecimal(giaStr));
+        }
+
+        // Nếu checkbox được tích -> trả về true (Còn hàng), ngược lại không tích -> false (Hết hàng)
+        boolean trangThai = request.getParameter("trangThai") != null;
+        m.setTrangThai(trangThai);
+
+        return m;
     }
-
-    // Nếu checkbox được tích -> trả về true (Còn hàng), ngược lại không tích -> false (Hết hàng)
-    boolean trangThai = request.getParameter("trangThai") != null;
-    m.setTrangThai(trangThai);
-
-    return m;
-}
 }
