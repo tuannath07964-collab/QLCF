@@ -39,3 +39,19 @@ function openCaModal(maNV) {
             '<button type="submit" style="background:green; color:white; padding:10px 20px; border:none; border-radius:5px;">Lưu thay đổi</button>' +
         '</form>';
 }
+
+function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('passwordInput');
+        const toggleIcon = document.getElementById('togglePassword');
+        if (!passwordInput || !toggleIcon) return;
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash'); // Đổi sang mắt gạch chéo
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye'); // Đổi lại mắt bình thường
+        }
+    }

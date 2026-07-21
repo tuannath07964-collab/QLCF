@@ -40,8 +40,6 @@
             <button type="submit" class="btn-submit">ĐĂNG NHẬP</button>
         </form>
     </div>
-
-    <!-- NHÚNG FILE JS TẠI ĐÂY -->
     <script src="${pageContext.request.contextPath}/js/loginform.js"></script>
 </body>
 </html>

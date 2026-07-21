@@ -44,6 +44,7 @@
                             <input type="text" name="keyword" placeholder="Nhập mã hoặc tên...">
                             <button type="submit"><i class="fa-solid fa-search"></i></button>
                         </form>
+                        <!-- Nút Thêm mới: Giữ nguyên cơ chế gọi form qua modal -->
                         <button type="button" class="btn-add" onclick="openModal('${pageContext.request.contextPath}/views/nhanvien1.jsp', 'Thêm nhân viên mới')">
                             <i class="fa-solid fa-plus"></i> Thêm nhân viên
                         </button>
@@ -72,16 +73,18 @@
                                     <c:if test="${nv.caSang}">Sáng </c:if>
                                     <c:if test="${nv.caChieu}">Chiều </c:if>
                                     <c:if test="${nv.caToi}">Tối</c:if>
-                                    </td>
-                                    <td>${nv.gioBatDau} - ${nv.gioKetThuc}</td>
+                                </td>
+                                <td>${nv.gioBatDau} - ${nv.gioKetThuc}</td>
                                 <td>
+                                    <!-- Nút Sửa: Load form thông tin nhân viên -->
                                     <a href="javascript:void(0)" onclick="openModal('${pageContext.request.contextPath}/nhanvien?action=loadForm&maNV=${nv.maNV}', 'Sửa thông tin nhân viên')">
                                         <i class="fa-solid fa-pen" style="color: #ffc107;"></i>
                                     </a>
-                                    <!-- Nút gọi hàm JS tạo form Ca làm -->
+                                    <!-- Nút Phân ca làm -->
                                     <a href="javascript:void(0)" onclick="openCaModal('${nv.maNV}')">
                                         <i class="fa-solid fa-clock" style="color: #17a2b8; margin: 0 10px;"></i>
                                     </a>
+                                    <!-- Nút Xóa -->
                                     <a href="nhanvien?action=delete&maNV=${nv.maNV}" 
                                        style="background:white; color:red; padding:5px 10px; border-radius:5px; text-decoration:none;">
                                         <i class="fa-solid fa-trash-can"></i>
@@ -94,9 +97,9 @@
             </div>
         </div> 
 
-        <!-- Khung Modal dùng chung -->
+        <!-- Khung Modal dùng chung cho cả Thêm/Sửa (có tích hợp ô mật khẩu ẩn/hiện) -->
         <div id="myModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-            <div style="background:white; padding:25px; border-radius:12px; width:500px; box-shadow:0 4px 15px rgba(0,0,0,0.2); position:relative;">
+            <div style="background:white; padding:25px; border-radius:12px; width:500px; box-shadow:0 4px 15px rgba(0,0,0,0.2); position:relative; max-height: 90vh; overflow-y: auto;">
                 <span class="close-btn" onclick="closeModal()" style="position:absolute; right:20px; top:10px; font-size:28px; cursor:pointer; font-weight:bold; color:#333;">&times;</span>
                 <h3 id="modalTitle" style="margin-top:0;">Tiêu đề</h3>
                 <hr style="margin: 15px 0;">
@@ -105,16 +108,40 @@
         </div>
 
         <script>
-            // Hàm dùng cho Thêm/Sửa nhân viên (load từ file JSP)
+            var contextPath = "${pageContext.request.contextPath}";
+
+            // Hàm dùng chung để load nội dung vào Modal (Thêm/Sửa/Phân ca)
             function openModal(url, title) {
                 document.getElementById('modalTitle').innerText = title;
                 fetch(url)
-                        .then(response => response.text())
-                        .then(html => {
-                            document.getElementById('modalBody').innerHTML = html;
-                            document.getElementById('myModal').style.display = 'flex';
-                        })
-                        .catch(error => console.error("Lỗi khi load dữ liệu:", error));
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('modalBody').innerHTML = html;
+                        document.getElementById('myModal').style.display = 'flex';
+                    })
+                    .catch(error => console.error("Lỗi khi load dữ liệu:", error));
+            }
+
+            // Hàm mở Modal phân ca làm việc cho nhân viên
+            function openCaModal(maNV) {
+                openModal(contextPath + '/nhanvien?action=loadCa&maNV=' + maNV, 'Phân ca làm việc');
+            }
+
+            // Hàm ẩn/hiện mật khẩu (dùng chung cho form trong modal nếu có ô mật khẩu)
+            function togglePasswordVisibility() {
+                const passwordInput = document.getElementById('passwordInput');
+                const toggleIcon = document.getElementById('togglePassword');
+                if (!passwordInput || !toggleIcon) return;
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleIcon.classList.remove('fa-eye');
+                    toggleIcon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    toggleIcon.classList.remove('fa-eye-slash');
+                    toggleIcon.classList.add('fa-eye');
+                }
             }
 
             function closeModal() {
@@ -129,11 +156,6 @@
                 }
             }
         </script>
-
-        <script>
-            var contextPath = "${pageContext.request.contextPath}";
-        </script>
-        <!-- File này chứa hàm openCaModal -->
         <script src="${pageContext.request.contextPath}/js/nhanvien.js"></script>
     </body>
 </html>

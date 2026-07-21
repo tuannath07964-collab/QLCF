@@ -9,7 +9,7 @@ public class NhanVienDAO {
 
     public ArrayList<NhanVien> getAllNhanVien() {
         ArrayList<NhanVien> list = new ArrayList<>();
-        String sql = "SELECT MaNV, HoTen, GioiTinh, NgaySinh, SDT, ChucVu, LuongCoBan, caSang, caChieu, caToi, gioBatDau, gioKetThuc FROM NhanVien";
+        String sql = "SELECT MaNV, HoTen, GioiTinh, NgaySinh, SDT, ChucVu, LuongCoBan, MatKhau, caSang, caChieu, caToi, gioBatDau, gioKetThuc FROM NhanVien";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -21,7 +21,7 @@ public class NhanVienDAO {
     }
 
     public NhanVien getNhanVienById(String maNV) {
-        String sql = "SELECT MaNV, HoTen, GioiTinh, NgaySinh, SDT, ChucVu, LuongCoBan FROM NhanVien WHERE MaNV = ?";
+        String sql = "SELECT * FROM NhanVien WHERE MaNV = ?";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maNV);
             try (ResultSet rs = ps.executeQuery()) {
@@ -36,13 +36,14 @@ public class NhanVienDAO {
     }
 
     public boolean insertNhanVien(NhanVien nv) {
-        String sql = "INSERT INTO NhanVien(MaNV, HoTen, ChucVu, SDT, LuongCoBan, GioiTinh, NgaySinh) VALUES(?,?,?,?,?,?,?)";
+        // Đã bổ sung thêm cột MatKhau vào câu lệnh INSERT
+        String sql = "INSERT INTO NhanVien(MaNV, HoTen, ChucVu, SDT, LuongCoBan, GioiTinh, NgaySinh, MatKhau) VALUES(?,?,?,?,?,?,?,?)";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, nv.getMaNV());
             ps.setString(2, nv.getHoTen());
             ps.setString(3, nv.getChucVu());
             ps.setString(4, nv.getSdt());
-            ps.setDouble(5, nv.getLuongCoBan());
+            ps.setBigDecimal(5, nv.getLuongCoBan());
             ps.setString(6, nv.getGioiTinh());
 
             if (nv.getNgaySinh() != null) {
@@ -50,6 +51,8 @@ public class NhanVienDAO {
             } else {
                 ps.setNull(7, java.sql.Types.DATE);
             }
+
+            ps.setString(8, nv.getMatKhau()); // Thêm tham số mật khẩu
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -59,12 +62,13 @@ public class NhanVienDAO {
     }
 
     public boolean updateNhanVien(NhanVien nv) {
-        String sql = "UPDATE NhanVien SET HoTen=?, ChucVu=?, SDT=?, LuongCoBan=?, GioiTinh=?, NgaySinh=? WHERE MaNV=?";
+        // Đã bổ sung cập nhật thêm cột MatKhau vào câu lệnh UPDATE
+        String sql = "UPDATE NhanVien SET HoTen=?, ChucVu=?, SDT=?, LuongCoBan=?, GioiTinh=?, NgaySinh=?, MatKhau=? WHERE MaNV=?";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, nv.getHoTen());
             ps.setString(2, nv.getChucVu());
             ps.setString(3, nv.getSdt());
-            ps.setDouble(4, nv.getLuongCoBan());
+            ps.setBigDecimal(4, nv.getLuongCoBan());
             ps.setString(5, nv.getGioiTinh());
 
             if (nv.getNgaySinh() != null) {
@@ -73,7 +77,9 @@ public class NhanVienDAO {
                 ps.setNull(6, java.sql.Types.DATE);
             }
 
-            ps.setString(7, nv.getMaNV());
+            ps.setString(7, nv.getMatKhau()); // Thêm tham số mật khẩu khi sửa
+            ps.setString(8, nv.getMaNV());
+
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,7 +101,6 @@ public class NhanVienDAO {
     public void updateCaLam(String maNV, boolean caSang, boolean caChieu, boolean caToi, String gioBatDau, String gioKetThuc) throws Exception {
         String sql = "UPDATE NhanVien SET caSang = ?, caChieu = ?, caToi = ?, gioBatDau = ?, gioKetThuc = ? WHERE MaNV = ?";
 
-        // Giả sử bạn có hàm getConnection() để kết nối DB
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setBoolean(1, caSang);
             ps.setBoolean(2, caChieu);
@@ -104,17 +109,30 @@ public class NhanVienDAO {
             ps.setString(5, gioKetThuc);
             ps.setString(6, maNV);
 
-            int rowsAffected = ps.executeUpdate();
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
-            if (rowsAffected > 0) {
-                System.out.println("Cập nhật thành công cho NV: " + maNV);
-            } else {
-                System.out.println("Không tìm thấy nhân viên với mã: " + maNV);
+    public NhanVien checkLogin(String maNV, String matKhau) {
+        String query = "SELECT * FROM NhanVien WHERE RTRIM(MaNV) = ? AND MatKhau = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            
+            ps.setString(1, maNV.trim());
+            ps.setString(2, matKhau.trim());
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw e; // Ném lỗi để Servlet bắt được
         }
+        return null; 
     }
 
     private NhanVien mapRow(ResultSet rs) throws SQLException {
@@ -123,11 +141,16 @@ public class NhanVienDAO {
         nv.setHoTen(rs.getString("HoTen"));
         nv.setChucVu(rs.getString("ChucVu"));
         nv.setSdt(rs.getString("SDT"));
-        nv.setLuongCoBan(rs.getDouble("LuongCoBan"));
+        nv.setLuongCoBan(rs.getBigDecimal("LuongCoBan"));
         nv.setGioiTinh(rs.getString("GioiTinh"));
         nv.setNgaySinh(rs.getDate("NgaySinh"));
-
-        // THÊM CÁC DÒNG NÀY VÀO:
+        
+        try {
+            nv.setMatKhau(rs.getString("MatKhau"));
+        } catch (Exception e) {
+            // Phòng hờ
+        }
+        
         nv.setCaSang(rs.getBoolean("caSang"));
         nv.setCaChieu(rs.getBoolean("caChieu"));
         nv.setCaToi(rs.getBoolean("caToi"));

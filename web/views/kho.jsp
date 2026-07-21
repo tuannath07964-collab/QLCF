@@ -22,480 +22,15 @@
         <title>Quản lý kho</title>
         <!-- FontAwesome 6.5.2 đồng bộ với trang thống kê -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-        
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            }
-
-            body {
-                background: #f4f3f0;
-                color: #333;
-            }
-
-            /* Layout */
-            .wrapper {
-                display: flex;
-                min-height: 100vh;
-            }
-
-            /*================ Sidebar (Cố định, chuẩn đồng bộ) =================*/
-            .sidebar {
-                width: 260px;
-                background: #4a372c; /* Màu nâu đậm đặc trưng */
-                color: #e0dcd8;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                position: fixed;
-                height: 100vh;
-                left: 0;
-                top: 0;
-                z-index: 101;
-            }
-
-            .logo {
-                height: 80px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 0 24px;
-                font-size: 20px;
-                font-weight: bold;
-                color: #ffffff;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            .logo i {
-                font-size: 24px;
-            }
-
-            .menu {
-                display: flex;
-                flex-direction: column;
-                flex: 1;
-                padding-top: 10px;
-                overflow-y: auto;
-            }
-
-            .menu a {
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                padding: 14px 24px;
-                color: #cfc9c3;
-                text-decoration: none;
-                font-size: 16px;
-                transition: all 0.2s ease;
-            }
-
-            .menu a:hover {
-                background: rgba(255, 255, 255, 0.05);
-                color: #ffffff;
-            }
-
-            .menu a.active {
-                background: rgba(255, 255, 255, 0.1);
-                color: #ffffff;
-                font-weight: 500;
-                border-left: 4px solid #ffffff;
-                padding-left: 20px; /* Bù trừ border */
-            }
-
-            .menu i {
-                width: 20px;
-                font-size: 18px;
-                text-align: center;
-            }
-
-            .logout-btn {
-                border-top: 1px solid rgba(255, 255, 255, 0.05);
-                padding: 18px 24px;
-            }
-            
-            .logout-btn a {
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                color: #cfc9c3;
-                text-decoration: none;
-                font-size: 16px;
-                transition: color 0.2s;
-            }
-            
-            .logout-btn a:hover {
-                color: #ffffff;
-            }
-
-            /*================ Main Content Layout =================*/
-            .main {
-                flex: 1;
-                margin-left: 260px; /* Đẩy nội dung tránh sidebar fixed */
-                display: flex;
-                flex-direction: column;
-            }
-
-            /*================ Topbar (Chuẩn đồng bộ) =================*/
-            .topbar {
-                height: 65px;
-                background: #ffffff;
-                border-bottom: 1px solid #e8e6e2;
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-                padding: 0 35px;
-                position: fixed;
-                top: 0;
-                right: 0;
-                left: 260px;
-                z-index: 100;
-                gap: 25px;
-            }
-
-            .user-info {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-weight: bold;
-                color: #222222;
-                font-size: 15px;
-                cursor: pointer;
-            }
-
-            .user-info i {
-                font-size: 22px;
-                color: #4a372c;
-            }
-
-            .notification {
-                position: relative;
-                font-size: 20px;
-                color: #555;
-                cursor: pointer;
-            }
-
-            .notification .badge {
-                position: absolute;
-                top: -5px;
-                right: -8px;
-                background: #e74c3c;
-                color: white;
-                font-size: 11px;
-                padding: 2px 6px;
-                border-radius: 50%;
-                font-weight: 600;
-            }
-
-            /*================ Content Area =================*/
-            .content {
-                padding: 35px;
-                margin-top: 65px; /* Tránh đè lên topbar */
-            }
-
-            .title-section {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 30px;
-            }
-
-            .title {
-                font-size: 28px;
-                font-weight: 700;
-                color: #222222;
-            }
-
-            .sub {
-                color: #777777;
-                margin-top: 4px;
-                font-size: 15px;
-            }
-
-            .back-btn {
-                text-decoration: none;
-                background: #4a372c;
-                color: white;
-                padding: 10px 18px;
-                border-radius: 8px;
-                font-size: 14px;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                transition: background 0.2s;
-            }
-
-            .back-btn:hover {
-                background: #362820;
-            }
-
-            /*================ Summary Cards (Vòng tròn Pastel giống hệt Thống kê) =================*/
-            .summary-grid {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 20px;
-                margin-bottom: 30px;
-            }
-
-            .stat-box {
-                background: #ffffff;
-                border-radius: 12px;
-                padding: 24px;
-                text-decoration: none;
-                color: #333333;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-                transition: transform 0.2s, box-shadow 0.2s;
-            }
-
-            .stat-box:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-            }
-
-            .icon-wrapper {
-                width: 48px;
-                height: 48px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 20px;
-            }
-
-            /* Các màu pastel đồng bộ */
-            .bg-blue { background-color: #e8f0fe; color: #1a73e8; }
-            .bg-green { background-color: #e6f4ea; color: #137333; }
-            .bg-orange { background-color: #fef3e6; color: #e67e22; }
-            .bg-red { background-color: #fce8e6; color: #c5221f; }
-
-            .stat-info h3 {
-                font-size: 15px;
-                font-weight: 600;
-                color: #666666;
-                margin-bottom: 6px;
-            }
-
-            .stat-info p {
-                font-size: 24px;
-                font-weight: 700;
-                color: #4a372c;
-            }
-
-            .stat-info span {
-                font-size: 13px;
-                color: #999;
-            }
-
-            /*================ Toolbar (Tìm kiếm & nút thêm) =================*/
-            .toolbar {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 25px;
-                gap: 15px;
-            }
-
-            .search-box {
-                background: white;
-                width: 350px;
-                padding: 10px 16px;
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                border: 1px solid #eae8e4;
-                box-shadow: 0 2px 8px rgba(0,0,0,.02);
-            }
-
-            .search-box input {
-                border: none;
-                outline: none;
-                width: 100%;
-                font-size: 14px;
-            }
-
-            .add-btn {
-                border: none;
-                background: #4a372c;
-                color: white;
-                padding: 11px 20px;
-                border-radius: 8px;
-                cursor: pointer;
-                font-weight: 600;
-                font-size: 14px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                transition: .2s;
-            }
-
-            .add-btn:hover {
-                background: #362820;
-            }
-
-            /*================ Data Table =================*/
-            .card-table {
-                background: #ffffff;
-                border-radius: 12px;
-                padding: 25px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-            }
-
-            .table-responsive {
-                overflow-x: auto;
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                text-align: left;
-            }
-
-            th {
-                background: #f8f7f5;
-                color: #555555;
-                font-weight: 600;
-                padding: 14px 16px;
-                font-size: 14px;
-                border-bottom: 2px solid #eae8e4;
-            }
-
-            td {
-                padding: 14px 16px;
-                border-bottom: 1px solid #eae8e4;
-                font-size: 14px;
-                color: #444444;
-            }
-
-            tr:hover td {
-                background: #fcfbfa;
-            }
-
-            /* Các nút chức năng trong bảng */
-            .action {
-                display: flex;
-                gap: 8px;
-            }
-
-            .edit-btn, .delete-btn {
-                border: none;
-                width: 34px;
-                height: 34px;
-                border-radius: 6px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-size: 13px;
-                transition: opacity 0.2s;
-            }
-
-            .edit-btn { background: #3498db; }
-            .delete-btn { background: #e74c3c; }
-
-            .edit-btn:hover, .delete-btn:hover {
-                opacity: 0.85;
-            }
-
-            .empty {
-                text-align: center;
-                padding: 30px;
-                color: #999;
-                font-style: italic;
-            }
-
-            /*================ Footer Table (Phân trang) =================*/
-            .table-footer {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding-top: 20px;
-                border-top: 1px solid #eae8e4;
-                margin-top: 15px;
-            }
-
-            .table-info {
-                color: #666;
-                font-size: 14px;
-            }
-
-            .pagination {
-                display: flex;
-                gap: 6px;
-            }
-
-            .page-btn {
-                border: 1px solid #dddcd8;
-                background: #fff;
-                width: 34px;
-                height: 34px;
-                border-radius: 6px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 13px;
-                color: #555;
-                transition: all 0.2s;
-            }
-
-            .page-btn:hover {
-                border-color: #4a372c;
-                color: #4a372c;
-            }
-
-            .active-page {
-                background: #4a372c;
-                color: white;
-                border-color: #4a372c;
-            }
-
-            .active-page:hover {
-                color: white;
-            }
-
-            /*================ Responsive =================*/
-            @media(max-width: 1200px) {
-                .summary-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-            }
-            @media(max-width: 768px) {
-                .sidebar {
-                    display: none;
-                }
-                .main {
-                    margin-left: 0;
-                }
-                .topbar {
-                    left: 0;
-                }
-                .summary-grid {
-                    grid-template-columns: 1fr;
-                }
-                .toolbar {
-                    flex-direction: column;
-                    align-items: stretch;
-                }
-                .search-box {
-                    width: 100%;
-                }
-            }
-        </style>
+        <!-- File CSS tách riêng -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/kho.css">
     </head>
-    
+
     <body>
         <div class="wrapper">
 
             <!-- ==========================================
-                    LEFT SIDEBAR (Đồng bộ chuẩn 260px fixed)
+                    LEFT SIDEBAR
             =========================================== -->
             <aside class="sidebar">
                 <div class="menu">
@@ -503,45 +38,45 @@
                         <i class="fa-solid fa-mug-hot"></i>
                         <span>Quản lý quán cafe</span>
                     </div>
-                    
+
                     <a href="${pageContext.request.contextPath}/views/homepage.jsp">
                         <i class="fa-solid fa-house"></i> Trang chủ
                     </a>
-                    
+
                     <a href="#">
                         <i class="fa-solid fa-user"></i> Nhân viên
                     </a>
-                    
+
                     <a href="#">
                         <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
                     </a>
-                    
+
                     <a href="#">
                         <i class="fa-solid fa-mug-hot"></i> Menu
                     </a>
-                    
+
                     <a href="#">
                         <i class="fa-solid fa-chair"></i> Bàn
                     </a>
-                    
+
                     <a href="${pageContext.request.contextPath}/KhoServlet" class="active">
                         <i class="fa-solid fa-box"></i> Kho
                     </a>
-                    
+
                     <a href="#">
                         <i class="fa-solid fa-users"></i> Khách hàng
                     </a>
-                    
+
                     <a href="${pageContext.request.contextPath}/ThongKeServlet">
-    <i class="fa-solid fa-chart-simple"></i>
-    <span>Thống kê doanh thu</span>
-</a>
-                    
+                        <i class="fa-solid fa-chart-simple"></i>
+                        <span>Thống kê doanh thu</span>
+                    </a>
+
                     <a href="#">
                         <i class="fa-solid fa-gear"></i> Cài đặt
                     </a>
                 </div>
-                
+
                 <div class="logout-btn">
                     <a href="${pageContext.request.contextPath}/LogoutServlet">
                         <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
@@ -581,28 +116,28 @@
                         </a>
                     </section>
 
-                    <!-- LOGIC TÍNH TOÁN BẰNG JSTL (Thay thế code Java Scriptlet) -->
+                    <!-- LOGIC TÍNH TOÁN BẰNG JSTL -->
                     <c:set var="tongSoLuong" value="0" />
                     <c:set var="sapHetHang" value="0" />
                     <c:set var="hetHang" value="0" />
 
                     <c:forEach var="nl" items="${dsKho}">
                         <c:set var="tongSoLuong" value="${tongSoLuong + nl.soLuong}" />
-                        
+
                         <c:if test="${nl.soLuong <= 10 && nl.soLuong > 0}">
                             <c:set var="sapHetHang" value="${sapHetHang + 1}" />
                         </c:if>
-                        
+
                         <c:if test="${nl.soLuong == 0}">
                             <c:set var="hetHang" value="${hetHang + 1}" />
                         </c:if>
                     </c:forEach>
 
                     <!-- ==========================================
-                            DASHBOARD CARDS (Style Pastel tròn đồng bộ)
+                            DASHBOARD CARDS
                     =========================================== -->
                     <div class="summary-grid">
-                        
+
                         <!-- Card 1: Tổng loại nguyên liệu -->
                         <div class="stat-box">
                             <div class="icon-wrapper bg-blue">
@@ -654,7 +189,7 @@
                     </div>
 
                     <!-- ==========================================
-                            TOOLBAR (Tìm kiếm & Nút thêm)
+                            TOOLBAR
                     =========================================== -->
                     <div class="toolbar">
                         <div class="search-box">

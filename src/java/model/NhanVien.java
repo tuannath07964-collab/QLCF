@@ -1,5 +1,6 @@
 package model;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 public class NhanVien {
@@ -10,9 +11,10 @@ public class NhanVien {
     private Date ngaySinh;
     private String sdt;
     private String chucVu;
-    private double luongCoBan;
+    private BigDecimal luongCoBan;
+    private String matKhau; // Thêm trường mật khẩu phục vụ đăng nhập
 
-    // Thuộc tính mới cho Ca làm
+    // Thuộc tính ca làm việc
     private boolean caSang;
     private boolean caChieu;
     private boolean caToi;
@@ -23,6 +25,7 @@ public class NhanVien {
     public NhanVien() {
     }
 
+    // Getters và Setters
     public String getMaNV() {
         return maNV;
     }
@@ -71,16 +74,22 @@ public class NhanVien {
         this.chucVu = chucVu;
     }
 
-    public double getLuongCoBan() {
+    public BigDecimal getLuongCoBan() {
         return luongCoBan;
     }
 
-    // ... (Giữ nguyên các Getter/Setter cũ của bạn) ...
-    public void setLuongCoBan(double luongCoBan) {
+    public void setLuongCoBan(BigDecimal luongCoBan) {
         this.luongCoBan = luongCoBan;
     }
 
-    // Getter và Setter cho thuộc tính mới
+    public String getMatKhau() {
+        return matKhau;
+    }
+
+    public void setMatKhau(String matKhau) {
+        this.matKhau = matKhau;
+    }
+
     public boolean isCaSang() {
         return caSang;
     }
