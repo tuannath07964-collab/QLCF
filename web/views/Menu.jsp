@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Qu?n l� Menu - Preview</title>
+    <%@page contentType="text/html" pageEncoding="UTF-8"%>
+    <title>Quản lý Menu - Preview</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Roboto', sans-serif; }
@@ -64,169 +64,169 @@
 <body>
 
     <div class="sidebar">
-        <div class="sidebar-logo">? QU?N L� QU�N CAFE</div>
+        <div class="sidebar-logo">☕ QUẢN LÝ QUÁN CAFE</div>
         <div class="sidebar-nav">
-            <a href="#">? Trang ch?</a>
-            <a href="#">? Nh�n vi�n</a>
-            <a href="#">? H�a ??n</a>
-            <a href="#" class="active">? Menu</a>
-            <a href="#">? B�n</a>
-            <a href="#">? Kho</a>
-            <a href="#">? Kh�ch h�ng</a>
-            <a href="#">? Th?ng k�</a>
+            <a href="#">🏠 Trang chủ</a>
+            <a href="#">👤 Nhân viên</a>
+            <a href="#">🧾 Hóa đơn</a>
+            <a href="#" class="active">☕ Menu</a>
+            <a href="#">🪑 Bàn</a>
+            <a href="#">📦 Kho</a>
+            <a href="#">👥 Khách hàng</a>
+            <a href="#">📊 Thống kê</a>
         </div>
-        <a href="#" class="logout">? ??ng xu?t</a>
+        <a href="#" class="logout">⏻ Đăng xuất</a>
     </div>
 
     <div class="main">
         <div class="topbar">
-            <h1>Qu?n l� Menu</h1>
-            <div class="user-info">? TH08199 - Tr?nh B�nh Minh</div>
+            <h1>Quản lý Menu</h1>
+            <div class="user-info">👤 TH08199 - Trịnh Bình Minh</div>
         </div>
 
         <div class="content">
 
             <div class="toolbar">
                 <form class="search-box">
-                    <input type="text" placeholder="Nh?p t�n m�n ho?c m� m�n...">
-                    <button type="submit">?</button>
+                    <input type="text" placeholder="Nhập tên món hoặc mã món...">
+                    <button type="submit">🔍</button>
                 </form>
-                <a href="#" class="btn-add">? Th�m m�n</a>
+                <a href="#" class="btn-add">＋ Thêm món</a>
             </div>
 
             <div class="category-tabs">
-                <a href="#" class="active">T?t c?</a>
-                <a href="#">C� ph�</a>
-                <a href="#">Tr�</a>
-                <a href="#">Sinh t? / N??c �p</a>
-                <a href="#">B�nh / ?n v?t</a>
+                <a href="#" class="active">Tất cả</a>
+                <a href="#">Cà phê</a>
+                <a href="#">Trà</a>
+                <a href="#">Sinh tố / Nước ép</a>
+                <a href="#">Bánh / Ăn vặt</a>
             </div>
 
             <div class="menu-grid">
 
                 <div class="mon-card">
-                    <div class="mon-anh-wrap" style="background:#e8dcc8;">?</div>
+                    <div class="mon-anh-wrap" style="background:#e8dcc8;">☕</div>
                     <div class="mon-info">
-                        <span class="mon-loai">C� ph�</span>
-                        <span class="mon-ten">C� ph� s?a ?�</span>
-                        <span class="mon-ma">M�: MON01</span>
-                        <span class="mon-gia">29.000 ?</span>
+                        <span class="mon-loai">Cà phê</span>
+                        <span class="mon-ten">Cà phê sữa đá</span>
+                        <span class="mon-ma">Mã: MON01</span>
+                        <span class="mon-gia">29.000 đ</span>
                     </div>
                     <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">X�a</a>
+                        <a class="btn-sua" href="#">Sửa</a>
+                        <a class="btn-xoa" href="#">Xóa</a>
                     </div>
                 </div>
 
                 <div class="mon-card">
                     <div class="mon-anh-wrap" style="background:#3a2b22; color:#fff;">
-                        <span class="mon-badge badge-con">C�n h�ng</span>?
+                        <span class="mon-badge badge-con">Còn hàng</span>☕
                     </div>
                     <div class="mon-info">
-                        <span class="mon-loai">C� ph�</span>
-                        <span class="mon-ten">B?c x?u</span>
-                        <span class="mon-ma">M�: MON02</span>
-                        <span class="mon-gia">32.000 ?</span>
+                        <span class="mon-loai">Cà phê</span>
+                        <span class="mon-ten">Bạc xỉu</span>
+                        <span class="mon-ma">Mã: MON02</span>
+                        <span class="mon-gia">32.000 đ</span>
                     </div>
                     <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">X�a</a>
+                        <a class="btn-sua" href="#">Sửa</a>
+                        <a class="btn-xoa" href="#">Xóa</a>
                     </div>
                 </div>
 
                 <div class="mon-card">
                     <div class="mon-anh-wrap" style="background:#d9ecd0;">
-                        <span class="mon-badge badge-con">C�n h�ng</span>?
+                        <span class="mon-badge badge-con">Còn hàng</span>🍵
                     </div>
                     <div class="mon-info">
-                        <span class="mon-loai">Tr�</span>
-                        <span class="mon-ten">Tr� ?�o cam s?</span>
-                        <span class="mon-ma">M�: MON03</span>
-                        <span class="mon-gia">39.000 ?</span>
+                        <span class="mon-loai">Trà</span>
+                        <span class="mon-ten">Trà đào cam sả</span>
+                        <span class="mon-ma">Mã: MON03</span>
+                        <span class="mon-gia">39.000 đ</span>
                     </div>
                     <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">X�a</a>
+                        <a class="btn-sua" href="#">Sửa</a>
+                        <a class="btn-xoa" href="#">Xóa</a>
                     </div>
                 </div>
 
                 <div class="mon-card">
                     <div class="mon-anh-wrap" style="background:#fbe4d5;">
-                        <span class="mon-badge badge-het">H?t h�ng</span>?
+                        <span class="mon-badge badge-het">Hết hàng</span>🍑
                     </div>
                     <div class="mon-info">
-                        <span class="mon-loai">Tr�</span>
-                        <span class="mon-ten">H?ng tr� kem cheese</span>
-                        <span class="mon-ma">M�: MON04</span>
-                        <span class="mon-gia">42.000 ?</span>
+                        <span class="mon-loai">Trà</span>
+                        <span class="mon-ten">Hồng trà kem cheese</span>
+                        <span class="mon-ma">Mã: MON04</span>
+                        <span class="mon-gia">42.000 đ</span>
                     </div>
                     <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">X�a</a>
+                        <a class="btn-sua" href="#">Sửa</a>
+                        <a class="btn-xoa" href="#">Xóa</a>
                     </div>
                 </div>
 
                 <div class="mon-card">
                     <div class="mon-anh-wrap" style="background:#fde3ec;">
-                        <span class="mon-badge badge-con">C�n h�ng</span>?
+                        <span class="mon-badge badge-con">Còn hàng</span>🍓
                     </div>
                     <div class="mon-info">
-                        <span class="mon-loai">Sinh t? / N??c �p</span>
-                        <span class="mon-ten">Sinh t? d�u t�y</span>
-                        <span class="mon-ma">M�: MON05</span>
-                        <span class="mon-gia">35.000 ?</span>
+                        <span class="mon-loai">Sinh tố / Nước ép</span>
+                        <span class="mon-ten">Sinh tố dâu tây</span>
+                        <span class="mon-ma">Mã: MON05</span>
+                        <span class="mon-gia">35.000 đ</span>
                     </div>
                     <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">X�a</a>
+                        <a class="btn-sua" href="#">Sửa</a>
+                        <a class="btn-xoa" href="#">Xóa</a>
                     </div>
                 </div>
 
                 <div class="mon-card">
                     <div class="mon-anh-wrap" style="background:#fff2c9;">
-                        <span class="mon-badge badge-con">C�n h�ng</span>?
+                        <span class="mon-badge badge-con">Còn hàng</span>🍋
                     </div>
                     <div class="mon-info">
-                        <span class="mon-loai">Sinh t? / N??c �p</span>
-                        <span class="mon-ten">N??c �p cam</span>
-                        <span class="mon-ma">M�: MON06</span>
-                        <span class="mon-gia">30.000 ?</span>
+                        <span class="mon-loai">Sinh tố / Nước ép</span>
+                        <span class="mon-ten">Nước ép cam</span>
+                        <span class="mon-ma">Mã: MON06</span>
+                        <span class="mon-gia">30.000 đ</span>
                     </div>
                     <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">X�a</a>
+                        <a class="btn-sua" href="#">Sửa</a>
+                        <a class="btn-xoa" href="#">Xóa</a>
                     </div>
                 </div>
 
                 <div class="mon-card">
                     <div class="mon-anh-wrap" style="background:#f0e2d0;">
-                        <span class="mon-badge badge-con">C�n h�ng</span>?
+                        <span class="mon-badge badge-con">Còn hàng</span>🧁
                     </div>
                     <div class="mon-info">
-                        <span class="mon-loai">B�nh / ?n v?t</span>
-                        <span class="mon-ten">B�nh tiramisu</span>
-                        <span class="mon-ma">M�: MON07</span>
-                        <span class="mon-gia">45.000 ?</span>
+                        <span class="mon-loai">Bánh / Ăn vặt</span>
+                        <span class="mon-ten">Bánh tiramisu</span>
+                        <span class="mon-ma">Mã: MON07</span>
+                        <span class="mon-gia">45.000 đ</span>
                     </div>
                     <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">X�a</a>
+                        <a class="btn-sua" href="#">Sửa</a>
+                        <a class="btn-xoa" href="#">Xóa</a>
                     </div>
                 </div>
 
                 <div class="mon-card">
                     <div class="mon-anh-wrap" style="background:#e5d8c3;">
-                        <span class="mon-badge badge-het">H?t h�ng</span>?
+                        <span class="mon-badge badge-het">Hết hàng</span>🥐
                     </div>
                     <div class="mon-info">
-                        <span class="mon-loai">B�nh / ?n v?t</span>
-                        <span class="mon-ten">B�nh croissant b?</span>
-                        <span class="mon-ma">M�: MON08</span>
-                        <span class="mon-gia">25.000 ?</span>
+                        <span class="mon-loai">Bánh / Ăn vặt</span>
+                        <span class="mon-ten">Bánh croissant bơ</span>
+                        <span class="mon-ma">Mã: MON08</span>
+                        <span class="mon-gia">25.000 đ</span>
                     </div>
                     <div class="mon-actions">
-                        <a class="btn-sua" href="#">S?a</a>
-                        <a class="btn-xoa" href="#">X�a</a>
+                        <a class="btn-sua" href="#">Sửa</a>
+                        <a class="btn-xoa" href="#">Xóa</a>
                     </div>
                 </div>
 
