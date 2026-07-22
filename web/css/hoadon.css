@@ -1,76 +1,446 @@
-/* Sử dụng cho cả Nhân viên và Hóa đơn */
-* { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
-body { display:flex; background:#f4f6f9; }
-
-/* Sidebar - Đã căn chỉnh chính xác 260px */
-.sidebar { width: 260px; transition: all 0.3s ease; background: #2c3e50; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; flex: 0 0 260px; }
-.logo { padding: 20px; font-weight: bold; background: #1a252f; display: flex; align-items: center; justify-content: space-between; }
-.menu { padding: 0; margin: 0; list-style: none; }
-.menu li { padding: 15px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; border-left: 4px solid transparent; }
-.menu li:hover { background: #34495e; padding-left: 30px; border-left: 4px solid #3498db; }
-.menu li.active { background: #3498db !important; border-left: 4px solid #ffffff !important; }
-
-/* Main Content - Đồng bộ padding */
-.main { flex: 1; display: flex; flex-direction: column; padding: 0 30px; overflow-y: auto; }
-.header { background: white; padding: 15px 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-left: -30px; margin-right: -30px; }
-
-/* Bảng và Card */
-.card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-table th { background: #2c3e50; color: white; padding: 12px; text-align: center; }
-table td { border-bottom: 1px solid #f0f0f0; padding: 12px; text-align: center; }
-table tr:hover { background-color: #f9f9f9; }
-
-.styled-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    background: white;
-    border-radius: 10px;
+/* --- CSS Đồng Bộ Dashboard cho Hóa đơn --- */
+body {
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+    padding: 0;
+    font-family: 'Playfair Display', serif, sans-serif;
+    background-color: #f4f6f9;
+    height: 100vh;
+    width: 100vw;
     overflow: hidden;
 }
 
-.styled-table thead tr {
-    background-color: #2c3e50;
-    color: #ffffff;
-    text-align: center;
-}
-
-.styled-table th, .styled-table td {
-    padding: 15px;
-    border-bottom: 1px solid #eeeeee;
-    text-align: center;
-}
-
-.styled-table tbody tr:hover {
-    background-color: #f8f9fa;
-}
-
-/* --- BUTTON STYLES --- */
-.btn-action {
-    width: 36px;
-    height: 36px;
-    border: none;
-    border-radius: 6px;
+/* Sidebar Styling Cố Định */
+.sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: #2c3e50;
     color: white;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.sidebar.collapsed { flex: 0 0 80px; width: 80px; }
+.sidebar.collapsed .logo-text, .sidebar.collapsed .menu li span, .sidebar.collapsed .logout span { display: none; }
+.sidebar.collapsed .logo, .sidebar.collapsed .menu li, .sidebar.collapsed .logout { justify-content: center; }
+
+.logo { 
+    padding: 20px; 
+    font-weight: bold; 
+    background: #1a252f; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+}
+
+.menu { 
+    padding: 0; 
+    margin: 0; 
+    list-style: none; 
+    overflow-y: auto;
+    flex: 1;
+}
+
+.menu li { 
+    padding: 15px 20px; 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+    border-left: 4px solid transparent; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+.menu li:hover { 
+    background: #34495e; 
+    border-left: 4px solid #3498db; 
+    color: #ffffff; 
+}
+
+.menu li.active { 
+    background: #3498db !important; 
+    border-left: 4px solid #ffffff !important; 
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+}
+
+.menu-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 110px; /* Cố định chiều cao ô */
+    box-sizing: border-box;
     cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-item:hover {
+    border-color: var(--coffee-dark, #6f4e37);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.menu-item .item-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Giới hạn tối đa 2 dòng, tránh tràn */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.menu-item .item-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--coffee-dark, #6f4e37);
+    margin-top: auto; /* Đẩy giá xuống đáy */
+}
+
+.menu-item .item-add {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 12px;
+}
+
+.logout { 
+    padding: 15px 20px; 
+    color: white; 
+    text-decoration: none; 
+    background: #e74c3c; 
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+}
+
+/* Main Content Styling */
+.main { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    height: 100vh;
+    overflow-y: auto; 
+}
+
+.content { 
+    padding: 20px 30px; 
+    display: flex; 
+    gap: 20px; 
+}
+
+/* Layout Grid cho trang Hóa đơn (Trái: Chọn bàn/món, Phải: Bill hóa đơn) */
+.left { flex: 2; display: flex; flex-direction: column; gap: 20px; }
+.right { flex: 1; min-width: 350px; }
+
+/* Thẻ Card & Thông tin */
+.info-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    align-items: center;
+}
+
+.info-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.info-field label {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 600;
+}
+
+.info-field input, .info-field select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.status-pill {
+    grid-column: span 2;
+    background: #e1f5fe;
+    color: #0288d1;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    margin: 0 3px;
-    text-decoration: none;
-    transition: 0.2s;
-    font-size: 14px;
+    gap: 8px;
+    width: fit-content;
 }
 
-.btn-action:hover { opacity: 0.8; transform: scale(1.05); }
+.status-pill .dot {
+    width: 8px;
+    height: 8px;
+    background: #0288d1;
+    border-radius: 50%;
+}
 
-.btn-edit { background: #f39c12; }
-.btn-delete { background: #e74c3c; }
-.btn-pay { background: #2ecc71; }
+/* Menu Header & Tabs */
+.menu-header {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
 
-.chuathanhtoan { color: #dc3545; font-weight: bold; }
-.dathanhtoan { color: #28a745; font-weight: bold; }
-.dahuy { color: #6c757d; font-weight: bold; text-decoration: line-through; }
+.menu-header h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+    color: #2c3e50;
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.tab {
+    padding: 6px 15px;
+    background: #f1f2f6;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.2s;
+}
+
+.tab.active, .tab:hover {
+    background: #3498db;
+    color: white;
+}
+
+/* Menu Grid (Danh sách món ăn/đồ uống dạng lưới) */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.menu-item {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    cursor: pointer;
+    text-align: center;
+    transition: 0.2s;
+    border: 1px solid #eee;
+}
+
+.menu-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-color: #3498db;
+}
+
+/* Khung Hóa Đơn Bên Phải */
+.receipt {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    font-family: 'Courier Prime', monospace;
+}
+
+.receipt-head {
+    text-align: center;
+    border-bottom: 2px dashed #ddd;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.receipt-head .cup { font-size: 1.8rem; }
+.receipt-head .shop { font-weight: bold; font-size: 1.1rem; color: #2c3e50; }
+.receipt-head .addr { font-size: 0.8rem; color: #777; }
+
+.receipt-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.receipt-items {
+    min-height: 120px;
+    max-height: 200px;
+    overflow-y: auto;
+    border-bottom: 1px dashed #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.empty-hint {
+    text-align: center;
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-top: 40px;
+}
+
+.promo-box {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.promo-box input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.promo-box button {
+    padding: 6px 12px;
+    background: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.promo-msg { font-size: 0.8rem; margin-bottom: 10px; color: #e74c3c; }
+
+.receipt-totals {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.rt-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.rt-row.grand {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #e74c3c;
+    border-top: 1px solid #ddd;
+    padding-top: 8px;
+    margin-top: 4px;
+}
+
+.pay-methods {
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+
+.receipt-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+}
+
+.btn-outline { background: #f1f2f6; color: #2c3e50; border: 1px solid #ddd; }
+.btn-primary { background: #27ae60; color: white; }
+.btn-primary:hover { background: #219653; }
+
+.barcode {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.barcode .bars {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+}
+
+/* Header Chung */
+.header { 
+    background: white; 
+    padding: 15px 30px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+.user-profile { font-weight: 600; color: #2c3e50; display: flex; align-items: center; gap: 8px; }
+.header h2, .header h1 { margin: 0; font-size: 1.4rem; color: #2c3e50; }
+.back { font-size: 0.85rem; color: #777; margin-bottom: 5px; transition: 0.2s; }
+.back:hover { color: #3498db; }
+
+#toggleBtn { background: transparent; border: none; color: white; cursor: pointer; font-size: 1.2rem; }
+
+/* --- Modal Pop-up Styling --- */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 9999; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0,0,0,0.5); 
+    overflow: auto;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 25px;
+    width: 450px; 
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.close-btn {
+    position: absolute; 
+    right: 20px; 
+    top: 15px;
+    font-size: 28px; 
+    cursor: pointer; 
+    color: #333;
+    font-weight: bold;
+}

@@ -4,34 +4,41 @@ import util.DBConnect;
 import java.sql.*;
 import java.util.ArrayList;
 import model.HoaDon;
+import model.Menu;
 
 public class HoaDonDAO extends DBConnect {
 
+    // Lấy mã hóa đơn tiếp theo dựa vào giá trị tự tăng IDENTITY hiện tại
     public String getNextMaHD() {
-        String newId = "HD001";
-        String sql = "SELECT TOP 1 MaHD FROM HoaDon ORDER BY MaHD DESC";
+        int nextId = 1;
+        String sql = "SELECT IDENT_CURRENT('HoaDon') + 1";
         try {
-            // Sửa lỗi: Gọi getConnection() thay vì biến connection
             PreparedStatement ps = getConnection().prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                String lastId = rs.getString("MaHD");
-                int number = Integer.parseInt(lastId.substring(2)) + 1;
-                newId = "HD" + String.format("%03d", number);
+                nextId = (int) rs.getDouble(1);
+                if (nextId <= 0) {
+                    nextId = 1;
+                }
             }
+            rs.close();
+            ps.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return newId;
+        return String.valueOf(nextId);
     }
 
     public boolean isBanExists(String maBan) {
-        String sql = "SELECT MaBan FROM Ban WHERE MaBan = ?";
+        String sql = "SELECT MaBan FROM BanAn WHERE MaBan = ?";
         try {
             PreparedStatement ps = getConnection().prepareStatement(sql);
             ps.setString(1, maBan);
             ResultSet rs = ps.executeQuery();
-            return rs.next();
+            boolean exists = rs.next();
+            rs.close();
+            ps.close();
+            return exists;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -40,10 +47,7 @@ public class HoaDonDAO extends DBConnect {
 
     public ArrayList<HoaDon> getAll() {
         ArrayList<HoaDon> list = new ArrayList<>();
-        String sql = "SELECT H.*, "
-                + "(SELECT ISNULL(SUM(CT.SoLuong * CT.DonGia), 0) "
-                + " FROM ChiTietHoaDon CT WHERE CT.MaHD = H.MaHD) AS TongTienMoi "
-                + "FROM HoaDon H";
+        String sql = "SELECT MaHD, MaBan, MaNV, NgayTao, TongTien, TrangThai FROM HoaDon";
         try {
             Connection conn = DBConnect.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -54,7 +58,7 @@ public class HoaDonDAO extends DBConnect {
                         rs.getString("MaBan"),
                         rs.getString("MaNV"),
                         rs.getString("NgayTao"),
-                        rs.getDouble("TongTienMoi"), // Sử dụng kết quả tính toán từ subquery
+                        rs.getDouble("TongTien"),
                         rs.getString("TrangThai")
                 ));
             }
@@ -62,7 +66,7 @@ public class HoaDonDAO extends DBConnect {
             ps.close();
             conn.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Bấm xem NetBeans Console nếu có lỗi màu đỏ
         }
         return list;
     }
@@ -74,7 +78,7 @@ public class HoaDonDAO extends DBConnect {
             ps.setString(1, maHD);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return new HoaDon(
+                HoaDon hd = new HoaDon(
                         rs.getString("MaHD"),
                         rs.getString("MaBan"),
                         rs.getString("MaNV"),
@@ -82,7 +86,12 @@ public class HoaDonDAO extends DBConnect {
                         rs.getDouble("TongTien"),
                         rs.getString("TrangThai")
                 );
+                rs.close();
+                ps.close();
+                return hd;
             }
+            rs.close();
+            ps.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -90,23 +99,8 @@ public class HoaDonDAO extends DBConnect {
     }
 
     public void insert(HoaDon hd) {
-        String sql = "INSERT INTO HoaDon VALUES (?,?,?,?,?,?)";
-        try {
-            PreparedStatement ps = getConnection().prepareStatement(sql);
-            ps.setString(1, hd.getMaHD());
-            ps.setString(2, hd.getMaBan());
-            ps.setString(3, hd.getMaNV());
-            ps.setString(4, hd.getNgayTao());
-            ps.setDouble(5, hd.getTongTien());
-            ps.setString(6, hd.getTrangThai());
-            ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void update(HoaDon hd) {
-        String sql = "UPDATE HoaDon SET MaBan=?, MaNV=?, NgayTao=?, TongTien=?, TrangThai=? WHERE MaHD=?";
+        // Bỏ MaHD ra khỏi câu lệnh INSERT vì nó là cột tự tăng (IDENTITY)
+        String sql = "INSERT INTO HoaDon (MaBan, MaNV, NgayTao, TongTien, TrangThai) VALUES (?,?,?,?,?)";
         try {
             PreparedStatement ps = getConnection().prepareStatement(sql);
             ps.setString(1, hd.getMaBan());
@@ -114,10 +108,29 @@ public class HoaDonDAO extends DBConnect {
             ps.setString(3, hd.getNgayTao());
             ps.setDouble(4, hd.getTongTien());
             ps.setString(5, hd.getTrangThai());
-            ps.setString(6, hd.getMaHD());
             ps.executeUpdate();
+            ps.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void update(HoaDon hd) {
+        String sql = "UPDATE HoaDon SET MaBan = ?, MaNV = ?, NgayTao = ?, TongTien = ?, TrangThai = ? WHERE MaHD = ?";
+        try {
+            Connection conn = DBConnect.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, hd.getMaBan());
+            ps.setString(2, hd.getMaNV());
+            ps.setString(3, hd.getNgayTao());
+            ps.setDouble(4, hd.getTongTien());
+            ps.setString(5, hd.getTrangThai());
+            ps.setString(6, hd.getMaHD());
+            ps.executeUpdate();
+            ps.close();
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace(); // Lỗi sẽ hiện ở đây
         }
     }
 
@@ -128,6 +141,7 @@ public class HoaDonDAO extends DBConnect {
             ps.setString(1, trangThai);
             ps.setString(2, maHD);
             ps.executeUpdate();
+            ps.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -139,34 +153,45 @@ public class HoaDonDAO extends DBConnect {
             PreparedStatement ps = getConnection().prepareStatement(sql);
             ps.setString(1, maHD);
             ps.executeUpdate();
+            ps.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Thêm hàm này vào HoaDonDAO.java
     public void updateBanStatus(String maBan, String trangThai) {
-        String sql = "UPDATE Ban SET TrangThai = ? WHERE MaBan = ?";
+        String sql = "UPDATE BanAn SET TrangThai = ? WHERE MaBan = ?";
         try {
             PreparedStatement ps = getConnection().prepareStatement(sql);
             ps.setString(1, trangThai);
             ps.setString(2, maBan);
             ps.executeUpdate();
+            ps.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void updateTongTien(String maHD) {
-        // Câu lệnh SQL tính tổng tiền từ chi tiết hóa đơn
-        String sql = "UPDATE HoaDon SET TongTien = (SELECT SUM(SoLuong * DonGia) FROM ChiTietHoaDon WHERE MaHD = ?) WHERE MaHD = ?";
+    public ArrayList<Menu> getAllMenu() {
+        ArrayList<Menu> list = new ArrayList<>();
+        String sql = "SELECT maMon, tenMon, loaiMon, gia, trangThai FROM menu";
         try {
             PreparedStatement ps = getConnection().prepareStatement(sql);
-            ps.setString(1, maHD);
-            ps.setString(2, maHD);
-            ps.executeUpdate();
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new Menu(
+                        rs.getString("maMon"),
+                        rs.getString("tenMon"),
+                        rs.getString("loaiMon"),
+                        rs.getBigDecimal("gia"),
+                        rs.getBoolean("trangThai")
+                ));
+            }
+            rs.close();
+            ps.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return list;
     }
 }

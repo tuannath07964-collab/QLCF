@@ -1,19 +1,20 @@
 package controller;
 
 import dao.HoaDonDAO;
+import dao.MenuDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import model.HoaDon;
 
 @WebServlet(name = "HoaDonServlet", urlPatterns = {"/hoadon"})
 public class HoaDonServlet extends HttpServlet {
 
     private HoaDonDAO dao = new HoaDonDAO();
+    private MenuDAO menuDao = new MenuDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -29,29 +30,27 @@ public class HoaDonServlet extends HttpServlet {
 
         switch (action) {
             case "list":
-                ArrayList<HoaDon> list = dao.getAll();
-                // In ra console để kiểm tra xem có lấy được dữ liệu từ DB không
-                System.out.println("DEBUG: So luong hoa don lay duoc la: " + (list != null ? list.size() : "null"));
-
-                request.setAttribute("listHoaDon", list);
+                request.setAttribute("listHoaDon", dao.getAll());
                 request.getRequestDispatcher("/views/hoadon.jsp").forward(request, response);
                 break;
 
             case "new":
-                String today = new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date());
-                String nextMaHD = dao.getNextMaHD();
+                // Dùng định dạng yyyy-MM-dd cho chuẩn với kiểu Date/String trong database SQL
+                String today = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
 
                 HoaDon hdNew = new HoaDon();
-                hdNew.setMaHD(nextMaHD);
                 hdNew.setNgayTao(today);
 
                 request.setAttribute("hoadon", hdNew);
+                request.setAttribute("menuList", menuDao.getAllMenu());
                 request.getRequestDispatcher("/views/hoadon1.jsp").forward(request, response);
                 break;
 
             case "edit":
                 String maHDEdit = request.getParameter("maHD");
                 HoaDon hdEdit = dao.findById(maHDEdit);
+
+                request.setAttribute("menuList", menuDao.getAllMenu());
                 request.setAttribute("hoadon", hdEdit);
                 request.getRequestDispatcher("/views/hoadon1.jsp").forward(request, response);
                 break;
@@ -59,7 +58,7 @@ public class HoaDonServlet extends HttpServlet {
             case "delete":
                 String maHDDelete = request.getParameter("maHD");
                 dao.delete(maHDDelete);
-                response.sendRedirect("hoadon?action=list"); // Redirect về danh sách
+                response.sendRedirect("hoadon?action=list");
                 break;
 
             default:
@@ -84,7 +83,7 @@ public class HoaDonServlet extends HttpServlet {
 
         double tongTien = 0;
         try {
-            if (request.getParameter("tongTien") != null) {
+            if (request.getParameter("tongTien") != null && !request.getParameter("tongTien").isEmpty()) {
                 tongTien = Double.parseDouble(request.getParameter("tongTien"));
             }
         } catch (Exception e) {
@@ -94,19 +93,20 @@ public class HoaDonServlet extends HttpServlet {
         if ("insert".equals(action)) {
             HoaDon hd = new HoaDon(maHD, maBan, maNV, ngayTao, tongTien, trangThai);
             dao.insert(hd);
-            // Khi tạo hóa đơn, bàn chuyển thành Đang phục vụ
-            dao.updateBanStatus(maBan, "Đang phục vụ");
+            if (maBan != null && !maBan.isEmpty()) {
+                dao.updateBanStatus(maBan, "Đang phục vụ");
+            }
         } else if ("update".equals(action)) {
             HoaDon hd = new HoaDon(maHD, maBan, maNV, ngayTao, tongTien, trangThai);
             dao.update(hd);
         } else if ("updateStatus".equals(action)) {
             dao.updateStatus(maHD, trangThai);
-            // Nếu chuyển sang Đã thanh toán, dọn bàn về Trống
-            if ("Đã thanh toán".equals(trangThai)) {
+            if ("Đã thanh toán".equals(trangThai) && maBan != null) {
                 dao.updateBanStatus(maBan, "Trống");
             }
         }
 
-        response.sendRedirect("hoadon");
+        // Quan trọng: Thêm lệnh này để sau khi xử lý xong sẽ quay về trang danh sách hoadon.jsp
+        response.sendRedirect("hoadon?action=list");
     }
 }
