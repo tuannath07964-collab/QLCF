@@ -8,6 +8,9 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <!-- Bổ sung Bootstrap 5 CSS để Modal hoạt động đúng -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
         <style>
             body {
                 font-family: 'Inter', sans-serif;
@@ -103,12 +106,6 @@
                 color: #888;
                 margin-bottom: 15px;
             }
-            .inv-total {
-                font-size: 16px;
-                font-weight: 700;
-                color: #c0392b;
-                margin-bottom: 15px;
-            }
 
             .status-badge {
                 display: inline-block;
@@ -146,21 +143,6 @@
                 color: #fff;
                 border-color: #2c3e50;
             }
-
-            .add-new-btn {
-                background: #27ae60;
-                color: #fff;
-                padding: 10px 20px;
-                border-radius: 8px;
-                text-decoration: none;
-                font-weight: 600;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .add-new-btn:hover {
-                background: #219653;
-            }
         </style>
     </head>
     <body>
@@ -188,8 +170,17 @@
         <div class="main-content">
             <div class="page-header">
                 <h1>Quản lý hóa đơn</h1>
-                <!-- Chuyển hướng sang Servlet xử lý form lập hóa đơn mới (sẽ điều hướng sang hoadon1.jsp) -->
-                <a href="hoadon?action=new" class="add-new-btn"><i class="fa-solid fa-plus"></i> Lập hóa đơn mới</a>
+                <div>
+                    <!-- Nút mở Pop-up Quản lý mã giảm giá -->
+                    <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#discountManagerModal">
+                        <i class="fa-solid fa-tags"></i> Quản lý mã giảm giá
+                    </button>
+
+                    <!-- Nút lập hóa đơn mới -->
+                    <a href="hoadon?action=new" class="btn btn-success text-white text-decoration-none">
+                        <i class="fa-solid fa-plus"></i> Lập hóa đơn mới
+                    </a>
+                </div>
             </div>
 
             <!-- Thanh lọc trạng thái -->
@@ -208,15 +199,161 @@
                                 <span class="inv-code">HD${hd.maHD}</span>
                                 <span class="status-badge ${hd.trangThai == 'Đã thanh toán' ? 'paid' : 'served'}">${hd.trangThai}</span>
                             </div>
-                            <!-- Hiển thị đúng mã bàn vừa lưu -->
                             <div class="inv-table"><i class="fa-solid fa-chair"></i> Bàn: <b>${hd.maBan}</b></div>
                             <div class="inv-date"><i class="fa-regular fa-calendar"></i> ${hd.ngayTao}</div>
-                            <!-- Hiển thị đúng tổng tiền đã lưu -->
-                            <input type="hidden" name="tongTien" id="inputTongTien" value="0">
                         </div>
                         <a href="hoadon?action=edit&maHD=${hd.maHD}" class="btn-action">Xem / Chỉnh sửa</a>
                     </div>
                 </c:forEach>
-            </div>        </div>
+            </div>
+        </div>
+
+        <!-- ================= MODAL QUẢN LÝ MÃ GIẢM GIÁ (Đặt ở ngoài main-content) ================= -->
+        <div class="modal fade" id="discountManagerModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Quản lý mã giảm giá</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <button class="btn btn-primary btn-sm mb-3" onclick="openAddDiscountModal()">
+                            <i class="fa-solid fa-plus-circle"></i> Thêm mã giảm giá mới
+                        </button>
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Mã Code</th>
+                                    <th>Giảm giá</th>
+                                    <th>Đơn tối thiểu</th>
+                                    <th>Hạn sử dụng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="d" items="${discountList}">
+                                    <tr>
+                                        <!-- Sửa d.code thành d.maCode -->
+                                        <td><strong>${d.maCode}</strong></td>
+
+                                        <!-- Sửa d.discountPercent thành d.phanTramGiam -->
+                                        <td>${d.phanTramGiam}%</td>
+
+                                        <!-- Sửa d.minOrderAmount thành d.dieuKienDonToiTieu -->
+                                        <td>${d.dieuKienDonToiTieu} đ</td>
+
+                                        <!-- Sửa d.endDate thành d.ngayHetHan -->
+                                        <td>${d.ngayHetHan}</td>
+
+                                        <td>
+                                            <!-- Sửa d.status thành d.trangThai -->
+                                            <span class="badge ${d.trangThai == 1 ? 'bg-success' : 'bg-secondary'}">
+                                                ${d.trangThai == 1 ? 'Hoạt động' : 'Ngừng'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <!-- Sửa d.discountID thành d.IDGiamGia và cập nhật các tham số truyền vào hàm JS -->
+                                            <button class="btn btn-sm btn-warning" 
+                                                    onclick="openEditDiscountModal('${d.IDGiamGia}', '${d.maCode}', '${d.phanTramGiam}', '${d.dieuKienDonToiTieu}', '${d.ngayHetHan}', '${d.trangThai}')">
+                                                Sửa
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= MODAL FORM THÊM / SỬA MÃ GIẢM GIÁ ================= -->
+        <div class="modal fade" id="discountFormModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="${pageContext.request.contextPath}/hoadon" method="POST">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="formTitle">Thêm mã giảm giá</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="action" id="formAction" value="add">
+                            <input type="hidden" name="id" id="discountId">
+
+                            <div class="mb-3">
+                                <label class="form-label">Mã Code (VD: SALE20)</label>
+                                <input type="text" class="form-control" name="code" id="discountCode" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Phần trăm giảm (%)</label>
+                                <input type="number" step="0.1" class="form-control" name="percent" id="discountPercent" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Đơn tối thiểu áp dụng (VNĐ)</label>
+                                <input type="number" class="form-control" name="minAmount" id="discountMinAmount" value="0">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Ngày hết hạn</label>
+                                <input type="date" class="form-control" name="endDate" id="discountEndDate" required>
+                            </div>
+                            <div class="mb-3" id="statusGroup" style="display: none;">
+                                <label class="form-label">Trạng thái</label>
+                                <select class="form-select" name="status" id="discountStatus">
+                                    <option value="1">Hoạt động</option>
+                                    <option value="0">Ngừng hoạt động</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary">Lưu lại</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thư viện Bootstrap 5 JS Bundle (Bắt buộc để chạy Modal) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
+                                                        function openAddDiscountModal() {
+                                                            document.getElementById('formTitle').innerText = "Thêm mã giảm giá mới";
+                                                            document.getElementById('formAction').value = "addMaGiamGia";
+                                                            document.getElementById('discountId').value = "";
+                                                            document.getElementById('discountCode').value = "";
+                                                            document.getElementById('discountPercent').value = "";
+                                                            document.getElementById('discountMinAmount').value = "0";
+                                                            document.getElementById('discountEndDate').value = "";
+                                                            document.getElementById('statusGroup').style.display = "none";
+
+                                                            let managerModalEl = document.getElementById('discountManagerModal');
+                                                            let managerModal = bootstrap.Modal.getInstance(managerModalEl) || new bootstrap.Modal(managerModalEl);
+                                                            managerModal.hide();
+
+                                                            let formModal = new bootstrap.Modal(document.getElementById('discountFormModal'));
+                                                            formModal.show();
+                                                        }
+
+                                                        function openEditDiscountModal(id, code, percent, minAmount, endDate, status) {
+                                                            document.getElementById('formTitle').innerText = "Chỉnh sửa mã giảm giá";
+                                                            document.getElementById('formAction').value = "updateMaGiamGia";
+                                                            document.getElementById('discountId').value = id;
+                                                            document.getElementById('discountCode').value = code;
+                                                            document.getElementById('discountPercent').value = percent;
+                                                            document.getElementById('discountMinAmount').value = minAmount;
+                                                            document.getElementById('discountEndDate').value = endDate;
+                                                            document.getElementById('discountStatus').value = status;
+                                                            document.getElementById('statusGroup').style.display = "block";
+
+                                                            let managerModalEl = document.getElementById('discountManagerModal');
+                                                            let managerModal = bootstrap.Modal.getInstance(managerModalEl) || new bootstrap.Modal(managerModalEl);
+                                                            managerModal.hide();
+
+                                                            let formModal = new bootstrap.Modal(document.getElementById('discountFormModal'));
+                                                            formModal.show();
+                                                        }
+        </script>
     </body>
 </html>

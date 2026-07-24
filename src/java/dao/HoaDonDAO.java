@@ -5,6 +5,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import model.HoaDon;
 import model.Menu;
+import model.MaGiamGia;
 
 public class HoaDonDAO extends DBConnect {
 
@@ -47,51 +48,50 @@ public class HoaDonDAO extends DBConnect {
 
     public ArrayList<HoaDon> getAll() {
         ArrayList<HoaDon> list = new ArrayList<>();
-        String sql = "SELECT MaHD, MaBan, MaNV, NgayTao, TongTien, TrangThai FROM HoaDon";
+        String sql = "SELECT MaHD, MaBan, MaNV, NgayTao, MaGiamGia, TongTien, TrangThai, DanhsachMon FROM HoaDon";
         try {
             Connection conn = DBConnect.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(new HoaDon(
-                        rs.getString("MaHD"),
-                        rs.getString("MaBan"),
-                        rs.getString("MaNV"),
-                        rs.getString("NgayTao"),
-                        rs.getDouble("TongTien"),
-                        rs.getString("TrangThai")
-                ));
+                HoaDon hd = new HoaDon();
+                hd.setMaHD(rs.getString("MaHD"));
+                hd.setMaBan(rs.getString("MaBan"));
+                hd.setMaNV(rs.getString("MaNV"));
+                hd.setNgayTao(rs.getString("NgayTao"));
+                hd.setMaGiamGia(rs.getString("MaGiamGia"));
+                hd.setTongTien(rs.getDouble("TongTien"));
+                hd.setTrangThai(rs.getString("TrangThai"));
+                hd.setDanhSachMon(rs.getString("DanhsachMon"));
+                list.add(hd);
             }
             rs.close();
             ps.close();
             conn.close();
         } catch (Exception e) {
-            e.printStackTrace(); // Bấm xem NetBeans Console nếu có lỗi màu đỏ
+            e.printStackTrace();
         }
         return list;
     }
 
     public HoaDon findById(String maHD) {
-        String sql = "SELECT MaHD, MaBan, MaNV, NgayTao, TongTien, TrangThai FROM HoaDon WHERE MaHD = ?";
-        try {
-            PreparedStatement ps = getConnection().prepareStatement(sql);
+        String sql = "SELECT MaHD, MaBan, MaNV, NgayTao, TongTien, TrangThai, DanhsachMon, MaGiamGia FROM HoaDon WHERE MaHD = ?";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maHD);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                HoaDon hd = new HoaDon(
-                        rs.getString("MaHD"),
-                        rs.getString("MaBan"),
-                        rs.getString("MaNV"),
-                        rs.getString("NgayTao"),
-                        rs.getDouble("TongTien"),
-                        rs.getString("TrangThai")
-                );
-                rs.close();
-                ps.close();
-                return hd;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    HoaDon hd = new HoaDon();
+                    hd.setMaHD(rs.getString("MaHD"));
+                    hd.setMaBan(rs.getString("MaBan"));
+                    hd.setMaNV(rs.getString("MaNV"));
+                    hd.setNgayTao(rs.getString("NgayTao"));
+                    hd.setTongTien(rs.getDouble("TongTien"));
+                    hd.setTrangThai(rs.getString("TrangThai"));
+                    hd.setDanhSachMon(rs.getString("DanhsachMon"));
+                    hd.setMaGiamGia(rs.getString("MaGiamGia"));
+                    return hd;
+                }
             }
-            rs.close();
-            ps.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,7 +99,6 @@ public class HoaDonDAO extends DBConnect {
     }
 
     public void insert(HoaDon hd) {
-        // Bỏ MaHD ra khỏi câu lệnh INSERT vì nó là cột tự tăng (IDENTITY)
         String sql = "INSERT INTO HoaDon (MaBan, MaNV, NgayTao, TongTien, TrangThai) VALUES (?,?,?,?,?)";
         try {
             PreparedStatement ps = getConnection().prepareStatement(sql);
@@ -130,7 +129,7 @@ public class HoaDonDAO extends DBConnect {
             ps.close();
             conn.close();
         } catch (Exception e) {
-            e.printStackTrace(); // Lỗi sẽ hiện ở đây
+            e.printStackTrace();
         }
     }
 
@@ -193,5 +192,88 @@ public class HoaDonDAO extends DBConnect {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // Hàm insert đầy đủ dùng cho Servlet mới
+    public void insertHoaDon(HoaDon hd) {
+        String sql = "INSERT INTO HoaDon (MaNV, MaBan, NgayTao, MaGiamGia, TongTien, TrangThai, DanhsachMon) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, hd.getMaNV());
+            ps.setString(2, hd.getMaBan());
+            ps.setString(3, hd.getNgayTao());
+            ps.setString(4, hd.getMaGiamGia());
+            ps.setDouble(5, hd.getTongTien());
+            ps.setString(6, hd.getTrangThai());
+            ps.setString(7, hd.getDanhSachMon());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Hàm update đầy đủ dùng cho Servlet mới
+    public void updateHoaDon(HoaDon hd) {
+        String sql = "UPDATE HoaDon SET MaBan = ?, TongTien = ?, TrangThai = ?, DanhsachMon = ?, MaGiamGia = ? WHERE MaHD = ?";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, hd.getMaBan());
+            ps.setDouble(2, hd.getTongTien());
+            ps.setString(3, hd.getTrangThai());
+            ps.setString(4, hd.getDanhSachMon());
+            ps.setString(5, hd.getMaGiamGia());
+            ps.setString(6, hd.getMaHD());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // --- CÁC HÀM XỬ LÝ MÃ GIẢM GIÁ (ĐÃ ĐỒNG BỘ TIẾNG VIỆT & DBConnect) ---
+    public ArrayList<MaGiamGia> getAllMaGiamGia() {
+        ArrayList<MaGiamGia> list = new ArrayList<>();
+        String query = "SELECT * FROM MaGiamGia";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(query); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                MaGiamGia m = new MaGiamGia();
+                m.setIDGiamGia(rs.getInt("IDGiamGia"));
+                m.setMaCode(rs.getString("MaCode"));
+                m.setPhanTramGiam(rs.getDouble("PhanTramGiam"));
+                m.setDieuKienDonToiTieu(rs.getDouble("DieuKienDonToiTieu"));
+                m.setNgayHetHan(rs.getString("NgayHetHan"));
+                m.setTrangThai(rs.getInt("TrangThai"));
+                list.add(m);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public void insertMaGiamGia(MaGiamGia m) {
+        String query = "INSERT INTO MaGiamGia (MaCode, PhanTramGiam, DieuKienDonToiTieu, NgayHetHan, TrangThai) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, m.getMaCode());
+            ps.setDouble(2, m.getPhanTramGiam());
+            ps.setDouble(3, m.getDieuKienDonToiTieu());
+            ps.setString(4, m.getNgayHetHan());
+            ps.setInt(5, m.getTrangThai());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateMaGiamGia(MaGiamGia m) {
+        String query = "UPDATE MaGiamGia SET MaCode = ?, PhanTramGiam = ?, DieuKienDonToiTieu = ?, NgayHetHan = ?, TrangThai = ? WHERE IDGiamGia = ?";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, m.getMaCode());
+            ps.setDouble(2, m.getPhanTramGiam());
+            ps.setDouble(3, m.getDieuKienDonToiTieu());
+            ps.setString(4, m.getNgayHetHan());
+            ps.setInt(5, m.getTrangThai());
+            ps.setInt(6, m.getIDGiamGia());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

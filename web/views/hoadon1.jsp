@@ -45,14 +45,15 @@
 
             <!-- FORM GỬI DỮ LIỆU HÓA ĐƠN VỀ SERVLET (Bọc toàn bộ phần nội dung bên dưới) -->
             <form action="${pageContext.request.contextPath}/hoadon" method="POST" class="content">
-                
+
                 <!-- Tự động nhận diện: Nếu có mã hóa đơn rồi thì update, chưa có thì insert -->
                 <input type="hidden" name="action" value="${empty hoadon.maHD || hoadon.maHD == '' ? 'insert' : 'update'}">
                 <input type="hidden" name="maHD" value="${hoadon.maHD}">
                 <input type="hidden" name="ngayTao" value="${hoadon.ngayTao}">
                 <input type="hidden" name="trangThai" value="Đang phục vụ">
                 <input type="hidden" name="tongTien" id="inputTongTien" value="0">
-
+                <input type="hidden" name="danhSachMon" id="inputDanhSachMon">
+                <input type="hidden" id="oldCartData" value='${hoadon.danhSachMon}'>
                 <!-- LEFT -->
                 <div class="left">
                     <div class="info-card">
@@ -73,10 +74,6 @@
                         <div class="info-field">
                             <label>Nhân viên</label>
                             <input type="text" name="maNV" value="${sessionScope.maNV}" readonly>
-                        </div>
-                        <div class="info-field">
-                            <label>Ngày tạo</label>
-                            <input type="hidden" name="ngayTao" value="${hoadon.ngayTao}">
                         </div>
                         <span class="status-pill"><span class="dot"></span>Đang phục vụ</span>
                     </div>
@@ -131,11 +128,22 @@
                             <div class="empty-hint">Chưa có món nào được chọn</div>
                         </div>
 
-                        <div class="promo-box">
-                            <input type="text" id="promoInput" placeholder="Nhập mã giảm giá" autocomplete="off">
-                            <button type="button" onclick="applyPromo()">Áp dụng</button>
+                        <div class="promo-box" style="display: flex; gap: 5px; align-items: center;">
+                            <select name="maGiamGia" id="promoSelect" class="form-select" onchange="applySelectedPromo()">
+                                <option value="">-- Chọn mã giảm giá --</option>
+                                <c:forEach var="d" items="${discountList}">
+                                    <c:if test="${d.trangThai == 1}">
+                                        <option value="${d.maCode}" 
+                                                data-percent="${d.phanTramGiam}" 
+                                                data-min="${d.dieuKienDonToiTieu}"
+                                                ${hoadon.maGiamGia == d.maCode ? 'selected' : ''}>
+                                            ${d.maCode} (-${d.phanTramGiam}%, Đơn tối thiểu: ${d.dieuKienDonToiTieu}đ)
+                                        </option>
+                                    </c:if>
+                                </c:forEach>
+                            </select>
                         </div>
-                        <div class="promo-msg" id="promoMsg"></div>
+                        <div class="promo-msg" id="promoMsg" style="font-size: 12px; margin-top: 4px;"></div>
 
                         <div class="receipt-totals">
                             <div class="rt-row"><span>Tạm tính</span><span id="subTotal">0đ</span></div>
@@ -169,6 +177,21 @@
             </form>
         </div>
 
+        <!-- SCRIPT NẠP FILE JS VÀ ĐỔ DỮ LIỆU CŨ AN TOÀN -->
         <script src="${pageContext.request.contextPath}/js/hoadon.js"></script>
+        <script>
+                                (function initCartFromServer() {
+                                    var savedJson = '${not empty hoadon.danhSachMon ? hoadon.danhSachMon : "[]"}';
+                                    try {
+                                        var savedCart = JSON.parse(savedJson);
+                                        if (Array.isArray(savedCart) && savedCart.length > 0) {
+                                            cart = savedCart;
+                                            renderCart();
+                                        }
+                                    } catch (e) {
+                                        console.error('Không parse được danhSachMon:', e);
+                                    }
+                                })();
+        </script>
     </body>
 </html>
