@@ -23,16 +23,20 @@
         <input type="text" name="sdt" value="${kh.sdt}" class="form-control" required>
     </div>
 
-    <div class="mb-4">
-        <label class="form-label fw-bold">Mã giảm giá:</label>
-        <select name="maGiamGia" class="form-select" required>
+    <div style="margin-bottom: 15px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 5px;">Mã giảm giá:</label>
+        <select name="maGiamGia" style="width: 100%; padding: 10px; border: 1px solid #dcdde1; border-radius: 6px;">
             <option value="">-- Chọn mã giảm giá --</option>
-            <c:forEach var="gg" items="${listGiamGia}">
-                <option value="${gg}" ${kh.maGiamGia == gg ? 'selected' : ''}>${gg}</option>
+
+            <%-- Thêm đoạn c:forEach này để duyệt danh sách từ Servlet --%>
+            <c:forEach var="v" items="${listGiamGia}">
+                <option value="${v.maCode}" ${kh.maGiamGia == v.maCode ? 'selected' : ''}>
+                    ${v.maCode} (Giảm ${v.phanTramGiam}%)
+                </option>
             </c:forEach>
+
         </select>
     </div>
-
     <div class="d-flex justify-content-end gap-2">
         <button type="button" onclick="closeModal()" class="btn btn-secondary">Hủy</button>
         <button type="submit" class="btn btn-primary">${mode == 'edit' ? 'Cập nhật' : 'Thêm mới'}</button>

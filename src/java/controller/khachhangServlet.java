@@ -2,6 +2,7 @@ package controller;
 
 import dao.KhachHangDAO;
 import model.KhachHang;
+import model.MaGiamGia; // Thêm import model mã giảm giá của bạn
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 @WebServlet("/khachhang")
 public class khachhangServlet extends HttpServlet {
@@ -70,21 +72,22 @@ public class khachhangServlet extends HttpServlet {
 
     private void loadForm(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-    java.util.ArrayList<String> listGiamGia = new java.util.ArrayList<>();
-    listGiamGia.add("GIAM10");
-    listGiamGia.add("VIP20");
-    listGiamGia.add("KM30");
-    request.setAttribute("listGiamGia", listGiamGia);
-    String maKH = request.getParameter("maKH");
-    if (maKH != null && !maKH.trim().isEmpty()) {
-        KhachHang kh = dao.getKhachHangById(maKH);
-        request.setAttribute("kh", kh);
-        request.setAttribute("mode", "edit");
-    } else {
-        request.setAttribute("mode", "add");
+        
+        // Sử dụng đúng tên class model là MaGiamGia
+        List<MaGiamGia> listGiamGia = dao.getAllMaGiamGia(); 
+        request.setAttribute("listGiamGia", listGiamGia);
+
+        String maKH = request.getParameter("maKH");
+        if (maKH != null && !maKH.trim().isEmpty()) {
+            KhachHang kh = dao.getKhachHangById(maKH);
+            request.setAttribute("kh", kh);
+            request.setAttribute("mode", "edit");
+        } else {
+            request.setAttribute("mode", "add");
+        }
+        
+        request.getRequestDispatcher("/views/khachhang1.jsp").forward(request, response);
     }
-    request.getRequestDispatcher("/views/khachhang1.jsp").forward(request, response);
-}
 
     private void insertKhachHang(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
