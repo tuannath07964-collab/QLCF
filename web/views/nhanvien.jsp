@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -73,8 +74,19 @@
                                     <c:if test="${nv.caSang}">Sáng </c:if>
                                     <c:if test="${nv.caChieu}">Chiều </c:if>
                                     <c:if test="${nv.caToi}">Tối</c:if>
+                                    </td>
+                                    <td>
+                                    <c:choose>
+                                        <c:when test="${not empty nv.gioBatDau and not empty nv.gioKetThuc}">
+                                            ${fn:substring(nv.gioBatDau, 0, 5)}
+                                            -
+                                            ${fn:substring(nv.gioKetThuc, 0, 5)}
+                                        </c:when>
+                                        <c:otherwise>
+                                            Chưa phân ca
+                                        </c:otherwise>
+                                    </c:choose>
                                 </td>
-                                <td>${nv.gioBatDau} - ${nv.gioKetThuc}</td>
                                 <td>
                                     <!-- Nút Sửa: Load form thông tin nhân viên -->
                                     <a href="javascript:void(0)" onclick="openModal('${pageContext.request.contextPath}/nhanvien?action=loadForm&maNV=${nv.maNV}', 'Sửa thông tin nhân viên')">
@@ -114,12 +126,12 @@
             function openModal(url, title) {
                 document.getElementById('modalTitle').innerText = title;
                 fetch(url)
-                    .then(response => response.text())
-                    .then(html => {
-                        document.getElementById('modalBody').innerHTML = html;
-                        document.getElementById('myModal').style.display = 'flex';
-                    })
-                    .catch(error => console.error("Lỗi khi load dữ liệu:", error));
+                        .then(response => response.text())
+                        .then(html => {
+                            document.getElementById('modalBody').innerHTML = html;
+                            document.getElementById('myModal').style.display = 'flex';
+                        })
+                        .catch(error => console.error("Lỗi khi load dữ liệu:", error));
             }
 
             // Hàm mở Modal phân ca làm việc cho nhân viên
@@ -131,8 +143,9 @@
             function togglePasswordVisibility() {
                 const passwordInput = document.getElementById('passwordInput');
                 const toggleIcon = document.getElementById('togglePassword');
-                if (!passwordInput || !toggleIcon) return;
-                
+                if (!passwordInput || !toggleIcon)
+                    return;
+
                 if (passwordInput.type === 'password') {
                     passwordInput.type = 'text';
                     toggleIcon.classList.remove('fa-eye');
