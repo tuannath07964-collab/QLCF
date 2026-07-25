@@ -1,7 +1,7 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <%-- Kiểm tra quyền đăng nhập trực tiếp bằng mã Java ngắn gọn (hoặc có thể xử lý ở Filter/Servlet) --%>
 <%
@@ -23,7 +23,8 @@
         <!-- FontAwesome 6.5.2 đồng bộ với trang thống kê -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
         <!-- File CSS tách riêng -->
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/kho.css">
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/kho.css?v=${System.currentTimeMillis()}">
     </head>
 
     <body>
@@ -196,9 +197,9 @@
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input type="text" placeholder="Tìm kiếm nguyên liệu...">
                         </div>
-                        <button class="add-btn">
+                        <a href="${pageContext.request.contextPath}/KhoServlet?action=loadForm" class="add-btn" style="text-decoration: none;">
                             <i class="fa-solid fa-plus"></i> Thêm nguyên liệu
-                        </button>
+                        </a>
                     </div>
 
                     <!-- ==========================================
@@ -224,19 +225,19 @@
                                                     <td class="txt-bold">${nl.maNL}</td>
                                                     <td>${nl.tenNL}</td>
                                                     <td>
-                                                        <span class="${nl.soLuong == 0 ? 'txt-profit' : ''}" style="${nl.soLuong == 0 ? 'color: #c5221f; font-weight: 600;' : ''}">
+                                                        <span style="${nl.soLuong == 0 ? 'color: #c5221f; font-weight: 600;' : ''}">
                                                             ${nl.soLuong}
                                                         </span>
                                                     </td>
                                                     <td>${nl.donVi}</td>
                                                     <td>
                                                         <div class="action">
-                                                            <button class="edit-btn" title="Sửa">
+                                                            <a href="${pageContext.request.contextPath}/KhoServlet?action=loadForm&maNL=${nl.maNL}" class="edit-btn" title="Sửa">
                                                                 <i class="fa-solid fa-pen"></i>
-                                                            </button>
-                                                            <button class="delete-btn" title="Xóa">
+                                                            </a>
+                                                            <a href="${pageContext.request.contextPath}/KhoServlet?action=delete&maNL=${nl.maNL}" class="delete-btn" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa nguyên liệu này không?');">
                                                                 <i class="fa-regular fa-trash-can"></i>
-                                                            </button>
+                                                            </a>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -244,7 +245,7 @@
                                         </c:when>
                                         <c:otherwise>
                                             <tr>
-                                                <td colspan="5" class="empty">Không có nguyên liệu nào trong kho.</td>
+                                                <td colspan="5" style="text-align: center; padding: 20px;">Không có nguyên liệu nào trong kho.</td>
                                             </tr>
                                         </c:otherwise>
                                     </c:choose>
@@ -268,9 +269,91 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
+
             </main>
         </div>
+
+        <!-- ==========================================
+                POP-UP (MODAL) THÊM / SỬA NGUYÊN LIỆU
+        =========================================== -->
+        <div id="khoModal" class="modal-overlay" style="display: ${not empty showModal ? 'flex' : 'none'};">
+            <div class="modal-content">
+                <h2 style="margin-bottom: 20px; color: #2c3e50;">
+                    ${mode == 'edit' ? 'Cập nhật thông tin nguyên liệu' : 'Thêm nguyên liệu mới'}
+                </h2>
+
+                <form action="${pageContext.request.contextPath}/KhoServlet" method="post">
+                    <input type="hidden" name="action" value="${mode == 'edit' ? 'edit' : 'add'}">
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px;">Mã nguyên liệu:</label>
+                        <input type="text" name="maNL" value="${nl.maNL}" ${mode == 'edit' ? 'readonly style="background:#e9ecef;"' : ''} required 
+                               style="width: 100%; padding: 10px; border: 1px solid #dcdde1; border-radius: 6px;">
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px;">Tên nguyên liệu:</label>
+                        <input type="text" name="tenNL" value="${nl.tenNL}" required 
+                               style="width: 100%; padding: 10px; border: 1px solid #dcdde1; border-radius: 6px;">
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px;">Số lượng:</label>
+                        <input type="number" name="soLuong" value="${nl.soLuong}" required min="0" 
+                               style="width: 100%; padding: 10px; border: 1px solid #dcdde1; border-radius: 6px;">
+                    </div>
+
+                    <div style="margin-bottom: 25px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px;">Đơn vị tính:</label>
+                        <input type="text" name="donVi" value="${nl.donVi}" required 
+                               style="width: 100%; padding: 10px; border: 1px solid #dcdde1; border-radius: 6px;">
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" style="background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            Lưu thông tin
+                        </button>
+                        <a href="${pageContext.request.contextPath}/KhoServlet" style="background: #95a5a6; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; display: inline-block; font-weight: 600; text-align: center;">
+                            Hủy bỏ
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <style>
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
+            .modal-content {
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                width: 100%;
+                max-width: 500px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                animation: fadeIn 0.3s ease;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
     </body>
 </html>
