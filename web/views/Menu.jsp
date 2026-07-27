@@ -87,6 +87,34 @@
                                     <span class="mon-loai" style="font-size:12px; color:#8a94a0; text-transform:uppercase;">${m.loaiMon}</span>
                                     <span class="mon-ten" style="font-weight:700; font-size:17px; color:#1c2833;">${m.tenMon}</span>
                                     <span class="mon-ma" style="font-size:12px; color:#b0b7bd;">Mã: ${m.maMon}</span>
+                                    <div style="
+                                         font-size:12px;
+                                         color:#5f6b76;
+                                         line-height:1.45;
+                                         margin-top:5px;">
+
+                                        <b>Nguyên liệu:</b>
+                                        ${m.nguyenLieuCan}
+                                    </div>
+
+                                    <div style="
+                                         font-size:12px;
+                                         font-weight:700;
+                                         color:${m.trangThai
+                                                 ? '#16814b'
+                                                 : '#c0392b'};">
+
+                                        <c:choose>
+                                            <c:when test="${m.trangThai}">
+                                                Có thể pha khoảng
+                                                ${m.soPhanCoThePha} phần
+                                            </c:when>
+
+                                            <c:otherwise>
+                                                Không đủ nguyên liệu
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
                                     <span class="mon-gia" style="margin-top:auto; font-size:16px; font-weight:700; color:#c0392b; padding-top:8px;">${m.gia} đ</span>
                                 </div>
                                 <div class="mon-actions" style="display:flex; border-top:1px solid #eef0f2;">

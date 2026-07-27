@@ -3,16 +3,26 @@ package model;
 import java.math.BigDecimal;
 
 public class Menu {
+
     private String maMon;
     private String tenMon;
     private String loaiMon;
     private BigDecimal gia;
     private boolean trangThai;
 
+    private String nguyenLieuCan;
+    private int soPhanCoThePha;
+
     public Menu() {
     }
 
-    public Menu(String maMon, String tenMon, String loaiMon, BigDecimal gia, boolean trangThai) {
+    public Menu(
+            String maMon,
+            String tenMon,
+            String loaiMon,
+            BigDecimal gia,
+            boolean trangThai
+    ) {
         this.maMon = maMon;
         this.tenMon = tenMon;
         this.loaiMon = loaiMon;
@@ -56,7 +66,30 @@ public class Menu {
         return trangThai;
     }
 
-    public void setTrangThai(boolean trangThai) {
+    public void setTrangThai(
+            boolean trangThai
+    ) {
         this.trangThai = trangThai;
+    }
+
+    public String getNguyenLieuCan() {
+        return nguyenLieuCan;
+    }
+
+    public void setNguyenLieuCan(
+            String nguyenLieuCan
+    ) {
+        this.nguyenLieuCan = nguyenLieuCan;
+    }
+
+    public int getSoPhanCoThePha() {
+        return soPhanCoThePha;
+    }
+
+    public void setSoPhanCoThePha(
+            int soPhanCoThePha
+    ) {
+        this.soPhanCoThePha =
+                soPhanCoThePha;
     }
 }

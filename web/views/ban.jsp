@@ -53,9 +53,17 @@
                     </div>
 
                     <!-- Nút Gọi Modal Thêm Bàn -->
-                    <button type="button" class="btn-add" onclick="openModal('${pageContext.request.contextPath}/views/ban1.jsp', 'Thêm bàn mới')" style="background: #2e9bee; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer;">
-                        <i class="fa-solid fa-plus"></i> Thêm bàn
-                    </button>
+                    <div style="
+                         padding:10px 14px;
+                         background:#eaf5ff;
+                         color:#176b9e;
+                         border-radius:7px;
+                         font-weight:600;">
+
+                        <i class="fa-solid fa-lock"></i>
+                        20 bàn cố định từ SQL —
+                        không thể thêm hoặc xóa
+                    </div>
                 </div>
 
                 <!-- Chú thích (Đã bỏ Đặt trước & Đang dọn dẹp) -->

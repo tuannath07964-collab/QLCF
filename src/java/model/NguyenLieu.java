@@ -1,16 +1,24 @@
 package model;
 
+import java.math.BigDecimal;
+
 public class NguyenLieu {
 
     private String maNL;
     private String tenNL;
-    private int soLuong;
+    private BigDecimal soLuong;
     private String donVi;
+    private String congThucSuDung;
 
     public NguyenLieu() {
     }
 
-    public NguyenLieu(String maNL, String tenNL, int soLuong, String donVi) {
+    public NguyenLieu(
+            String maNL,
+            String tenNL,
+            BigDecimal soLuong,
+            String donVi
+    ) {
         this.maNL = maNL;
         this.tenNL = tenNL;
         this.soLuong = soLuong;
@@ -33,11 +41,13 @@ public class NguyenLieu {
         this.tenNL = tenNL;
     }
 
-    public int getSoLuong() {
+    public BigDecimal getSoLuong() {
         return soLuong;
     }
 
-    public void setSoLuong(int soLuong) {
+    public void setSoLuong(
+            BigDecimal soLuong
+    ) {
         this.soLuong = soLuong;
     }
 
@@ -49,4 +59,14 @@ public class NguyenLieu {
         this.donVi = donVi;
     }
 
+    public String getCongThucSuDung() {
+        return congThucSuDung;
+    }
+
+    public void setCongThucSuDung(
+            String congThucSuDung
+    ) {
+        this.congThucSuDung =
+                congThucSuDung;
+    }
 }

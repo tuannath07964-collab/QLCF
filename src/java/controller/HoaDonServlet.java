@@ -1,30 +1,41 @@
 package controller;
 
 import dao.HoaDonDAO;
+import dao.KhachHangDAO;
 import dao.MenuDAO;
+
+import model.HoaDon;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import model.HoaDon;
-import model.MaGiamGia;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@WebServlet(name = "HoaDonServlet", urlPatterns = {"/hoadon"})
-public class HoaDonServlet extends HttpServlet {
+@WebServlet(
+    name = "HoaDonServlet",
+    urlPatterns = {"/hoadon"}
+)
+public class HoaDonServlet
+        extends HttpServlet {
 
     private HoaDonDAO hoaDonDAO;
     private MenuDAO menuDAO;
+    private KhachHangDAO khachHangDAO;
 
     @Override
-    public void init() throws ServletException {
+    public void init()
+            throws ServletException {
+
         hoaDonDAO = new HoaDonDAO();
         menuDAO = new MenuDAO();
+        khachHangDAO =
+                new KhachHangDAO();
     }
 
     @Override
@@ -35,199 +46,59 @@ public class HoaDonServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html; charset=UTF-8");
 
-        String action = request.getParameter("action");
+        response.setContentType(
+                "text/html; charset=UTF-8"
+        );
 
-        if (action == null || action.isBlank()) {
+        String action =
+                request.getParameter("action");
+
+        if (action == null
+                || action.isBlank()) {
             action = "list";
         }
 
         try {
             switch (action) {
-                case "list":
-                    hienThiDanhSachHoaDon(request, response);
-                    break;
-
-                case "new":
-                    hienThiFormThemMoi(request, response);
-                    break;
-
-                case "edit":
-                    hienThiFormChinhSua(request, response);
-                    break;
-
-                case "delete":
-                    xoaHoaDon(request, response);
-                    break;
-
-                default:
-                    response.sendRedirect(
-                            request.getContextPath()
-                            + "/hoadon?action=list"
+                case "new" ->
+                    hienThiFormThemMoi(
+                            request,
+                            response
                     );
-                    break;
+
+                case "edit" ->
+                    hienThiFormChinhSua(
+                            request,
+                            response
+                    );
+
+                case "delete" ->
+                    xoaHoaDon(
+                            request,
+                            response
+                    );
+
+                default ->
+                    hienThiDanhSachHoaDon(
+                            request,
+                            response
+                    );
             }
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
 
             request.setAttribute(
                     "errorMessage",
-                    "Không thể xử lý hóa đơn: " + ex.getMessage()
+                    e.getMessage()
             );
 
-            hienThiDanhSachHoaDon(request, response);
-        }
-    }
-
-    /**
-     * Hiển thị danh sách hóa đơn.
-     */
-    private void hienThiDanhSachHoaDon(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws ServletException, IOException {
-
-        request.setAttribute(
-                "listHoaDon",
-                hoaDonDAO.getAll()
-        );
-
-        request.setAttribute(
-                "discountList",
-                hoaDonDAO.getAllMaGiamGia()
-        );
-
-        request.getRequestDispatcher("/views/hoadon.jsp")
-                .forward(request, response);
-    }
-
-    /**
-     * Hiển thị form tạo hóa đơn mới.
-     *
-     * Nếu mở từ trang quản lý hóa đơn: /hoadon?action=new
-     *
-     * Nếu mở từ trang bàn: /hoadon?action=new&maBan=1
-     */
-    private void hienThiFormThemMoi(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws ServletException, IOException {
-
-        HttpSession session = request.getSession(false);
-
-        if (session == null || session.getAttribute("maNV") == null) {
-            response.sendRedirect(
-                    request.getContextPath() + "/LoginServlet"
+            hienThiDanhSachHoaDon(
+                    request,
+                    response
             );
-            return;
         }
-
-        String maBan = request.getParameter("maBan");
-
-        HoaDon hoaDonMoi = new HoaDon();
-
-        hoaDonMoi.setNgayTao(
-                new SimpleDateFormat("yyyy-MM-dd")
-                        .format(new Date())
-        );
-
-        hoaDonMoi.setTrangThai("Đang phục vụ");
-        hoaDonMoi.setTongTien(0);
-
-        Object maNVSession = session.getAttribute("maNV");
-
-        hoaDonMoi.setMaNV(
-                String.valueOf(maNVSession)
-        );
-
-        /*
-         * Chỉ gán mã bàn nếu người dùng đi từ trang Bàn.
-         * Nếu tạo hóa đơn từ trang Hóa đơn thì mã bàn để trống.
-         */
-        if (maBan != null && !maBan.isBlank()) {
-            hoaDonMoi.setMaBan(maBan.trim());
-        }
-
-        request.setAttribute("hoadon", hoaDonMoi);
-
-        request.setAttribute(
-                "menuList",
-                menuDAO.getAllMenu()
-        );
-
-        request.setAttribute(
-                "discountList",
-                hoaDonDAO.getMaGiamGiaConHieuLuc()
-        );
-
-        request.getRequestDispatcher("/views/hoadon1.jsp")
-                .forward(request, response);
-    }
-
-    /**
-     * Hiển thị form sửa hóa đơn.
-     */
-    private void hienThiFormChinhSua(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws ServletException, IOException {
-
-        String maHD = request.getParameter("maHD");
-
-        if (maHD == null || maHD.isBlank()) {
-            response.sendRedirect(
-                    request.getContextPath()
-                    + "/hoadon?action=list"
-            );
-            return;
-        }
-
-        HoaDon hoaDon = hoaDonDAO.findById(maHD.trim());
-
-        if (hoaDon == null) {
-            response.sendRedirect(
-                    request.getContextPath()
-                    + "/hoadon?action=list&error=notFound"
-            );
-            return;
-        }
-
-        request.setAttribute("hoadon", hoaDon);
-
-        request.setAttribute(
-                "menuList",
-                menuDAO.getAllMenu()
-        );
-
-        request.setAttribute(
-                "discountList",
-                hoaDonDAO.getAllMaGiamGia()
-        );
-
-        request.getRequestDispatcher("/views/hoadon1.jsp")
-                .forward(request, response);
-    }
-
-    /**
-     * Xóa hóa đơn.
-     */
-    private void xoaHoaDon(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-
-        String maHD = request.getParameter("maHD");
-
-        if (maHD != null && !maHD.isBlank()) {
-            hoaDonDAO.delete(maHD.trim());
-        }
-
-        response.sendRedirect(
-                request.getContextPath()
-                + "/hoadon?action=list"
-        );
     }
 
     @Override
@@ -238,52 +109,58 @@ public class HoaDonServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html; charset=UTF-8");
 
-        String action = request.getParameter("action");
+        response.setContentType(
+                "text/html; charset=UTF-8"
+        );
+
+        String action =
+                request.getParameter("action");
 
         try {
-            if ("addMaGiamGia".equals(action)) {
-                themMaGiamGia(request, response);
-                return;
+            switch (
+                action == null
+                ? ""
+                : action
+            ) {
+                case "insert" ->
+                    themHoaDon(
+                            request,
+                            response
+                    );
+
+                case "update" ->
+                    capNhatHoaDon(
+                            request,
+                            response
+                    );
+
+                case "pay" ->
+                    thanhToanHoaDon(
+                            request,
+                            response
+                    );
+
+                default ->
+                    response.sendRedirect(
+                        request.getContextPath()
+                        + "/hoadon?action=list"
+                    );
             }
 
-            if ("updateMaGiamGia".equals(action)) {
-                capNhatMaGiamGia(request, response);
-                return;
-            }
-
-            if ("insert".equals(action)) {
-                themHoaDon(request, response);
-                return;
-            }
-
-            if ("update".equals(action)) {
-                capNhatHoaDon(request, response);
-                return;
-            }
-
-            if ("pay".equals(action)) {
-                thanhToanHoaDon(request, response);
-                return;
-            }
-
-            response.sendRedirect(
-                    request.getContextPath()
-                    + "/hoadon?action=list"
-            );
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
 
             request.setAttribute(
                     "errorMessage",
-                    "Không thể lưu dữ liệu: " + ex.getMessage()
+                    e.getMessage()
             );
 
-            if ("insert".equals(action)
-                    || "update".equals(action)) {
-
+            if (
+                "insert".equals(action)
+                || "update".equals(action)
+                || "pay".equals(action)
+            ) {
                 hienThiLaiFormHoaDonKhiLoi(
                         request,
                         response
@@ -297,73 +174,162 @@ public class HoaDonServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Thêm hóa đơn.
-     */
-    private void themHoaDon(
+    private void hienThiDanhSachHoaDon(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        HoaDon hoaDon = taoHoaDonTuRequest(request);
+        request.setAttribute(
+                "listHoaDon",
+                hoaDonDAO.getAll()
+        );
 
-        if (hoaDon.getMaBan() == null
-                || hoaDon.getMaBan().isBlank()) {
+        request.getRequestDispatcher(
+                "/views/hoadon.jsp"
+        ).forward(request, response);
+    }
 
-            request.setAttribute(
-                    "errorMessage",
-                    "Vui lòng chọn bàn."
-            );
+    private void hienThiFormThemMoi(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws ServletException, IOException {
 
-            hienThiLaiFormHoaDonKhiLoi(
-                    request,
-                    response
-            );
-            return;
-        }
+        HttpSession session =
+                request.getSession(false);
 
-        if (hoaDon.getMaNV() == null
-                || hoaDon.getMaNV().isBlank()) {
+        if (session == null
+                || session.getAttribute(
+                        "maNV"
+                ) == null) {
 
-            request.setAttribute(
-                    "errorMessage",
-                    "Không xác định được nhân viên."
-            );
-
-            hienThiLaiFormHoaDonKhiLoi(
-                    request,
-                    response
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/LoginServlet"
             );
             return;
         }
 
-        hoaDonDAO.insertHoaDon(hoaDon);
+        HoaDon hd = new HoaDon();
 
-        response.sendRedirect(
-                request.getContextPath()
-                + "/hoadon?action=list&success=insert"
+        hd.setMaNV(
+                String.valueOf(
+                    session.getAttribute(
+                            "maNV"
+                    )
+                )
+        );
+
+        hd.setMaBan(
+                trimToNull(
+                    request.getParameter(
+                            "maBan"
+                    )
+                )
+        );
+
+        hd.setNgayTao(
+                new SimpleDateFormat(
+                        "yyyy-MM-dd"
+                ).format(new Date())
+        );
+
+        hd.setTrangThai(
+                "Đang phục vụ"
+        );
+
+        request.setAttribute(
+                "hoadon",
+                hd
+        );
+
+        napDuLieuForm(request);
+
+        request.getRequestDispatcher(
+                "/views/hoadon1.jsp"
+        ).forward(request, response);
+    }
+
+    private void hienThiFormChinhSua(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws ServletException, IOException {
+
+        String maHD = trimToNull(
+                request.getParameter("maHD")
+        );
+
+        if (maHD == null) {
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/hoadon?action=list"
+            );
+            return;
+        }
+
+        HoaDon hd =
+                hoaDonDAO.findById(maHD);
+
+        if (hd == null) {
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/hoadon?action=list"
+                    + "&error=notFound"
+            );
+            return;
+        }
+
+        request.setAttribute(
+                "hoadon",
+                hd
+        );
+
+        napDuLieuForm(request);
+
+        request.getRequestDispatcher(
+                "/views/hoadon1.jsp"
+        ).forward(request, response);
+    }
+
+    private void napDuLieuForm(
+            HttpServletRequest request
+    ) {
+        request.setAttribute(
+                "menuList",
+                menuDAO.getAllMenu()
+        );
+
+        request.setAttribute(
+                "khachHangList",
+                khachHangDAO
+                    .getAllKhachHang()
         );
     }
 
-    /**
-     * Cập nhật hóa đơn.
-     */
-    private void capNhatHoaDon(
+    private void themHoaDon(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws Exception {
 
-        HoaDon hoaDon
-                = taoHoaDonTuRequest(request);
+        HoaDon hd =
+                taoHoaDonTuRequest(request);
 
-        if (hoaDon.getMaHD() == null) {
-            throw new IllegalArgumentException(
-                    "Thiếu mã hóa đơn."
-            );
-        }
+        validateHoaDon(hd);
+
+        int maHD =
+            hoaDonDAO
+                .taoHoacLayHoaDonDangPhucVu(
+                    hd.getMaNV(),
+                    Integer.parseInt(
+                        hd.getMaBan()
+                    )
+                );
+
+        hd.setMaHD(
+                String.valueOf(maHD)
+        );
 
         hoaDonDAO.luuDonHang(
-                hoaDon,
+                hd,
                 request.getParameterValues(
                         "itemMaMon"
                 ),
@@ -374,8 +340,44 @@ public class HoaDonServlet extends HttpServlet {
 
         response.sendRedirect(
                 request.getContextPath()
-                + "/hoadon?action=edit&maHD="
-                + hoaDon.getMaHD()
+                + "/hoadon?action=edit"
+                + "&maHD="
+                + maHD
+                + "&success=insert"
+        );
+    }
+
+    private void capNhatHoaDon(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws Exception {
+
+        HoaDon hd =
+                taoHoaDonTuRequest(request);
+
+        validateHoaDon(hd);
+
+        if (hd.getMaHD() == null) {
+            throw new IllegalArgumentException(
+                    "Thiếu mã hóa đơn."
+            );
+        }
+
+        hoaDonDAO.luuDonHang(
+                hd,
+                request.getParameterValues(
+                        "itemMaMon"
+                ),
+                request.getParameterValues(
+                        "itemQty"
+                )
+        );
+
+        response.sendRedirect(
+                request.getContextPath()
+                + "/hoadon?action=edit"
+                + "&maHD="
+                + hd.getMaHD()
                 + "&success=save"
         );
     }
@@ -385,18 +387,28 @@ public class HoaDonServlet extends HttpServlet {
             HttpServletResponse response
     ) throws Exception {
 
-        HoaDon hoaDon
-                = taoHoaDonTuRequest(request);
+        HoaDon hd =
+                taoHoaDonTuRequest(request);
 
-        if (hoaDon.getMaHD() == null) {
-            throw new IllegalArgumentException(
-                    "Thiếu mã hóa đơn."
+        validateHoaDon(hd);
+
+        if (hd.getMaHD() == null) {
+            int maHD =
+                hoaDonDAO
+                    .taoHoacLayHoaDonDangPhucVu(
+                        hd.getMaNV(),
+                        Integer.parseInt(
+                            hd.getMaBan()
+                        )
+                    );
+
+            hd.setMaHD(
+                    String.valueOf(maHD)
             );
         }
 
-        /* Lưu món mới nhất trước */
         hoaDonDAO.luuDonHang(
-                hoaDon,
+                hd,
                 request.getParameterValues(
                         "itemMaMon"
                 ),
@@ -405,19 +417,18 @@ public class HoaDonServlet extends HttpServlet {
                 )
         );
 
-        String pay
-                = request.getParameter("pay");
-
-        String phuongThuc
-                = "cash".equals(pay)
+        String phuongThuc =
+                "cash".equals(
+                    request.getParameter("pay")
+                )
                 ? "Tiền mặt"
                 : "Khác";
 
         hoaDonDAO.thanhToanHoaDon(
                 Integer.parseInt(
-                        hoaDon.getMaHD()
+                        hd.getMaHD()
                 ),
-                hoaDon.getMaGiamGia(),
+                hd.getMaKH(),
                 phuongThuc
         );
 
@@ -427,239 +438,147 @@ public class HoaDonServlet extends HttpServlet {
         );
     }
 
-    /**
-     * Tạo đối tượng HoaDon từ dữ liệu form.
-     */
-    private HoaDon taoHoaDonTuRequest(
-            HttpServletRequest request
-    ) {
+    private void xoaHoaDon(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
 
         String maHD = trimToNull(
                 request.getParameter("maHD")
         );
 
-        String maBan = trimToNull(
-                request.getParameter("maBan")
+        if (maHD != null) {
+            hoaDonDAO.delete(maHD);
+        }
+
+        response.sendRedirect(
+                request.getContextPath()
+                + "/hoadon?action=list"
+        );
+    }
+
+    private HoaDon taoHoaDonTuRequest(
+            HttpServletRequest request
+    ) {
+        HoaDon hd = new HoaDon();
+
+        hd.setMaHD(
+                trimToNull(
+                    request.getParameter(
+                            "maHD"
+                    )
+                )
         );
 
-        String ngayTao = trimToNull(
-                request.getParameter("ngayTao")
+        hd.setMaBan(
+                trimToNull(
+                    request.getParameter(
+                            "maBan"
+                    )
+                )
         );
 
-        String trangThai = trimToNull(
-                request.getParameter("trangThai")
+        hd.setMaKH(
+                trimToNull(
+                    request.getParameter(
+                            "maKH"
+                    )
+                )
         );
 
-        String danhSachMon = trimToNull(
-                request.getParameter("danhSachMon")
+        hd.setDanhSachMon(
+                trimToNull(
+                    request.getParameter(
+                            "danhSachMon"
+                    )
+                )
         );
 
-        String maGiamGia = trimToNull(
-                request.getParameter("maGiamGia")
+        hd.setNgayTao(
+                trimToNull(
+                    request.getParameter(
+                            "ngayTao"
+                    )
+                )
+        );
+
+        hd.setTrangThai(
+                trimToNull(
+                    request.getParameter(
+                            "trangThai"
+                    )
+                )
         );
 
         String maNV = trimToNull(
                 request.getParameter("maNV")
         );
 
-        /*
-         * Nếu form không gửi maNV thì lấy từ session.
-         */
         if (maNV == null) {
-            HttpSession session = request.getSession(false);
+            HttpSession session =
+                    request.getSession(false);
 
             if (session != null
-                    && session.getAttribute("maNV") != null) {
+                    && session.getAttribute(
+                            "maNV"
+                    ) != null) {
 
                 maNV = String.valueOf(
-                        session.getAttribute("maNV")
+                    session.getAttribute(
+                            "maNV"
+                    )
                 );
             }
         }
 
-        if (ngayTao == null) {
-            ngayTao = new SimpleDateFormat("yyyy-MM-dd")
-                    .format(new Date());
-        }
+        hd.setMaNV(maNV);
 
-        if (trangThai == null) {
-            trangThai = "Đang phục vụ";
-        }
-
-        double tongTien = parseDouble(
-                request.getParameter("tongTien")
-        );
-
-        HoaDon hoaDon = new HoaDon();
-
-        hoaDon.setMaHD(maHD);
-        hoaDon.setMaNV(maNV);
-        hoaDon.setMaBan(maBan);
-        hoaDon.setNgayTao(ngayTao);
-        hoaDon.setTrangThai(trangThai);
-        hoaDon.setTongTien(tongTien);
-        hoaDon.setDanhSachMon(danhSachMon);
-        hoaDon.setMaGiamGia(
-                trimToNull(
-                        request.getParameter(
-                                "maGiamGia"
-                        )
-                )
-        );
-
-        return hoaDon;
+        return hd;
     }
 
-    /**
-     * Khi lưu hóa đơn lỗi thì giữ lại dữ liệu đã nhập và mở lại form thay vì
-     * chuyển về danh sách.
-     */
-    private void hienThiLaiFormHoaDonKhiLoi(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws ServletException, IOException {
+    private void validateHoaDon(
+            HoaDon hd
+    ) {
+        if (hd.getMaBan() == null) {
+            throw new IllegalArgumentException(
+                    "Vui lòng chọn bàn."
+            );
+        }
 
-        HoaDon hoaDon = taoHoaDonTuRequest(request);
+        if (hd.getMaNV() == null) {
+            throw new IllegalArgumentException(
+                    "Không xác định được "
+                    + "nhân viên đăng nhập."
+            );
+        }
+    }
 
-        request.setAttribute("hoadon", hoaDon);
+    private void
+            hienThiLaiFormHoaDonKhiLoi(
+                    HttpServletRequest request,
+                    HttpServletResponse response
+            )
+            throws ServletException,
+                   IOException {
 
         request.setAttribute(
-                "menuList",
-                menuDAO.getAllMenu()
+                "hoadon",
+                taoHoaDonTuRequest(request)
         );
 
-        request.setAttribute(
-                "discountList",
-                hoaDonDAO.getAllMaGiamGia()
-        );
+        napDuLieuForm(request);
 
-        request.getRequestDispatcher("/views/hoadon1.jsp")
-                .forward(request, response);
+        request.getRequestDispatcher(
+                "/views/hoadon1.jsp"
+        ).forward(request, response);
     }
 
-    /**
-     * Thêm mã giảm giá.
-     */
-    private void themMaGiamGia(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-
-        MaGiamGia maGiamGia = new MaGiamGia();
-
-        maGiamGia.setMaCode(
-                request.getParameter("code")
-        );
-
-        maGiamGia.setPhanTramGiam(
-                parseDouble(
-                        request.getParameter("percent")
-                )
-        );
-
-        maGiamGia.setDieuKienDonToiTieu(
-                parseDouble(
-                        request.getParameter("minAmount")
-                )
-        );
-
-        maGiamGia.setNgayHetHan(
-                request.getParameter("endDate")
-        );
-
-        maGiamGia.setTrangThai(
-                parseInteger(
-                        request.getParameter("status")
-                )
-        );
-
-        hoaDonDAO.insertMaGiamGia(maGiamGia);
-
-        response.sendRedirect(
-                request.getContextPath()
-                + "/hoadon?action=list&success=discountInsert"
-        );
-    }
-
-    /**
-     * Cập nhật mã giảm giá.
-     */
-    private void capNhatMaGiamGia(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-
-        MaGiamGia maGiamGia = new MaGiamGia();
-
-        maGiamGia.setIDGiamGia(
-                parseInteger(
-                        request.getParameter("id")
-                )
-        );
-
-        maGiamGia.setMaCode(
-                request.getParameter("code")
-        );
-
-        maGiamGia.setPhanTramGiam(
-                parseDouble(
-                        request.getParameter("percent")
-                )
-        );
-
-        maGiamGia.setDieuKienDonToiTieu(
-                parseDouble(
-                        request.getParameter("minAmount")
-                )
-        );
-
-        maGiamGia.setNgayHetHan(
-                request.getParameter("endDate")
-        );
-
-        maGiamGia.setTrangThai(
-                parseInteger(
-                        request.getParameter("status")
-                )
-        );
-
-        hoaDonDAO.updateMaGiamGia(maGiamGia);
-
-        response.sendRedirect(
-                request.getContextPath()
-                + "/hoadon?action=list&success=discountUpdate"
-        );
-    }
-
-    private String trimToNull(String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-
-        return value.trim();
-    }
-
-    private double parseDouble(String value) {
-        if (value == null || value.isBlank()) {
-            return 0;
-        }
-
-        try {
-            return Double.parseDouble(value.trim());
-        } catch (NumberFormatException ex) {
-            return 0;
-        }
-    }
-
-    private int parseInteger(String value) {
-        if (value == null || value.isBlank()) {
-            return 0;
-        }
-
-        try {
-            return Integer.parseInt(value.trim());
-        } catch (NumberFormatException ex) {
-            return 0;
-        }
+    private String trimToNull(
+            String value
+    ) {
+        return value == null
+                || value.isBlank()
+                ? null
+                : value.trim();
     }
 }

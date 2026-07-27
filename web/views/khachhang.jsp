@@ -76,7 +76,7 @@
                                     <th>Mã KH</th>
                                     <th>Tên khách hàng</th>
                                     <th>SĐT</th>
-                                    <th>Mã giảm giá</th>
+                                    <th>Điểm tích lũy</th>
                                     <th class="text-center">Thao tác</th>
                                 </tr>
                             </thead>
@@ -90,7 +90,11 @@
                                     <td><%= kh.getMaKH() %></td>
                                     <td><%= kh.getHoTen() %></td>
                                     <td><%= kh.getSdt() %></td>
-                                    <td><span class="badge bg-info text-dark"><%= kh.getMaGiamGia() != null ? kh.getMaGiamGia() : "" %></span></td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">
+                                            <%= kh.getDiemTichLuy() %> điểm
+                                        </span>
+                                    </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-outline-warning" 
                                                 onclick="openModal('${pageContext.request.contextPath}/khachhang?action=loadForm&maKH=<%= kh.getMaKH() %>', 'Cập nhật khách hàng')">

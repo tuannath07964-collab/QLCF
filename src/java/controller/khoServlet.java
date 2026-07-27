@@ -5,7 +5,7 @@ import model.NguyenLieu;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
+import java.math.BigDecimal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -122,10 +122,13 @@ public class khoServlet extends HttpServlet {
 
         String soLuongStr = request.getParameter("soLuong");
         if (soLuongStr != null && !soLuongStr.trim().isEmpty()) {
-            nl.setSoLuong(Integer.parseInt(soLuongStr));
-        }
+            nl.setSoLuong(
+                    new BigDecimal(soLuongStr)
+            );
 
-        nl.setDonVi(request.getParameter("donVi"));
-        return nl;
+            nl.setDonVi(request.getParameter("donVi"));
+            return nl;
+        }
+        return null;
     }
 }

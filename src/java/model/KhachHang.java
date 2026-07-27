@@ -5,21 +5,23 @@ public class KhachHang {
     private String maKH;
     private String hoTen;
     private String sdt;
-    private String maGiamGia;
+    private int diemTichLuy;
 
-    // Constructor mặc định
     public KhachHang() {
     }
 
-    // Constructor đầy đủ
-    public KhachHang(String maKH, String hoTen, String sdt, String maGiamGia) {
+    public KhachHang(
+            String maKH,
+            String hoTen,
+            String sdt,
+            int diemTichLuy
+    ) {
         this.maKH = maKH;
         this.hoTen = hoTen;
         this.sdt = sdt;
-        this.maGiamGia = maGiamGia;
+        this.diemTichLuy = diemTichLuy;
     }
 
-    // Các phương thức Getter và Setter
     public String getMaKH() {
         return maKH;
     }
@@ -44,11 +46,13 @@ public class KhachHang {
         this.sdt = sdt;
     }
 
-    public String getMaGiamGia() {
-        return maGiamGia;
+    public int getDiemTichLuy() {
+        return diemTichLuy;
     }
 
-    public void setMaGiamGia(String maGiamGia) {
-        this.maGiamGia = maGiamGia;
+    public void setDiemTichLuy(
+            int diemTichLuy
+    ) {
+        this.diemTichLuy = diemTichLuy;
     }
 }

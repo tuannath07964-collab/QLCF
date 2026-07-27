@@ -215,6 +215,7 @@
                                         <th>Số lượng</th>
                                         <th>Đơn vị</th>
                                         <th>Thao tác</th>
+                                        <th>Dùng để pha/chế biến</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -230,6 +231,16 @@
                                                         </span>
                                                     </td>
                                                     <td>${nl.donVi}</td>
+                                                    <td style="
+                                                        max-width:420px;
+                                                        white-space:normal;
+                                                        line-height:1.5;
+                                                        color:#52606d;">
+
+                                                        ${empty nl.congThucSuDung
+                                                          ? 'Chưa dùng trong công thức nào'
+                                                          : nl.congThucSuDung}
+                                                    </td>
                                                     <td>
                                                         <div class="action">
                                                             <a href="${pageContext.request.contextPath}/KhoServlet?action=loadForm&maNL=${nl.maNL}" class="edit-btn" title="Sửa">
@@ -245,7 +256,9 @@
                                         </c:when>
                                         <c:otherwise>
                                             <tr>
-                                                <td colspan="5" style="text-align: center; padding: 20px;">Không có nguyên liệu nào trong kho.</td>
+                                                <td colspan="6">
+                                                    Không có nguyên liệu nào trong kho.
+                                                </td>
                                             </tr>
                                         </c:otherwise>
                                     </c:choose>
@@ -300,8 +313,12 @@
 
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; font-weight: 600; margin-bottom: 5px;">Số lượng:</label>
-                        <input type="number" name="soLuong" value="${nl.soLuong}" required min="0" 
-                               style="width: 100%; padding: 10px; border: 1px solid #dcdde1; border-radius: 6px;">
+                        <input type="number"
+                               name="soLuong"
+                               value="${nl.soLuong}"
+                               required
+                               min="0"
+                               step="0.01">
                     </div>
 
                     <div style="margin-bottom: 25px;">

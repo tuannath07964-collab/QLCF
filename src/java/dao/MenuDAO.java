@@ -3,233 +3,447 @@ package dao;
 import model.Menu;
 import util.DBConnect;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MenuDAO {
 
-    private static final String SELECT_MENU = """
-    SELECT
-        m.MaMon,
-        m.TenMon,
-        m.LoaiMon,
-        m.Gia,
+    private static final String SELECT_BASE = """
+        SELECT
+            MaMon,
+            TenMon,
+            LoaiMon,
+            Gia,
+            TrangThai
+        FROM Menu
+        """;
 
-        CAST(
-            CASE
-                WHEN m.TrangThai = 0 THEN 0
+    public ArrayList<Menu> getAllMenu() {
+        return loadMenuList(
+                SELECT_BASE
+                + " ORDER BY MaMon",
+                null
+        );
+    }
 
-                WHEN EXISTS (
-                    SELECT 1
-                    FROM CongThucMon ct
-                    LEFT JOIN Kho k
-                        ON k.MaNL = ct.MaNL
-                    WHERE ct.MaMon = m.MaMon
-                      AND (
-                          k.MaNL IS NULL
-                          OR k.SoLuong < ct.SoLuongCan
-                      )
-                )
-                THEN 0
-
-                ELSE 1
-            END
-        AS BIT) AS TrangThai
-
-    FROM Menu m
-""";
-    
-public ArrayList<Menu> getAllMenu() {
-    ArrayList<Menu> list = new ArrayList<>();
-
-    String sql =
-            SELECT_MENU
-            + " ORDER BY m.MaMon";
-
-    try (
-        Connection conn = DBConnect.getConnection();
-        PreparedStatement ps =
-                conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery()
+    public Menu getMenuById(
+            String maMon
     ) {
-        while (rs.next()) {
-            list.add(mapRow(rs));
-        }
+        ArrayList<Menu> list =
+                loadMenuList(
+                        SELECT_BASE
+                        + " WHERE MaMon = ?",
+                        maMon
+                );
 
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return list.isEmpty()
+                ? null
+                : list.get(0);
     }
 
-    return list;
-}
-
-    public Menu getMenuById(String maMon) {
-        String sql = """
-                     SELECT maMon, tenMon, loaiMon, gia, trangThai
-                     FROM Menu
-                     WHERE maMon = ?
-                     """;
-
-        try (
-                Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maMon);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapRow(rs);
-                }
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Lỗi MenuDAO.getMenuById()");
-            e.printStackTrace();
-        }
-
-        return null;
+    public ArrayList<Menu> getMenuByType(
+            String loaiMon
+    ) {
+        return loadMenuList(
+                SELECT_BASE
+                + " WHERE LoaiMon = ?"
+                + " ORDER BY MaMon",
+                loaiMon
+        );
     }
 
-    public boolean insertMenu(Menu menu) {
-        String sql = """
-                     INSERT INTO Menu
-                         (maMon, tenMon, loaiMon, gia, trangThai)
-                     VALUES (?, ?, ?, ?, ?)
-                     """;
+    public List<Menu> searchMenu(
+            String keyword
+    ) {
+        ArrayList<Menu> list =
+                new ArrayList<>();
+
+        String sql =
+                SELECT_BASE
+                + """
+                   WHERE TenMon LIKE ?
+                      OR MaMon LIKE ?
+                   ORDER BY MaMon
+                   """;
 
         try (
-                Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, menu.getMaMon());
-            ps.setString(2, menu.getTenMon());
-            ps.setString(3, menu.getLoaiMon());
-            ps.setBigDecimal(4, menu.getGia());
-            ps.setBoolean(5, menu.isTrangThai());
+            Connection conn =
+                    DBConnect.getConnection();
 
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.err.println("Lỗi MenuDAO.insertMenu()");
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    public boolean updateMenu(Menu menu) {
-        String sql = """
-                     UPDATE Menu
-                     SET tenMon = ?,
-                         loaiMon = ?,
-                         gia = ?,
-                         trangThai = ?
-                     WHERE maMon = ?
-                     """;
-
-        try (
-                Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, menu.getTenMon());
-            ps.setString(2, menu.getLoaiMon());
-            ps.setBigDecimal(3, menu.getGia());
-            ps.setBoolean(4, menu.isTrangThai());
-            ps.setString(5, menu.getMaMon());
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.err.println("Lỗi MenuDAO.updateMenu()");
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    public boolean deleteMenu(String maMon) {
-        String sql = "DELETE FROM Menu WHERE maMon = ?";
-
-        try (
-                Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maMon);
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.err.println("Lỗi MenuDAO.deleteMenu()");
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    public ArrayList<Menu> getMenuByType(String loaiMon) {
-        ArrayList<Menu> list = new ArrayList<>();
-
-        String sql = """
-                     SELECT maMon, tenMon, loaiMon, gia, trangThai
-                     FROM Menu
-                     WHERE loaiMon = ?
-                     ORDER BY maMon
-                     """;
-
-        try (
-                Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, loaiMon);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
-                }
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Lỗi MenuDAO.getMenuByType()");
-            e.printStackTrace();
-        }
-
-        return list;
-    }
-
-    public List<Menu> searchMenu(String keyword) {
-        List<Menu> list = new ArrayList<>();
-
-        String sql = """
-                     SELECT maMon, tenMon, loaiMon, gia, trangThai
-                     FROM Menu
-                     WHERE tenMon LIKE ?
-                        OR maMon LIKE ?
-                     ORDER BY maMon
-                     """;
-
-        try (
-                Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            String searchKey = "%" + keyword + "%";
+            PreparedStatement ps =
+                    conn.prepareStatement(sql)
+        ) {
+            String searchKey =
+                    "%"
+                    + (
+                        keyword == null
+                        ? ""
+                        : keyword.trim()
+                    )
+                    + "%";
 
             ps.setString(1, searchKey);
             ps.setString(2, searchKey);
 
-            try (ResultSet rs = ps.executeQuery()) {
+            try (
+                ResultSet rs =
+                        ps.executeQuery()
+            ) {
                 while (rs.next()) {
                     list.add(mapRow(rs));
                 }
             }
 
+            boSungCongThucVaTonKho(
+                    conn,
+                    list
+            );
+
         } catch (SQLException e) {
-            System.err.println("Lỗi MenuDAO.searchMenu()");
-            e.printStackTrace();
+            throw new IllegalStateException(
+                    "Không tải được danh sách menu.",
+                    e
+            );
         }
 
         return list;
     }
 
-    private Menu mapRow(ResultSet rs) throws SQLException {
+    public boolean insertMenu(Menu menu) {
+        String sql = """
+            INSERT INTO Menu(
+                MaMon,
+                TenMon,
+                LoaiMon,
+                Gia,
+                TrangThai
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """;
+
+        try (
+            Connection conn =
+                    DBConnect.getConnection();
+
+            PreparedStatement ps =
+                    conn.prepareStatement(sql)
+        ) {
+            ps.setString(
+                    1,
+                    menu.getMaMon()
+            );
+
+            ps.setString(
+                    2,
+                    menu.getTenMon()
+            );
+
+            ps.setString(
+                    3,
+                    menu.getLoaiMon()
+            );
+
+            ps.setBigDecimal(
+                    4,
+                    menu.getGia()
+            );
+
+            ps.setBoolean(
+                    5,
+                    menu.isTrangThai()
+            );
+
+            return ps.executeUpdate() == 1;
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Không thêm được món.",
+                    e
+            );
+        }
+    }
+
+    public boolean updateMenu(Menu menu) {
+        String sql = """
+            UPDATE Menu
+            SET TenMon = ?,
+                LoaiMon = ?,
+                Gia = ?,
+                TrangThai = ?
+            WHERE MaMon = ?
+            """;
+
+        try (
+            Connection conn =
+                    DBConnect.getConnection();
+
+            PreparedStatement ps =
+                    conn.prepareStatement(sql)
+        ) {
+            ps.setString(
+                    1,
+                    menu.getTenMon()
+            );
+
+            ps.setString(
+                    2,
+                    menu.getLoaiMon()
+            );
+
+            ps.setBigDecimal(
+                    3,
+                    menu.getGia()
+            );
+
+            ps.setBoolean(
+                    4,
+                    menu.isTrangThai()
+            );
+
+            ps.setString(
+                    5,
+                    menu.getMaMon()
+            );
+
+            return ps.executeUpdate() == 1;
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Không cập nhật được món.",
+                    e
+            );
+        }
+    }
+
+    public boolean deleteMenu(
+            String maMon
+    ) {
+        String sql =
+                "DELETE FROM Menu "
+                + "WHERE MaMon = ?";
+
+        try (
+            Connection conn =
+                    DBConnect.getConnection();
+
+            PreparedStatement ps =
+                    conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, maMon);
+
+            return ps.executeUpdate() == 1;
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Không thể xóa món đã có "
+                    + "trong hóa đơn hoặc công thức.",
+                    e
+            );
+        }
+    }
+
+    private ArrayList<Menu> loadMenuList(
+            String sql,
+            String parameter
+    ) {
+        ArrayList<Menu> list =
+                new ArrayList<>();
+
+        try (
+            Connection conn =
+                    DBConnect.getConnection();
+
+            PreparedStatement ps =
+                    conn.prepareStatement(sql)
+        ) {
+            if (parameter != null) {
+                ps.setString(1, parameter);
+            }
+
+            try (
+                ResultSet rs =
+                        ps.executeQuery()
+            ) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+
+            boSungCongThucVaTonKho(
+                    conn,
+                    list
+            );
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Không tải được dữ liệu menu.",
+                    e
+            );
+        }
+
+        return list;
+    }
+
+    private void boSungCongThucVaTonKho(
+            Connection conn,
+            List<Menu> list
+    ) throws SQLException {
+
+        String sql = """
+            SELECT
+                k.TenNL,
+                k.SoLuong,
+                k.DonVi,
+                ct.SoLuongCan
+            FROM CongThucMon ct
+            JOIN Kho k
+                ON k.MaNL = ct.MaNL
+            WHERE ct.MaMon = ?
+            ORDER BY
+                ct.ThuTu,
+                k.MaNL
+            """;
+
+        try (
+            PreparedStatement ps =
+                    conn.prepareStatement(sql)
+        ) {
+            for (Menu menu : list) {
+                ps.setString(
+                        1,
+                        menu.getMaMon()
+                );
+
+                StringBuilder nguyenLieu =
+                        new StringBuilder();
+
+                int soPhan =
+                        Integer.MAX_VALUE;
+
+                boolean coCongThuc = false;
+
+                try (
+                    ResultSet rs =
+                            ps.executeQuery()
+                ) {
+                    while (rs.next()) {
+                        coCongThuc = true;
+
+                        BigDecimal tonKho =
+                                rs.getBigDecimal(
+                                        "SoLuong"
+                                );
+
+                        BigDecimal soLuongCan =
+                                rs.getBigDecimal(
+                                        "SoLuongCan"
+                                );
+
+                        String donVi =
+                                rs.getString(
+                                        "DonVi"
+                                );
+
+                        if (nguyenLieu.length() > 0) {
+                            nguyenLieu.append(", ");
+                        }
+
+                        nguyenLieu
+                                .append(
+                                    formatNumber(
+                                        soLuongCan
+                                    )
+                                )
+                                .append(" ")
+                                .append(donVi)
+                                .append(" ")
+                                .append(
+                                    rs.getString(
+                                        "TenNL"
+                                    )
+                                );
+
+                        int phanTheoNguyenLieu =
+                                tonKho.divide(
+                                        soLuongCan,
+                                        0,
+                                        RoundingMode.DOWN
+                                ).intValue();
+
+                        soPhan = Math.min(
+                                soPhan,
+                                phanTheoNguyenLieu
+                        );
+                    }
+                }
+
+                if (!coCongThuc) {
+                    menu.setNguyenLieuCan(
+                            "Chưa cấu hình công thức"
+                    );
+
+                    menu.setSoPhanCoThePha(0);
+                    menu.setTrangThai(false);
+
+                } else {
+                    menu.setNguyenLieuCan(
+                            nguyenLieu.toString()
+                    );
+
+                    menu.setSoPhanCoThePha(
+                            Math.max(0, soPhan)
+                    );
+
+                    menu.setTrangThai(
+                            menu.isTrangThai()
+                            && soPhan > 0
+                    );
+                }
+            }
+        }
+    }
+
+    private String formatNumber(
+            BigDecimal value
+    ) {
+        return value
+                .stripTrailingZeros()
+                .toPlainString();
+    }
+
+    private Menu mapRow(
+            ResultSet rs
+    ) throws SQLException {
+
         Menu menu = new Menu();
 
-        menu.setMaMon(rs.getString("maMon"));
-        menu.setTenMon(rs.getString("tenMon"));
-        menu.setLoaiMon(rs.getString("loaiMon"));
-        menu.setGia(rs.getBigDecimal("gia"));
-        menu.setTrangThai(rs.getBoolean("trangThai"));
+        menu.setMaMon(
+                rs.getString("MaMon")
+        );
+
+        menu.setTenMon(
+                rs.getString("TenMon")
+        );
+
+        menu.setLoaiMon(
+                rs.getString("LoaiMon")
+        );
+
+        menu.setGia(
+                rs.getBigDecimal("Gia")
+        );
+
+        menu.setTrangThai(
+                rs.getBoolean("TrangThai")
+        );
 
         return menu;
     }

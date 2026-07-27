@@ -1,359 +1,769 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ page contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8" %>
+
+<%@ taglib prefix="c"
+           uri="jakarta.tags.core" %>
+
+<%@ taglib prefix="fmt"
+           uri="jakarta.tags.fmt" %>
+
 <!DOCTYPE html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8">
-        <title>Quản lý Hóa đơn — Quản lý quán Cafe</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-        <!-- Bổ sung Bootstrap 5 CSS để Modal hoạt động đúng -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
 
-        <style>
-            body {
-                font-family: 'Inter', sans-serif;
-                background-color: #f4f6f9;
-                margin: 0;
-                display: flex;
-            }
-            h1, h2, h3 {
-                font-family: 'Playfair Display', serif;
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Quản lý hóa đơn</title>
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            background: #f4f6f9;
+            color: #263238;
+            font-family: "Inter", sans-serif;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #2c3e50;
+            color: white;
+            z-index: 100;
+        }
+
+        .brand {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, .12);
+            font-family: "Playfair Display", serif;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .brand i {
+            margin-right: 8px;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 18px 0;
+            margin: 0;
+            flex: 1;
+        }
+
+        .menu li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 22px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .menu li:hover,
+        .menu li.active {
+            background: rgba(255, 255, 255, .13);
+        }
+
+        .menu li i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .logout {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 22px;
+            color: #ff9f9f;
+            text-decoration: none;
+            border-top: 1px solid rgba(255, 255, 255, .12);
+        }
+
+        .main-content {
+            width: calc(100% - 260px);
+            min-height: 100vh;
+            margin-left: 260px;
+            padding: 30px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-family: "Playfair Display", serif;
+            font-size: 30px;
+            color: #253746;
+        }
+
+        .page-header p {
+            margin: 6px 0 0;
+            color: #75808a;
+            font-size: 14px;
+        }
+
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 17px;
+            border: none;
+            border-radius: 9px;
+            background: #198754;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            box-shadow: 0 3px 8px rgba(25, 135, 84, .2);
+        }
+
+        .btn-add:hover {
+            background: #157347;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 13px 16px;
+            border-radius: 9px;
+            font-weight: 600;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+        }
+
+        .message.success {
+            background: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            margin-bottom: 22px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .search-box i {
+            position: absolute;
+            top: 50%;
+            left: 13px;
+            transform: translateY(-50%);
+            color: #7c8791;
+        }
+
+        .search-box input {
+            width: 100%;
+            height: 40px;
+            padding: 0 14px 0 39px;
+            border: 1px solid #dfe4e8;
+            border-radius: 8px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: #806044;
+            box-shadow: 0 0 0 3px rgba(128, 96, 68, .1);
+        }
+
+        .filter-btn {
+            height: 40px;
+            padding: 0 15px;
+            border: 1px solid #dfe4e8;
+            border-radius: 8px;
+            background: white;
+            color: #4a5560;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+
+        .invoice-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fill, minmax(290px, 1fr));
+            gap: 20px;
+        }
+
+        .invoice-card {
+            display: flex;
+            flex-direction: column;
+            min-height: 260px;
+            padding: 20px;
+            background: white;
+            border: 1px solid #edf0f2;
+            border-top: 4px solid #e67e22;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, .05);
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .invoice-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(0, 0, 0, .09);
+        }
+
+        .invoice-card.paid {
+            border-top-color: #198754;
+        }
+
+        .invoice-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .invoice-code {
+            color: #2c3e50;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #fff0dc;
+            color: #b45309;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status.paid {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .invoice-info {
+            flex: 1;
+        }
+
+        .invoice-info p {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 9px 0;
+            color: #56616b;
+            font-size: 14px;
+        }
+
+        .invoice-info p i {
+            width: 18px;
+            color: #806044;
+            text-align: center;
+        }
+
+        .total {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #d9dfe3;
+            color: #263238;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .points {
+            margin-top: 7px;
+            color: #8a671f;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .btn-view {
+            display: block;
+            width: 100%;
+            margin-top: 17px;
+            padding: 10px;
+            border: 1px solid #dfe4e8;
+            border-radius: 8px;
+            background: #f8f9fa;
+            color: #2c3e50;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+            transition: .2s;
+        }
+
+        .btn-view:hover {
+            background: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 55px 20px;
+            background: white;
+            border-radius: 12px;
+            text-align: center;
+            color: #77828c;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+        }
+
+        .empty-state i {
+            display: block;
+            margin-bottom: 13px;
+            color: #aab2b9;
+            font-size: 42px;
+        }
+
+        .empty-state strong {
+            display: block;
+            margin-bottom: 7px;
+            color: #45515c;
+            font-size: 17px;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 210px;
             }
 
             .main-content {
-                margin-left: 260px;
-                padding: 30px;
-                width: calc(100% - 260px);
-                box-sizing: border-box;
-            }
-            .page-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 25px;
-            }
-            .page-header h1 {
-                font-size: 26px;
-                color: #111;
-                margin: 0;
-            }
-
-            .filter-bar {
-                display: flex;
-                gap: 10px;
-                margin-bottom: 20px;
-                align-items: center;
-            }
-            .filter-btn {
-                padding: 8px 18px;
-                border-radius: 20px;
-                border: 1px solid #ddd;
-                background: #fff;
-                cursor: pointer;
-                font-weight: 500;
-                font-size: 14px;
-                transition: all 0.2s;
-            }
-            .filter-btn.active, .filter-btn:hover {
-                background: #2c3e50;
-                color: #fff;
-                border-color: #2c3e50;
-            }
-
-            .invoice-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 20px;
-            }
-            .invoice-card {
-                background: #fff;
-                border-radius: 12px;
+                width: calc(100% - 210px);
+                margin-left: 210px;
                 padding: 20px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-                border-top: 4px solid #27ae60;
-                position: relative;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
-            .invoice-card.pending {
-                border-top-color: #e67e22;
-            }
-            .invoice-card.paid {
-                border-top-color: #3498db;
             }
 
-            .inv-header {
-                display: flex;
-                justify-content: space-between;
+            .page-header {
                 align-items: flex-start;
-                margin-bottom: 12px;
+                flex-direction: column;
             }
-            .inv-code {
-                font-size: 18px;
-                font-weight: 700;
-                color: #2c3e50;
-            }
-            .inv-table {
-                font-size: 14px;
-                color: #666;
-                margin-bottom: 8px;
-            }
-            .inv-date {
-                font-size: 13px;
-                color: #888;
-                margin-bottom: 15px;
-            }
+        }
+    </style>
+</head>
 
-            .status-badge {
-                display: inline-block;
-                padding: 4px 12px;
-                border-radius: 12px;
-                font-size: 12px;
-                font-weight: 600;
-            }
-            .status-badge.served {
-                background: #fdeed9;
-                color: #d35400;
-            }
-            .status-badge.paid {
-                background: #e8f8f5;
-                color: #16a085;
-            }
+<body>
 
-            .btn-action {
-                display: block;
-                width: 100%;
-                text-align: center;
-                padding: 10px;
-                border-radius: 8px;
-                background: #f8f9fa;
-                color: #333;
-                text-decoration: none;
-                font-weight: 600;
-                font-size: 14px;
-                border: 1px solid #e0e0e0;
-                transition: all 0.2s;
-                box-sizing: border-box;
-            }
-            .btn-action:hover {
-                background: #2c3e50;
-                color: #fff;
-                border-color: #2c3e50;
-            }
-        </style>
-    </head>
-    <body>
-        <!-- SIDEBAR -->
-        <aside class="sidebar" style="width: 260px; height: 100vh; position: fixed; background: #2c3e50; color: #fff; left: 0; top: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0;">
+    <aside class="sidebar">
+
+        <div class="brand">
+            <i class="fa-solid fa-mug-hot"></i>
+            QUẢN LÝ CAFE
+        </div>
+
+        <ul class="menu">
+
+            <li onclick="location.href=
+                '${pageContext.request.contextPath}/views/homepage.jsp'">
+
+                <i class="fa-solid fa-house"></i>
+                <span>Trang chủ</span>
+            </li>
+
+            <li onclick="location.href=
+                '${pageContext.request.contextPath}/nhanvien'">
+
+                <i class="fa-solid fa-user"></i>
+                <span>Nhân viên</span>
+            </li>
+
+            <li class="active"
+                onclick="location.href=
+                '${pageContext.request.contextPath}/hoadon?action=list'">
+
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <span>Hóa đơn</span>
+            </li>
+
+            <li onclick="location.href=
+                '${pageContext.request.contextPath}/menu'">
+
+                <i class="fa-solid fa-mug-saucer"></i>
+                <span>Menu</span>
+            </li>
+
+            <li onclick="location.href=
+                '${pageContext.request.contextPath}/ban'">
+
+                <i class="fa-solid fa-chair"></i>
+                <span>Bàn</span>
+            </li>
+
+            <li onclick="location.href=
+                '${pageContext.request.contextPath}/KhoServlet'">
+
+                <i class="fa-solid fa-box"></i>
+                <span>Kho</span>
+            </li>
+
+            <li onclick="location.href=
+                '${pageContext.request.contextPath}/khachhang'">
+
+                <i class="fa-solid fa-users"></i>
+                <span>Khách hàng</span>
+            </li>
+
+            <li onclick="location.href=
+                '${pageContext.request.contextPath}/ThongKeServlet'">
+
+                <i class="fa-solid fa-chart-column"></i>
+                <span>Thống kê</span>
+            </li>
+
+        </ul>
+
+        <a class="logout"
+           href="${pageContext.request.contextPath}/LogoutServlet">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Đăng xuất
+        </a>
+
+    </aside>
+
+    <main class="main-content">
+
+        <div class="page-header">
+
             <div>
-                <div class="logo brand" style="padding: 0 20px 20px 20px; font-size: 18px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <i class="fa-solid fa-mug-hot"></i> QUẢN LÝ CAFE
-                </div>
-                <ul class="menu" style="list-style: none; padding: 0; margin: 20px 0;">
-                    <li onclick="location.href = '${pageContext.request.contextPath}/views/homepage.jsp'" style="padding: 12px 20px; cursor: pointer;"><i class="fa-solid fa-house"></i> Trang chủ</li>
-                    <li onclick="location.href = '${pageContext.request.contextPath}/nhanvien'" style="padding: 12px 20px; cursor: pointer;"><i class="fa-solid fa-user"></i> Nhân viên</li>
-                    <li onclick="location.href = '${pageContext.request.contextPath}/hoadon?action=list'" style="padding: 12px 20px; cursor: pointer; background: rgba(255,255,255,0.1);"><i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn</li>
-                    <li onclick="location.href = '${pageContext.request.contextPath}/menu'" style="padding: 12px 20px; cursor: pointer;"><i class="fa-solid fa-mug-saucer"></i> Menu</li>
-                    <li onclick="location.href = '${pageContext.request.contextPath}/ban'" style="padding: 12px 20px; cursor: pointer;"><i class="fa-solid fa-chair"></i> Bàn</li>
-                    <li onclick="location.href = '${pageContext.request.contextPath}/KhoServlet'" style="padding: 12px 20px; cursor: pointer;"><i class="fa-solid fa-box"></i> Kho</li>
-                    <li onclick="location.href = '${pageContext.request.contextPath}/khachhang'" style="padding: 12px 20px; cursor: pointer;"><i class="fa-solid fa-users"></i> Khách hàng</li>
-                    <li onclick="location.href = '${pageContext.request.contextPath}/ThongKeServlet'" style="padding: 12px 20px; cursor: pointer;"><i class="fa-solid fa-chart-column"></i> Thống kê</li>
-                </ul>
-            </div>
-            <a class="logout" href="${pageContext.request.contextPath}/LogoutServlet" style="padding: 12px 20px; color: #ff6b6b; text-decoration: none;"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
-        </aside>
-
-        <!-- MAIN CONTENT -->
-        <div class="main-content">
-            <div class="page-header">
                 <h1>Quản lý hóa đơn</h1>
-                <div>
-                    <!-- Nút mở Pop-up Quản lý mã giảm giá -->
-                    <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#discountManagerModal">
-                        <i class="fa-solid fa-tags"></i> Quản lý mã giảm giá
-                    </button>
 
-                    <!-- Nút lập hóa đơn mới -->
-                    <a href="hoadon?action=new" class="btn btn-success text-white text-decoration-none">
-                        <i class="fa-solid fa-plus"></i> Lập hóa đơn mới
-                    </a>
-                </div>
+                <p>
+                    Theo dõi hóa đơn đang phục vụ và
+                    hóa đơn đã thanh toán
+                </p>
             </div>
 
-            <!-- Thanh lọc trạng thái -->
-            <div class="filter-bar">
-                <button class="filter-btn active">Tất cả</button>
-                <button class="filter-btn">Đang phục vụ</button>
-                <button class="filter-btn">Đã thanh toán</button>
-            </div>
+            <a class="btn-add"
+               href="${pageContext.request.contextPath}/hoadon?action=new">
 
-            <!-- Lưới danh sách hóa đơn -->
-            <div class="invoice-grid">
-                <c:forEach var="hd" items="${listHoaDon}">
-                    <div class="invoice-card ${hd.trangThai == 'Đã thanh toán' ? 'paid' : 'pending'}">
-                        <div>
-                            <div class="inv-header">
-                                <span class="inv-code">HD${hd.maHD}</span>
-                                <span class="status-badge ${hd.trangThai == 'Đã thanh toán' ? 'paid' : 'served'}">${hd.trangThai}</span>
-                            </div>
-                            <div class="inv-table"><i class="fa-solid fa-chair"></i> Bàn: <b>${hd.maBan}</b></div>
-                            <div class="inv-date"><i class="fa-regular fa-calendar"></i> ${hd.ngayTao}</div>
-                        </div>
-                        <a href="hoadon?action=edit&maHD=${hd.maHD}" class="btn-action">Xem / Chỉnh sửa</a>
-                    </div>
-                </c:forEach>
-            </div>
+                <i class="fa-solid fa-plus"></i>
+                Lập hóa đơn mới
+            </a>
+
         </div>
 
-        <!-- ================= MODAL QUẢN LÝ MÃ GIẢM GIÁ (Đặt ở ngoài main-content) ================= -->
-        <div class="modal fade" id="discountManagerModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Quản lý mã giảm giá</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <button class="btn btn-primary btn-sm mb-3" onclick="openAddDiscountModal()">
-                            <i class="fa-solid fa-plus-circle"></i> Thêm mã giảm giá mới
-                        </button>
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Mã Code</th>
-                                    <th>Giảm giá</th>
-                                    <th>Đơn tối thiểu</th>
-                                    <th>Hạn sử dụng</th>
-                                    <th>Trạng thái</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="d" items="${discountList}">
-                                    <tr>
-                                        <!-- Sửa d.code thành d.maCode -->
-                                        <td><strong>${d.maCode}</strong></td>
-
-                                        <!-- Sửa d.discountPercent thành d.phanTramGiam -->
-                                        <td>${d.phanTramGiam}%</td>
-
-                                        <!-- Sửa d.minOrderAmount thành d.dieuKienDonToiTieu -->
-                                        <td>${d.dieuKienDonToiTieu} đ</td>
-
-                                        <!-- Sửa d.endDate thành d.ngayHetHan -->
-                                        <td>${d.ngayHetHan}</td>
-
-                                        <td>
-                                            <!-- Sửa d.status thành d.trangThai -->
-                                            <span class="badge ${d.trangThai == 1 ? 'bg-success' : 'bg-secondary'}">
-                                                ${d.trangThai == 1 ? 'Hoạt động' : 'Ngừng'}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <!-- Sửa d.discountID thành d.IDGiamGia và cập nhật các tham số truyền vào hàm JS -->
-                                            <button class="btn btn-sm btn-warning" 
-                                                    onclick="openEditDiscountModal('${d.IDGiamGia}', '${d.maCode}', '${d.phanTramGiam}', '${d.dieuKienDonToiTieu}', '${d.ngayHetHan}', '${d.trangThai}')">
-                                                Sửa
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <c:if test="${not empty errorMessage}">
+            <div class="message error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                ${errorMessage}
             </div>
+        </c:if>
+
+        <c:if test="${param.success == 'paid'}">
+            <div class="message success">
+                <i class="fa-solid fa-circle-check"></i>
+                Thanh toán hóa đơn thành công.
+            </div>
+        </c:if>
+
+        <div class="toolbar">
+
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input type="text"
+                       id="invoiceSearch"
+                       placeholder="Tìm theo mã hóa đơn, bàn hoặc nhân viên...">
+            </div>
+
+            <button type="button"
+                    class="filter-btn active"
+                    data-status="all">
+                Tất cả
+            </button>
+
+            <button type="button"
+                    class="filter-btn"
+                    data-status="Đang phục vụ">
+                Đang phục vụ
+            </button>
+
+            <button type="button"
+                    class="filter-btn"
+                    data-status="Đã thanh toán">
+                Đã thanh toán
+            </button>
+
         </div>
 
-        <!-- ================= MODAL FORM THÊM / SỬA MÃ GIẢM GIÁ ================= -->
-        <div class="modal fade" id="discountFormModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="${pageContext.request.contextPath}/hoadon" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="formTitle">Thêm mã giảm giá</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" name="action" id="formAction" value="add">
-                            <input type="hidden" name="id" id="discountId">
+        <div class="invoice-grid"
+             id="invoiceGrid">
 
-                            <div class="mb-3">
-                                <label class="form-label">Mã Code (VD: SALE20)</label>
-                                <input type="text" class="form-control" name="code" id="discountCode" required>
+            <c:choose>
+
+                <c:when test="${not empty listHoaDon}">
+
+                    <c:forEach var="hd"
+                               items="${listHoaDon}">
+
+                        <fmt:formatNumber
+                            var="maHDFormatted"
+                            value="${hd.maHD}"
+                            pattern="000000"/>
+
+                        <div class="invoice-card
+                                    ${hd.trangThai eq 'Đã thanh toán'
+                                        ? 'paid'
+                                        : ''}"
+
+                             data-status="${hd.trangThai}"
+
+                             data-search="HD${maHDFormatted}
+                                          ${hd.maBan}
+                                          ${hd.maNV}
+                                          ${hd.maKH}">
+
+                            <div class="invoice-top">
+
+                                <span class="invoice-code">
+                                    HD${maHDFormatted}
+                                </span>
+
+                                <span class="status
+                                             ${hd.trangThai eq
+                                               'Đã thanh toán'
+                                                ? 'paid'
+                                                : ''}">
+
+                                    ${empty hd.trangThai
+                                        ? 'Đang phục vụ'
+                                        : hd.trangThai}
+                                </span>
+
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Phần trăm giảm (%)</label>
-                                <input type="number" step="0.1" class="form-control" name="percent" id="discountPercent" required>
+
+                            <div class="invoice-info">
+
+                                <p>
+                                    <i class="fa-solid fa-chair"></i>
+
+                                    Bàn:
+                                    <strong>
+                                        ${empty hd.maBan
+                                            ? '—'
+                                            : hd.maBan}
+                                    </strong>
+                                </p>
+
+                                <p>
+                                    <i class="fa-solid fa-user-tie"></i>
+
+                                    Nhân viên:
+                                    <strong>
+                                        ${empty hd.maNV
+                                            ? '—'
+                                            : hd.maNV}
+                                    </strong>
+                                </p>
+
+                                <p>
+                                    <i class="fa-solid fa-user-group"></i>
+
+                                    Khách:
+                                    <strong>
+                                        ${empty hd.maKH
+                                            ? 'Khách lẻ'
+                                            : hd.maKH}
+                                    </strong>
+                                </p>
+
+                                <p>
+                                    <i class="fa-regular fa-calendar"></i>
+
+                                    ${empty hd.ngayTao
+                                        ? 'Chưa có ngày tạo'
+                                        : hd.ngayTao}
+                                </p>
+
+                                <div class="total">
+                                    Tổng tiền:
+
+                                    <fmt:formatNumber
+                                        value="${empty hd.tongTien
+                                            ? 0
+                                            : hd.tongTien}"
+                                        pattern="#,##0"/>
+                                    đ
+                                </div>
+
+                                <c:if test="${hd.diemCong > 0}">
+                                    <div class="points">
+                                        <i class="fa-solid fa-star"></i>
+                                        Đã cộng ${hd.diemCong} điểm
+                                    </div>
+                                </c:if>
+
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Đơn tối thiểu áp dụng (VNĐ)</label>
-                                <input type="number" class="form-control" name="minAmount" id="discountMinAmount" value="0">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Ngày hết hạn</label>
-                                <input type="date" class="form-control" name="endDate" id="discountEndDate" required>
-                            </div>
-                            <div class="mb-3" id="statusGroup" style="display: none;">
-                                <label class="form-label">Trạng thái</label>
-                                <select class="form-select" name="status" id="discountStatus">
-                                    <option value="1">Hoạt động</option>
-                                    <option value="0">Ngừng hoạt động</option>
-                                </select>
-                            </div>
+
+                            <a class="btn-view"
+                               href="${pageContext.request.contextPath}/hoadon?action=edit&maHD=${hd.maHD}">
+
+                                <i class="fa-solid fa-eye"></i>
+                                Xem hóa đơn
+                            </a>
+
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                            <button type="submit" class="btn btn-primary">Lưu lại</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+
+                    </c:forEach>
+
+                </c:when>
+
+                <c:otherwise>
+                    <div class="empty-state">
+
+                        <i class="fa-regular fa-file-lines"></i>
+
+                        <strong>
+                            Chưa có hóa đơn nào
+                        </strong>
+
+                        <span>
+                            Nhận bàn hoặc lập hóa đơn mới để bắt đầu.
+                        </span>
+                    </div>
+                </c:otherwise>
+
+            </c:choose>
+
         </div>
 
-        <!-- Thư viện Bootstrap 5 JS Bundle (Bắt buộc để chạy Modal) -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    </main>
 
-        <script>
-                                                        function openAddDiscountModal() {
-                                                            document.getElementById('formTitle').innerText = "Thêm mã giảm giá mới";
-                                                            document.getElementById('formAction').value = "addMaGiamGia";
-                                                            document.getElementById('discountId').value = "";
-                                                            document.getElementById('discountCode').value = "";
-                                                            document.getElementById('discountPercent').value = "";
-                                                            document.getElementById('discountMinAmount').value = "0";
-                                                            document.getElementById('discountEndDate').value = "";
-                                                            document.getElementById('statusGroup').style.display = "none";
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
 
-                                                            let managerModalEl = document.getElementById('discountManagerModal');
-                                                            let managerModal = bootstrap.Modal.getInstance(managerModalEl) || new bootstrap.Modal(managerModalEl);
-                                                            managerModal.hide();
+                const searchInput =
+                        document.getElementById(
+                            "invoiceSearch"
+                        );
 
-                                                            let formModal = new bootstrap.Modal(document.getElementById('discountFormModal'));
-                                                            formModal.show();
-                                                        }
+                const filterButtons =
+                        document.querySelectorAll(
+                            ".filter-btn"
+                        );
 
-                                                        function openEditDiscountModal(id, code, percent, minAmount, endDate, status) {
-                                                            document.getElementById('formTitle').innerText = "Chỉnh sửa mã giảm giá";
-                                                            document.getElementById('formAction').value = "updateMaGiamGia";
-                                                            document.getElementById('discountId').value = id;
-                                                            document.getElementById('discountCode').value = code;
-                                                            document.getElementById('discountPercent').value = percent;
-                                                            document.getElementById('discountMinAmount').value = minAmount;
-                                                            document.getElementById('discountEndDate').value = endDate;
-                                                            document.getElementById('discountStatus').value = status;
-                                                            document.getElementById('statusGroup').style.display = "block";
+                const cards =
+                        document.querySelectorAll(
+                            ".invoice-card"
+                        );
 
-                                                            let managerModalEl = document.getElementById('discountManagerModal');
-                                                            let managerModal = bootstrap.Modal.getInstance(managerModalEl) || new bootstrap.Modal(managerModalEl);
-                                                            managerModal.hide();
+                let selectedStatus = "all";
 
-                                                            let formModal = new bootstrap.Modal(document.getElementById('discountFormModal'));
-                                                            formModal.show();
-                                                        }
-        </script>
-    </body>
+                function applyFilters() {
+                    const keyword =
+                            searchInput.value
+                                .trim()
+                                .toLowerCase();
+
+                    cards.forEach(function (card) {
+                        const cardStatus =
+                                card.dataset.status || "";
+
+                        const searchData =
+                                card.dataset.search
+                                    .toLowerCase();
+
+                        const statusMatched =
+                                selectedStatus === "all"
+                                || cardStatus
+                                    === selectedStatus;
+
+                        const keywordMatched =
+                                keyword === ""
+                                || searchData
+                                    .includes(keyword);
+
+                        card.style.display =
+                                statusMatched
+                                && keywordMatched
+                                ? "flex"
+                                : "none";
+                    });
+                }
+
+                searchInput.addEventListener(
+                    "input",
+                    applyFilters
+                );
+
+                filterButtons.forEach(
+                    function (button) {
+
+                        button.addEventListener(
+                            "click",
+                            function () {
+
+                                filterButtons
+                                    .forEach(
+                                        function (item) {
+                                            item.classList
+                                                .remove(
+                                                    "active"
+                                                );
+                                        }
+                                    );
+
+                                button.classList.add(
+                                    "active"
+                                );
+
+                                selectedStatus =
+                                        button.dataset.status;
+
+                                applyFilters();
+                            }
+                        );
+                    }
+                );
+            }
+        );
+    </script>
+
+</body>
 </html>
