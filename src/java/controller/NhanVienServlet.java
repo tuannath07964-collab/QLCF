@@ -113,17 +113,23 @@ public class NhanVienServlet extends HttpServlet {
         request.getRequestDispatcher("/views/nhanvien.jsp").forward(request, response);
     }
 
-    private void insertNhanVien(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    private void insertNhanVien(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws Exception {
+
         NhanVien nv = buildNhanVienFromRequest(request);
 
-        // Đảm bảo khi thêm mới nếu không nhập mật khẩu thì gán mặc định
-        if (nv.getMatKhau() == null || nv.getMatKhau().trim().isEmpty()) {
-            nv.setMatKhau("123456");
-        }
+        String maNVMoi = dao.insertNhanVien(nv);
 
-        dao.insertNhanVien(nv);
-        response.sendRedirect(request.getContextPath() + "/nhanvien?action=list");
+        response.sendRedirect(
+                request.getContextPath()
+                + "/nhanvien?success=add&maNVMoi="
+                + java.net.URLEncoder.encode(
+                        maNVMoi,
+                        "UTF-8"
+                )
+        );
     }
 
     private void updateNhanVien(HttpServletRequest request, HttpServletResponse response)
@@ -174,32 +180,63 @@ public class NhanVienServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/nhanvien");
     }
 
-    private NhanVien buildNhanVienFromRequest(HttpServletRequest request) {
+    private NhanVien buildNhanVienFromRequest(
+            HttpServletRequest request
+    ) {
         NhanVien nv = new NhanVien();
-        nv.setMaNV(request.getParameter("maNV"));
-        nv.setHoTen(request.getParameter("hoTen"));
 
-        // Đã bổ sung đọc trường mật khẩu từ form gửi lên
-        nv.setMatKhau(request.getParameter("matKhau"));
+        String maNV = request.getParameter("maNV");
 
-        nv.setGioiTinh(request.getParameter("gioiTinh"));
-        nv.setSdt(request.getParameter("sdt"));
-        nv.setChucVu(request.getParameter("chucVu"));
-        nv.setCaSang(request.getParameter("caSang") != null);
-        nv.setCaChieu(request.getParameter("caChieu") != null);
-        nv.setCaToi(request.getParameter("caToi") != null);
-        nv.setGioBatDau(request.getParameter("gioBatDau"));
-        nv.setGioKetThuc(request.getParameter("gioKetThuc"));
-
-        String ns = request.getParameter("ngaySinh");
-        if (ns != null && !ns.trim().isEmpty()) {
-            nv.setNgaySinh(Date.valueOf(ns));
+        if (maNV != null && !maNV.isBlank()) {
+            nv.setMaNV(maNV.trim());
         }
-        String luong = request.getParameter("luongCoBan");
-        if (luong != null && !luong.trim().isEmpty()) {
-            nv.setLuongCoBan(new BigDecimal(luong));
+
+        nv.setHoTen(trimToNull(
+                request.getParameter("hoTen")
+        ));
+
+        nv.setMatKhau(trimToNull(
+                request.getParameter("matKhau")
+        ));
+
+        nv.setGioiTinh(trimToNull(
+                request.getParameter("gioiTinh")
+        ));
+
+        nv.setSdt(trimToNull(
+                request.getParameter("sdt")
+        ));
+
+        nv.setChucVu(trimToNull(
+                request.getParameter("chucVu")
+        ));
+
+        String ngaySinh = trimToNull(
+                request.getParameter("ngaySinh")
+        );
+
+        if (ngaySinh != null) {
+            nv.setNgaySinh(Date.valueOf(ngaySinh));
         }
+
+        String luong = trimToNull(
+                request.getParameter("luongCoBan")
+        );
+
+        nv.setLuongCoBan(
+                luong == null
+                        ? BigDecimal.ZERO
+                        : new BigDecimal(luong)
+        );
 
         return nv;
+    }
+
+    private String trimToNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value.trim();
     }
 }

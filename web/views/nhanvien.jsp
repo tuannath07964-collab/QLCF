@@ -46,9 +46,29 @@
                             <button type="submit"><i class="fa-solid fa-search"></i></button>
                         </form>
                         <!-- Nút Thêm mới: Giữ nguyên cơ chế gọi form qua modal -->
-                        <button type="button" class="btn-add" onclick="openModal('${pageContext.request.contextPath}/views/nhanvien1.jsp', 'Thêm nhân viên mới')">
-                            <i class="fa-solid fa-plus"></i> Thêm nhân viên
+                        <button type="button"
+                                class="btn-add"
+                                onclick="openModal(
+                                                '${pageContext.request.contextPath}/nhanvien?action=loadForm',
+                                                'Thêm nhân viên mới'
+                                                )">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Thêm nhân viên
                         </button>
+                        <c:if test="${param.success == 'add'}">
+                            <div style="
+                                 margin-bottom:12px;
+                                 padding:10px 14px;
+                                 border-radius:8px;
+                                 background:#d1e7dd;
+                                 color:#0f5132;">
+
+                                Đã tạo nhân viên.
+                                Mã đăng nhập:
+                                <b>${param.maNVMoi}</b>
+                            </div>
+                        </c:if>
                     </div>
                     <table>
                         <tr>

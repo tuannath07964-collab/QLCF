@@ -159,6 +159,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     item.style.display = 'none';
                 }
+
+                const invoiceForm =
+                        document.getElementById(
+                                'invoiceForm'
+                                );
+
+                if (invoiceForm) {
+                    invoiceForm.addEventListener(
+                            'submit',
+                            syncCartFields
+                            );
+                }
             });
         });
     });
@@ -202,3 +214,78 @@ document.addEventListener("DOMContentLoaded", function () {
     // Tự động quét và áp dụng mã giảm giá đang được chọn sẵn trên giao diện (nếu có) khi load trang
     applySelectedPromo();
 });
+
+function syncCartFields() {
+    const container =
+            document.getElementById(
+                    'cartFields'
+                    );
+
+    const inputDanhSachMon =
+            document.getElementById(
+                    'inputDanhSachMon'
+                    );
+
+    if (inputDanhSachMon) {
+        inputDanhSachMon.value =
+                JSON.stringify(cart);
+    }
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = '';
+
+    cart.forEach(item => {
+        const maMonInput =
+                document.createElement('input');
+
+        maMonInput.type = 'hidden';
+        maMonInput.name = 'itemMaMon';
+        maMonInput.value = item.maMon;
+
+        const qtyInput =
+                document.createElement('input');
+
+        qtyInput.type = 'hidden';
+        qtyInput.name = 'itemQty';
+        qtyInput.value = item.qty;
+
+        container.appendChild(
+                maMonInput
+                );
+
+        container.appendChild(
+                qtyInput
+                );
+    });
+}
+
+function prepareInvoiceSubmit(action) {
+    if (cart.length === 0) {
+        alert(
+                'Vui lòng chọn ít nhất một món.'
+                );
+        return false;
+    }
+
+    const actionInput =
+            document.getElementById(
+                    'formAction'
+                    );
+
+    if (actionInput) {
+        actionInput.value = action;
+    }
+
+    syncCartFields();
+
+    if (action === 'pay') {
+        return confirm(
+                'Xác nhận thanh toán hóa đơn?'
+                );
+    }
+
+    return true;
+}

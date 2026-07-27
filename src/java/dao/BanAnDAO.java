@@ -30,16 +30,6 @@ public class BanAnDAO {
                 ban.setSoCho(rs.getInt("soCho"));
                 ban.setKhuVuc(rs.getString("khuVuc"));
                 ban.setMaDonHang(rs.getString("MaDonHang"));
-                String trangThaiDB = rs.getString("TrangThai");
-                int trangThaiInt = 0; // Mặc định là 0 (Trống)
-
-                if (trangThaiDB != null) {
-                    if (trangThaiDB.equalsIgnoreCase("Đang phục vụ")) {
-                        trangThaiInt = 1;
-                    }
-                }
-                ban.setTrangThai(trangThaiInt);
-                list.add(ban);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -48,33 +38,96 @@ public class BanAnDAO {
     }
 
     public boolean insertBan(BanAn ban) {
-        String sql = "INSERT INTO BanAn (TenBan, soCho, khuVuc, TrangThai) VALUES (?, ?, ?, N'Trống')";
-        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = """
+        INSERT INTO BanAn(
+            TenBan,
+            SoCho,
+            KhuVuc,
+            TrangThai,
+            MaDonHang
+        )
+        VALUES (?, ?, ?, 0, NULL)
+    """;
 
+        try (
+                Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, ban.getTenBan());
             ps.setInt(2, ban.getSoCho());
             ps.setString(3, ban.getKhuVuc());
 
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
+            return ps.executeUpdate() == 1;
+
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
-    public boolean nhanBan(int maBan, String maDonHangMoi) {
-        String sql = "UPDATE BanAn SET TrangThai = N'Đang phục vụ', MaDonHang = ? WHERE MaBan = ?";
-        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+    public boolean nhanBan(
+            int maBan,
+            String maDonHangMoi
+    ) {
+        String sql = """
+        UPDATE BanAn
+        SET TrangThai = 1,
+            MaDonHang = ?
+        WHERE MaBan = ?
+    """;
 
+        try (
+                Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maDonHangMoi);
             ps.setInt(2, maBan);
 
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
+            return ps.executeUpdate() == 1;
+
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
+    }
+
+    public boolean capNhatTrangThai(int maBan, int trangThai) {
+
+        String sql = """
+        UPDATE BanAn
+        SET TrangThai = ?
+        WHERE MaBan = ?
+    """;
+
+        try (
+                Connection connection = DBConnect.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, trangThai);
+            statement.setInt(2, maBan);
+
+            return statement.executeUpdate() > 0;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean traBan(int maBan) {
+
+        String sql = """
+        UPDATE BanAn
+        SET TrangThai = 0,
+            MaDonHang = NULL
+        WHERE MaBan = ?
+    """;
+
+        try (
+                Connection connection = DBConnect.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, maBan);
+
+            return statement.executeUpdate() > 0;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 }
