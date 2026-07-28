@@ -23,18 +23,19 @@ public class BanAnDAO {
                 && !khuVuc.isBlank();
 
         String sql = """
-            SELECT
-                MaBan,
-                TenBan,
-                SoCho,
-                KhuVuc,
-                TrangThai,
-                MaDonHang
+            SELECT MaBan,
+                   TenBan,
+                   SoCho,
+                   KhuVuc,
+                   TrangThai,
+                   MaDonHang
             FROM BanAn
             """
-            + (coLoc
-                ? " WHERE KhuVuc = ? "
-                : "")
+            + (
+                coLoc
+                    ? " WHERE KhuVuc = ? "
+                    : ""
+            )
             + " ORDER BY MaBan";
 
         try (
@@ -97,32 +98,5 @@ public class BanAnDAO {
         }
 
         return list;
-    }
-
-    public boolean traBan(int maBan) {
-        String sql = """
-            UPDATE BanAn
-            SET TrangThai = 0,
-                MaDonHang = NULL
-            WHERE MaBan = ?
-            """;
-
-        try (
-            Connection conn =
-                    DBConnect.getConnection();
-
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
-        ) {
-            ps.setInt(1, maBan);
-
-            return ps.executeUpdate() == 1;
-
-        } catch (SQLException e) {
-            throw new IllegalStateException(
-                    "Không trả được bàn.",
-                    e
-            );
-        }
     }
 }

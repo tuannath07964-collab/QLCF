@@ -1,781 +1,1564 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8" %>
 
-<%-- Kiểm tra đăng nhập --%>
-<%
-    String maNV = (String) session.getAttribute("maNV");
-    String tenNV = (String) session.getAttribute("tenNV");
+<%@ taglib prefix="c"
+           uri="jakarta.tags.core" %>
 
-    if(maNV == null){
-        response.sendRedirect(request.getContextPath()+"/LoginServlet");
-        return;
-    }
-%>
+<%@ taglib prefix="fmt"
+           uri="jakarta.tags.fmt" %>
+
+<%@ taglib prefix="fn"
+           uri="jakarta.tags.functions" %>
 
 <!DOCTYPE html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8">
-        <title>Thống kê doanh thu</title>
-        <!-- FontAwesome 6.5.2 -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Thống kê doanh thu</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #f4f6f9;
+            color: #273444;
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            width: 260px;
+            height: 100vh;
+            background: #2c3e50;
+            color: #fff;
+        }
+
+        .brand {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, .12);
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .brand i {
+            margin-right: 8px;
+        }
+
+        .menu {
+            flex: 1;
+            margin: 0;
+            padding: 18px 0;
+            list-style: none;
+        }
+
+        .menu li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 22px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .menu li:hover,
+        .menu li.active {
+            background: rgba(255, 255, 255, .13);
+        }
+
+        .menu li i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .logout {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 22px;
+            border-top: 1px solid rgba(255, 255, 255, .12);
+            color: #ffabab;
+            text-decoration: none;
+        }
+
+        .main {
+            min-height: 100vh;
+            margin-left: 260px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 72px;
+            padding: 0 30px;
+            border-bottom: 1px solid #e4e8ec;
+            background: #fff;
+        }
+
+        .topbar h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #52606d;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 28px 30px 40px;
+        }
+
+        .page-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 22px;
+        }
+
+        .page-heading h1 {
+            margin: 0;
+            color: #253746;
+            font-size: 30px;
+        }
+
+        .page-heading p {
+            margin: 7px 0 0;
+            color: #75808a;
+        }
+
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border: 1px solid #dce1e5;
+            border-radius: 8px;
+            background: #fff;
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .back-home:hover {
+            background: #2c3e50;
+            color: #fff;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 13px 16px;
+            border: 1px solid #f5c2c7;
+            border-radius: 8px;
+            background: #f8d7da;
+            color: #842029;
+            font-weight: 600;
+        }
+
+        .filter-card {
+            margin-bottom: 22px;
+            padding: 18px;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+        }
+
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 14px;
+        }
+
+        .filter-field {
+            min-width: 190px;
+        }
+
+        .filter-field label {
+            display: block;
+            margin-bottom: 7px;
+            color: #45515c;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .filter-field input {
+            width: 100%;
+            height: 41px;
+            padding: 0 11px;
+            border: 1px solid #dce1e5;
+            border-radius: 7px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .filter-field input:focus {
+            border-color: #806044;
+            box-shadow: 0 0 0 3px rgba(128, 96, 68, .1);
+        }
+
+        .btn-filter,
+        .btn-reset {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            height: 41px;
+            padding: 0 17px;
+            border: 0;
+            border-radius: 7px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .btn-filter {
+            background: #2c3e50;
+            color: #fff;
+        }
+
+        .btn-filter:hover {
+            background: #1f2d3a;
+        }
+
+        .btn-reset {
+            border: 1px solid #dce1e5;
+            background: #fff;
+            color: #52606d;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(190px, 1fr));
+            gap: 17px;
+            margin-bottom: 23px;
+        }
+
+        .summary-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-height: 120px;
+            padding: 19px;
+            border: 1px solid #edf0f2;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .045);
+        }
+
+        .summary-icon {
+            display: flex;
+            flex: 0 0 48px;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            font-size: 21px;
+        }
+
+        .icon-green {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .icon-blue {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .icon-orange {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .icon-purple {
+            background: #e7d9ff;
+            color: #5a2ca0;
+        }
+
+        .icon-brown {
+            background: #eadfd8;
+            color: #67402e;
+        }
+
+        .icon-gray {
+            background: #e9ecef;
+            color: #41464b;
+        }
+
+        .summary-content {
+            min-width: 0;
+        }
+
+        .summary-content span {
+            display: block;
+            margin-bottom: 7px;
+            color: #75808a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .summary-content strong {
+            display: block;
+            overflow: hidden;
+            color: #273444;
+            font-size: 22px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns:
+                minmax(0, 2fr)
+                minmax(280px, 1fr);
+            gap: 20px;
+            margin-bottom: 23px;
+        }
+
+        .panel {
+            padding: 20px;
+            border: 1px solid #edf0f2;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .045);
+        }
+
+        .panel h3 {
+            margin: 0 0 18px;
+            color: #2c3e50;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 320px;
+        }
+
+        .revenue-type-row {
+            margin-bottom: 18px;
+        }
+
+        .revenue-type-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 7px;
+            color: #52606d;
+            font-size: 14px;
+        }
+
+        .revenue-type-label strong {
+            color: #273444;
+        }
+
+        .progress {
+            height: 10px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #edf0f2;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: inherit;
+            background: #806044;
+        }
+
+        .progress-bar.green {
+            background: #198754;
+        }
+
+        .table-card {
+            overflow: hidden;
+            border: 1px solid #edf0f2;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .045);
+        }
+
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 17px 19px;
+            border-bottom: 1px solid #edf0f2;
+        }
+
+        .table-toolbar h3 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .search-box {
+            position: relative;
+            width: 320px;
+            max-width: 100%;
+        }
+
+        .search-box i {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            color: #7d8994;
+            transform: translateY(-50%);
+        }
+
+        .search-box input {
+            width: 100%;
+            height: 39px;
+            padding: 0 12px 0 38px;
+            border: 1px solid #dce1e5;
+            border-radius: 7px;
+            outline: none;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1000px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 13px 14px;
+            border-bottom: 1px solid #edf0f2;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8fafb;
+            color: #52606d;
+            font-size: 12px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        tbody tr:hover {
+            background: #fafbfc;
+        }
+
+        .invoice-code {
+            color: #2c3e50;
+            font-weight: 800;
+        }
+
+        .money {
+            color: #198754;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .badge-table {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .badge-takeaway {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .badge-cash {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-other {
+            background: #e9ecef;
+            color: #41464b;
+        }
+
+        .empty-row {
+            padding: 42px 20px;
+            color: #75808a;
+            text-align: center;
+        }
+
+        .empty-row i {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 35px;
+        }
+
+        .table-footer {
+            padding: 13px 19px;
+            color: #75808a;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1100px) {
+            .summary-grid {
+                grid-template-columns:
+                    repeat(2, minmax(190px, 1fr));
             }
 
-            body {
-                background: #f4f3f0;
-                color: #333;
+            .dashboard-grid {
+                grid-template-columns: 1fr;
             }
+        }
 
-            /* Layout */
-            .wrapper {
-                display: flex;
-                min-height: 100vh;
-            }
-
-            /*================ Sidebar (Cố định chuẩn 260px) =================*/
+        @media (max-width: 800px) {
             .sidebar {
-                width: 260px;
-                background: #4a372c; /* Màu nâu đậm đặc trưng */
-                color: #e0dcd8;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                position: fixed;
-                height: 100vh;
-                left: 0;
-                top: 0;
-                z-index: 101;
-            }
-
-            .logo {
-                height: 80px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 0 24px;
-                font-size: 20px;
-                font-weight: bold;
-                color: #ffffff;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            .logo i {
-                font-size: 24px;
+                position: static;
+                width: 100%;
+                height: auto;
             }
 
             .menu {
-                display: flex;
-                flex-direction: column;
-                flex: 1;
-                padding-top: 10px;
-                overflow-y: auto;
+                display: none;
             }
 
-            .menu a {
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                padding: 14px 24px;
-                color: #cfc9c3;
-                text-decoration: none;
-                font-size: 16px;
-                transition: all 0.2s ease;
-            }
-
-            .menu a:hover {
-                background: rgba(255, 255, 255, 0.05);
-                color: #ffffff;
-            }
-
-            .menu a.active {
-                background: rgba(255, 255, 255, 0.1);
-                color: #ffffff;
-                font-weight: 500;
-                border-left: 4px solid #ffffff;
-                padding-left: 20px;
-            }
-
-            .menu i {
-                width: 20px;
-                font-size: 18px;
-                text-align: center;
-            }
-
-            .logout-btn {
-                border-top: 1px solid rgba(255, 255, 255, 0.05);
-                padding: 18px 24px;
-            }
-
-            .logout-btn a {
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                color: #cfc9c3;
-                text-decoration: none;
-                font-size: 16px;
-                transition: color 0.2s;
-            }
-
-            .logout-btn a:hover {
-                color: #ffffff;
-            }
-
-            /*================ Main Content Layout (Sửa triệt để lỗi nuốt click) =================*/
             .main {
-                flex: 1;
-                margin-left: 260px; /* Đẩy toàn bộ khối nội dung sang phải để CHỪA CHỖ cho Sidebar */
-                margin-top: 65px;   /* Đẩy toàn bộ khối nội dung xuống dưới để CHỪA CHỖ cho Topbar */
-                position: relative; /* Tạo ngữ cảnh hiển thị riêng biệt */
-                z-index: 1;         /* Nằm dưới Sidebar và Topbar */
-                min-height: calc(100vh - 65px);
-                display: flex;
-                flex-direction: column;
+                margin-left: 0;
             }
 
-            /*================ Vùng chứa các ô thống kê và bảng =================*/
             .content {
-                padding: 35px;
-                position: relative;
-                z-index: 2; /* Đảm bảo các ô chức năng và bảng nổi lên trên, bấm được bình thường */
+                padding: 20px 15px 30px;
             }
-            /*================ Topbar (Đã sửa lỗi đè màn hình) =================*/
+
             .topbar {
-                height: 65px;
-                background: #ffffff;
-                border-bottom: 1px solid #e8e6e2;
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-                padding: 0 35px;
-                position: fixed;
-                top: 0;
-                right: 0;
-                left: 260px; /* Chừa khoảng trống đúng bằng chiều rộng Sidebar */
-                width: calc(100% - 260px); /* Khống chế chiều rộng tuyệt đối không cho tràn ra ngoài */
-                z-index: 99; /* Để z-index của topbar nhỏ hơn sidebar */
-                pointer-events: auto; /* Chỉ nhận tương tác trong vùng hiển thị thực tế */
+                padding: 0 15px;
             }
 
-            /*================ Sidebar (Đảm bảo luôn nổi lên trên cùng) =================*/
-            .sidebar {
-                width: 260px;
-                background: #4a372c;
-                color: #e0dcd8;
-                display: flex;
+            .page-heading {
                 flex-direction: column;
-                justify-content: space-between;
-                position: fixed;
-                height: 100vh;
-                left: 0;
-                top: 0;
-                z-index: 101; /* z-index lớn hơn topbar để sidebar luôn nổi lên trên, dễ click */
             }
 
-            .user-info {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-weight: bold;
-                color: #222222;
-                font-size: 15px;
-                cursor: pointer;
-            }
-
-            .user-info i {
-                font-size: 22px;
-                color: #4a372c;
-            }
-
-            .notification {
-                position: relative;
-                font-size: 20px;
-                color: #555;
-                cursor: pointer;
-            }
-
-            .notification .badge {
-                position: absolute;
-                top: -5px;
-                right: -8px;
-                background: #e74c3c;
-                color: white;
-                font-size: 11px;
-                padding: 2px 6px;
-                border-radius: 50%;
-                font-weight: 600;
-            }
-
-            /*================ Content Area =================*/
-            .content {
-                padding: 35px;
-                margin-top: 65px; /* Tránh đè lên topbar */
-            }
-
-            .title-section {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 30px;
-            }
-
-            .title {
-                font-size: 28px;
-                font-weight: 700;
-                color: #222222;
-            }
-
-            .sub {
-                color: #777777;
-                margin-top: 4px;
-                font-size: 15px;
-            }
-
-            .back-btn {
-                text-decoration: none;
-                background: #4a372c;
-                color: white;
-                padding: 10px 18px;
-                border-radius: 8px;
-                font-size: 14px;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                transition: background 0.2s;
-            }
-
-            .back-btn:hover {
-                background: #362820;
-            }
-
-            /*================ Summary Cards (Pastel Circle) =================*/
             .summary-grid {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 20px;
-                margin-bottom: 30px;
+                grid-template-columns: 1fr;
             }
 
-            .stat-box {
-                background: #ffffff;
-                border-radius: 12px;
-                padding: 24px;
-                text-decoration: none;
-                color: #333333;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-                display: flex;
+            .table-toolbar {
+                align-items: flex-start;
                 flex-direction: column;
-                gap: 15px;
-                transition: transform 0.2s, box-shadow 0.2s;
             }
 
-            .stat-box:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-            }
-
-            .icon-wrapper {
-                width: 48px;
-                height: 48px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 20px;
-            }
-
-            /* Pastel Colors */
-            .bg-blue {
-                background-color: #e8f0fe;
-                color: #1a73e8;
-            }
-            .bg-green {
-                background-color: #e6f4ea;
-                color: #137333;
-            }
-            .bg-orange {
-                background-color: #fce8e6;
-                color: #c5221f;
-            }
-            .bg-purple {
-                background-color: #f3e5f5;
-                color: #8e24aa;
-            }
-
-            .stat-info h3 {
-                font-size: 15px;
-                font-weight: 600;
-                color: #666666;
-                margin-bottom: 6px;
-            }
-
-            .stat-info p {
-                font-size: 24px;
-                font-weight: 700;
-                color: #4a372c;
-            }
-
-            /*================ Filter Card & Form =================*/
-            .card {
-                background: #ffffff;
-                border-radius: 12px;
-                padding: 25px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-                margin-bottom: 25px;
-            }
-
-            .filter-form {
-                display: flex;
-                gap: 12px;
-                flex-wrap: wrap;
-                align-items: center;
-            }
-
-            .filter-group {
-                display: flex;
-                flex-direction: column;
-                gap: 6px;
-            }
-
-            .filter-group label {
-                font-size: 13px;
-                font-weight: 600;
-                color: #666;
-            }
-
-            .filter-form input[type="date"],
-            .filter-form select {
-                padding: 10px 14px;
-                border: 1px solid #dddcd8;
-                border-radius: 6px;
-                font-size: 14px;
-                color: #333;
-                background-color: #ffffff;
-                outline: none;
-                transition: border-color 0.2s;
-                height: 40px;
-            }
-
-            .filter-form input[type="date"]:focus,
-            .filter-form select:focus {
-                border-color: #4a372c;
-            }
-
-            .btn-submit {
-                background: #4a372c;
-                color: #ffffff;
-                border: none;
-                padding: 0 20px;
-                height: 40px;
-                border-radius: 6px;
-                font-size: 14px;
-                font-weight: 500;
-                cursor: pointer;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                margin-top: 21px; /* Cân bằng với labels của các filter-group */
-                transition: background 0.2s;
-            }
-
-            .btn-submit:hover {
-                background: #362820;
-            }
-
-            /*================ Data Table =================*/
-            .table-responsive {
-                overflow-x: auto;
-            }
-
-            table {
+            .search-box {
                 width: 100%;
-                border-collapse: collapse;
-                text-align: left;
+            }
+        }
+
+        @media print {
+            .sidebar,
+            .topbar,
+            .filter-card,
+            .back-home,
+            .search-box {
+                display: none !important;
             }
 
-            th {
-                background: #f8f7f5;
-                color: #555555;
-                font-weight: 600;
-                padding: 14px 16px;
-                font-size: 14px;
-                border-bottom: 2px solid #eae8e4;
+            .main {
+                margin-left: 0;
             }
 
-            td {
-                padding: 14px 16px;
-                border-bottom: 1px solid #eae8e4;
-                font-size: 14px;
-                color: #444444;
+            .content {
+                padding: 0;
             }
 
-            tr:hover td {
-                background: #fcfbfa;
+            .summary-card,
+            .panel,
+            .table-card {
+                box-shadow: none;
             }
+        }
+    </style>
+</head>
 
-            .txt-bold {
-                font-weight: 600;
-            }
+<body>
 
-            .txt-profit {
-                color: #137333;
-                font-weight: 600;
-            }
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar">
 
-            .empty {
-                text-align: center;
-                padding: 30px;
-                color: #999;
-                font-style: italic;
-            }
-
-            /*================ Table Footer =================*/
-            .table-footer {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding-top: 20px;
-                border-top: 1px solid #eae8e4;
-                margin-top: 15px;
-            }
-
-            .table-info {
-                color: #666;
-                font-size: 14px;
-            }
-
-            .pagination {
-                display: flex;
-                gap: 6px;
-            }
-
-            .page-btn {
-                border: 1px solid #dddcd8;
-                background: #fff;
-                width: 34px;
-                height: 34px;
-                border-radius: 6px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 13px;
-                color: #555;
-                transition: all 0.2s;
-            }
-
-            .page-btn:hover {
-                border-color: #4a372c;
-                color: #4a372c;
-            }
-
-            .active-page {
-                background: #4a372c;
-                color: white;
-                border-color: #4a372c;
-            }
-
-            .active-page:hover {
-                color: white;
-            }
-
-            /*================ Responsive =================*/
-            @media(max-width: 1200px){
-                .summary-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-            }
-            @media(max-width: 768px){
-                .sidebar {
-                    display: none;
-                }
-                .main {
-                    margin-left: 0;
-                }
-                .topbar {
-                    left: 0;
-                }
-                .summary-grid {
-                    grid-template-columns: 1fr;
-                }
-                .filter-form {
-                    flex-direction: column;
-                    align-items: stretch;
-                }
-                .btn-submit {
-                    margin-top: 10px;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="wrapper">
-
-            <!-- ==========================================
-                    LEFT SIDEBAR
-            =========================================== -->
-            <div class="sidebar">
-                <div class="menu">
-                    <div class="logo">
-                        <i class="fa-solid fa-mug-hot"></i>
-                        <span>Quản lý quán cafe</span>
-                    </div>
-
-                    <a href="${pageContext.request.contextPath}/views/homepage.jsp">
-                        <i class="fa-solid fa-house"></i> Trang chủ
-                    </a>
-
-                    <a href="#">
-                        <i class="fa-solid fa-user"></i> Nhân viên
-                    </a>
-
-                    <a href="#">
-                        <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
-                    </a>
-
-                    <a href="#">
-                        <i class="fa-solid fa-mug-hot"></i> Menu
-                    </a>
-
-                    <a href="#">
-                        <i class="fa-solid fa-chair"></i> Bàn
-                    </a>
-
-                    <a href="${pageContext.request.contextPath}/KhoServlet">
-                        <i class="fa-solid fa-box"></i> Kho
-                    </a>
-
-                    <a href="#">
-                        <i class="fa-solid fa-users"></i> Khách hàng
-                    </a>
-
-                    <a href="${pageContext.request.contextPath}/ThongKeServlet" class="active">
-                        <i class="fa-solid fa-chart-simple"></i> Thống kê doanh thu
-                    </a>
-
-                    <a href="#">
-                        <i class="fa-solid fa-gear"></i> Cài đặt
-                    </a>
-                </div>
-
-                <div class="logout-btn">
-                    <a href="${pageContext.request.contextPath}/LogoutServlet">
-                        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-                    </a>
-                </div>
-            </div>
-
-            <!-- ==========================================
-                    MAIN CONTENT
-            =========================================== -->
-            <div class="main">
-
-                <!-- TOPBAR -->
-                <header class="topbar">
-                    <div class="user-info">
-                        <i class="fa-solid fa-circle-user"></i>
-                        <span><%= maNV %> - <%= tenNV %></span>
-                    </div>
-                    <div class="notification" style="margin-left: 25px;">
-                        <i class="fa-regular fa-bell"></i>
-                        <span class="badge">3</span>
-                    </div>
-                </header>
-
-                <!-- CONTENT -->
-                <div class="content">
-
-                    <!-- PAGE TITLE -->
-                    <div class="title-section">
-                        <div>
-                            <h1 class="title">Thống kê doanh thu</h1>
-                            <p class="sub">Theo dõi báo cáo, kiểm soát dòng tiền của quán</p>
-                        </div>
-                        <a href="${pageContext.request.contextPath}/views/homepage.jsp" class="back-btn">
-                            <i class="fa-solid fa-arrow-left"></i> Quay lại Trang chủ
-                        </a>
-                    </div>
-
-                    <!-- ==========================================
-                            SUMMARY CARDS (Pastel Circle)
-                    =========================================== -->
-                    <div class="summary-grid">
-
-                        <!-- Card 1: Tổng hóa đơn -->
-                        <div class="stat-box">
-                            <div class="icon-wrapper bg-blue">
-                                <i class="fa-solid fa-file-invoice-dollar"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Tổng số đơn</h3>
-                                <p>${fn:length(dsHoaDon)}</p>
-                            </div>
-                        </div>
-
-                        <!-- Card 2: Tổng doanh thu (Sử dụng biến từ Servlet tính sẵn hoặc tính bằng loop) -->
-                        <c:set var="tongDoanhThu" value="0" />
-                        <c:forEach var="hd" items="${dsHoaDon}">
-                            <c:set var="tongDoanhThu" value="${tongDoanhThu + hd.tongTien}" />
-                        </c:forEach>
-
-                        <div class="stat-box">
-                            <div class="icon-wrapper bg-green">
-                                <i class="fa-solid fa-money-bill-trend-up"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Tổng doanh thu</h3>
-                                <p>
-                                    <fmt:formatNumber value="${tongDoanhThu}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Card 3: Đơn hàng hoàn thành -->
-                        <c:set var="hoanThanh" value="0"/>
-                        <c:forEach var="hd" items="${dsHoaDon}">
-                            <c:if test="${hd.trangThai == 'Đã thanh toán' || hd.trangThai == 'Hoàn thành'}">
-                                <c:set var="hoanThanh" value="${hoanThanh + 1}"/>
-                            </c:if>
-                        </c:forEach>
-                        <div class="stat-box">
-                            <div class="icon-wrapper bg-purple">
-                                <i class="fa-solid fa-circle-check"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Đã hoàn thành</h3>
-                                <p>${hoanThanh} đơn</p>
-                            </div>
-                        </div>
-
-                        <!-- Card 4: Đơn chờ xử lý / Hủy bỏ -->
-                        <c:set var="choXuLy" value="0"/>
-                        <c:forEach var="hd" items="${dsHoaDon}">
-                            <c:if test="${hd.trangThai == 'Chờ thanh toán' || hd.trangThai == 'Chờ xử lý'}">
-                                <c:set var="choXuLy" value="${choXuLy + 1}"/>
-                            </c:if>
-                        </c:forEach>
-                        <div class="stat-box">
-                            <div class="icon-wrapper bg-orange">
-                                <i class="fa-solid fa-clock"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Chờ xử lý</h3>
-                                <p>${choXuLy} đơn</p>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- ==========================================
-                            FILTER FORM CARD
-                    =========================================== -->
-                    <div class="card">
-                        <form action="${pageContext.request.contextPath}/ThongKeServlet" method="GET" class="filter-form">
-
-                            <div class="filter-group">
-                                <label for="tuNgay">Từ ngày</label>
-                                <input type="date" id="tuNgay" name="tuNgay" value="${param.tuNgay}">
-                            </div>
-
-                            <div class="filter-group">
-                                <label for="denNgay">Đến ngày</label>
-                                <input type="date" id="denNgay" name="denNgay" value="${param.denNgay}">
-                            </div>
-
-                            <div class="filter-group">
-                                <label for="phuongThuc">Phương thức thanh toán</label>
-                                <select id="phuongThuc" name="phuongThuc">
-                                    <option value="">Tất cả</option>
-                                    <option value="TienMat" ${param.phuongThuc == 'TienMat' ? 'selected' : ''}>Tiền mặt</option>
-                                    <option value="ChuyenKhoan" ${param.phuongThuc == 'ChuyenKhoan' ? 'selected' : ''}>Chuyển khoản</option>
-                                </select>
-                            </div>
-
-                            <button type="submit" class="btn-submit">
-                                <i class="fa-solid fa-filter"></i> Lọc dữ liệu
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- ==========================================
-                            DATA TABLE
-                    =========================================== -->
-                    <div class="card" style="padding-top: 15px;">
-                        <div class="table-responsive">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Mã hóa đơn</th>
-                                        <th>Ngày tạo</th>
-                                        <th>Thu ngân (Nhân viên)</th>
-                                        <th>Phương thức</th>
-                                        <th>Trạng thái</th>
-                                        <th style="text-align: right;">Tổng tiền</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:choose>
-                                        <%-- Trường hợp có dữ liệu --%>
-                                        <c:when test="${not empty dsHoaDon}">
-                                            <c:forEach var="hd" items="${dsHoaDon}">
-                                                <tr>
-                                                    <td class="txt-bold">${hd.maHD}</td>
-                                                    <td>
-                                                        <fmt:formatDate value="${hd.ngayTao}" pattern="dd/MM/yyyy HH:mm"/>
-                                                    </td>
-                                                    <td>${hd.tenNV}</td>
-                                                    <td>${hd.phuongThucTT}</td>
-                                                    <td>
-                                                        <span class="txt-bold" style="color: ${hd.trangThai == 'Đã thanh toán' || hd.trangThai == 'Hoàn thành' ? '#137333' : '#e67e22'}">
-                                                            ${hd.trangThai}
-                                                        </span>
-                                                    </td>
-                                                    <td class="txt-profit" style="text-align: right;">
-                                                        <fmt:formatNumber value="${hd.tongTien}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
-                                                    </td>
-                                                </tr>
-                                            </c:forEach>
-                                        </c:when>
-
-                                        <%-- Trường hợp danh sách trống --%>
-                                        <c:otherwise>
-                                            <tr>
-                                                <td colspan="6" class="empty">Không tìm thấy dữ liệu hóa đơn nào phù hợp.</td>
-                                            </tr>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Footer/Pagination -->
-                        <div class="table-footer">
-                            <div class="table-info">
-                                Hiển thị ${fn:length(dsHoaDon)} hóa đơn
-                            </div>
-                            <div class="pagination">
-                                <button class="page-btn">
-                                    <i class="fa-solid fa-chevron-left"></i>
-                                </button>
-                                <button class="page-btn active-page">1</button>
-                                <button class="page-btn">
-                                    <i class="fa-solid fa-chevron-right"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
+        <div class="brand">
+            <i class="fa-solid fa-mug-hot"></i>
+            QUẢN LÝ CAFE
         </div>
-    </body>
+
+        <ul class="menu">
+
+            <li onclick="location.href='${pageContext.request.contextPath}/views/homepage.jsp'">
+                <i class="fa-solid fa-house"></i>
+                <span>Trang chủ</span>
+            </li>
+
+            <li onclick="location.href='${pageContext.request.contextPath}/nhanvien'">
+                <i class="fa-solid fa-user"></i>
+                <span>Nhân viên</span>
+            </li>
+
+            <li onclick="location.href='${pageContext.request.contextPath}/hoadon'">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <span>Hóa đơn</span>
+            </li>
+
+            <li onclick="location.href='${pageContext.request.contextPath}/menu'">
+                <i class="fa-solid fa-mug-saucer"></i>
+                <span>Menu</span>
+            </li>
+
+            <li onclick="location.href='${pageContext.request.contextPath}/ban'">
+                <i class="fa-solid fa-chair"></i>
+                <span>Bàn</span>
+            </li>
+
+            <li onclick="location.href='${pageContext.request.contextPath}/KhoServlet'">
+                <i class="fa-solid fa-box"></i>
+                <span>Kho</span>
+            </li>
+
+            <li onclick="location.href='${pageContext.request.contextPath}/khachhang'">
+                <i class="fa-solid fa-users"></i>
+                <span>Khách hàng</span>
+            </li>
+
+            <li class="active"
+                onclick="location.href='${pageContext.request.contextPath}/ThongKeServlet'">
+
+                <i class="fa-solid fa-chart-column"></i>
+                <span>Thống kê</span>
+            </li>
+
+        </ul>
+
+        <a class="logout"
+           href="${pageContext.request.contextPath}/LogoutServlet">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Đăng xuất
+        </a>
+
+    </aside>
+
+    <!-- ==================== MAIN ==================== -->
+    <main class="main">
+
+        <header class="topbar">
+
+            <h2>Thống kê doanh thu</h2>
+
+            <div class="user-info">
+                <i class="fa-solid fa-circle-user"></i>
+
+                <span>
+                    ${sessionScope.maNV}
+                    -
+                    ${sessionScope.tenNV}
+                    -
+                    ${sessionScope.chucVu}
+                </span>
+            </div>
+
+        </header>
+
+        <div class="content">
+
+            <section class="page-heading">
+
+                <div>
+                    <h1>Báo cáo doanh thu</h1>
+
+                    <p>
+                        Chỉ tính các hóa đơn có trạng thái
+                        Đã thanh toán
+                    </p>
+                </div>
+
+                <a class="back-home"
+                   href="${pageContext.request.contextPath}/views/homepage.jsp">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Quay lại trang chủ
+                </a>
+
+            </section>
+
+            <c:if test="${not empty errorMessage}">
+
+                <div class="message">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    ${errorMessage}
+                </div>
+
+            </c:if>
+
+            <!-- ==================== BỘ LỌC NGÀY ==================== -->
+            <section class="filter-card">
+
+                <form class="filter-form"
+                      action="${pageContext.request.contextPath}/ThongKeServlet"
+                      method="get">
+
+                    <div class="filter-field">
+
+                        <label for="tuNgay">
+                            Từ ngày
+                        </label>
+
+                        <input type="date"
+                               id="tuNgay"
+                               name="tuNgay"
+                               value="${tuNgay}"
+                               required>
+
+                    </div>
+
+                    <div class="filter-field">
+
+                        <label for="denNgay">
+                            Đến ngày
+                        </label>
+
+                        <input type="date"
+                               id="denNgay"
+                               name="denNgay"
+                               value="${denNgay}"
+                               required>
+
+                    </div>
+
+                    <button type="submit"
+                            class="btn-filter">
+
+                        <i class="fa-solid fa-filter"></i>
+                        Xem thống kê
+                    </button>
+
+                    <a class="btn-reset"
+                       href="${pageContext.request.contextPath}/ThongKeServlet">
+
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Tháng hiện tại
+                    </a>
+
+                    <button type="button"
+                            class="btn-reset"
+                            onclick="window.print()">
+
+                        <i class="fa-solid fa-print"></i>
+                        In báo cáo
+                    </button>
+
+                </form>
+
+            </section>
+
+            <!-- ==================== TỔNG QUAN ==================== -->
+            <section class="summary-grid">
+
+                <div class="summary-card">
+
+                    <div class="summary-icon icon-blue">
+                        <i class="fa-solid fa-file-invoice"></i>
+                    </div>
+
+                    <div class="summary-content">
+                        <span>Số hóa đơn</span>
+
+                        <strong>
+                            <fmt:formatNumber
+                                value="${empty soHoaDon ? 0 : soHoaDon}"
+                                pattern="#,##0"/>
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <div class="summary-icon icon-green">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </div>
+
+                    <div class="summary-content">
+                        <span>Tổng doanh thu</span>
+
+                        <strong>
+                            <fmt:formatNumber
+                                value="${empty tongDoanhThu ? 0 : tongDoanhThu}"
+                                pattern="#,##0"/>
+
+                            đ
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <div class="summary-icon icon-orange">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                    </div>
+
+                    <div class="summary-content">
+                        <span>Doanh thu tiền mặt</span>
+
+                        <strong>
+                            <fmt:formatNumber
+                                value="${empty doanhThuTienMat
+                                    ? 0
+                                    : doanhThuTienMat}"
+                                pattern="#,##0"/>
+
+                            đ
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <div class="summary-icon icon-purple">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+
+                    <div class="summary-content">
+                        <span>Phương thức khác</span>
+
+                        <strong>
+                            <fmt:formatNumber
+                                value="${empty doanhThuKhac
+                                    ? 0
+                                    : doanhThuKhac}"
+                                pattern="#,##0"/>
+
+                            đ
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <div class="summary-icon icon-brown">
+                        <i class="fa-solid fa-chair"></i>
+                    </div>
+
+                    <div class="summary-content">
+                        <span>Doanh thu tại bàn</span>
+
+                        <strong>
+                            <fmt:formatNumber
+                                value="${empty doanhThuTaiBan
+                                    ? 0
+                                    : doanhThuTaiBan}"
+                                pattern="#,##0"/>
+
+                            đ
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <div class="summary-icon icon-gray">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
+
+                    <div class="summary-content">
+                        <span>Doanh thu mang về</span>
+
+                        <strong>
+                            <fmt:formatNumber
+                                value="${empty doanhThuMangVe
+                                    ? 0
+                                    : doanhThuMangVe}"
+                                pattern="#,##0"/>
+
+                            đ
+                        </strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ==================== BIỂU ĐỒ + TỶ LỆ ==================== -->
+            <section class="dashboard-grid">
+
+                <div class="panel">
+
+                    <h3>
+                        <i class="fa-solid fa-chart-line"></i>
+                        Doanh thu theo ngày
+                    </h3>
+
+                    <div class="chart-wrapper">
+
+                        <c:choose>
+
+                            <c:when test="${not empty dsDoanhThuNgay}">
+
+                                <canvas id="revenueChart"></canvas>
+
+                            </c:when>
+
+                            <c:otherwise>
+
+                                <div class="empty-row">
+
+                                    <i class="fa-solid fa-chart-line"></i>
+
+                                    Chưa có dữ liệu doanh thu
+                                    trong khoảng thời gian này.
+                                </div>
+
+                            </c:otherwise>
+
+                        </c:choose>
+
+                    </div>
+
+                </div>
+
+                <div class="panel">
+
+                    <h3>
+                        <i class="fa-solid fa-chart-pie"></i>
+                        Cơ cấu doanh thu
+                    </h3>
+
+                    <c:set var="tongDoanhThuAnToan"
+                           value="${empty tongDoanhThu
+                                    ? 0
+                                    : tongDoanhThu}"/>
+
+                    <c:set var="tyLeTaiBan"
+                           value="${tongDoanhThuAnToan > 0
+                                    ? doanhThuTaiBan
+                                      * 100
+                                      / tongDoanhThuAnToan
+                                    : 0}"/>
+
+                    <c:set var="tyLeMangVe"
+                           value="${tongDoanhThuAnToan > 0
+                                    ? doanhThuMangVe
+                                      * 100
+                                      / tongDoanhThuAnToan
+                                    : 0}"/>
+
+                    <c:set var="tyLeTienMat"
+                           value="${tongDoanhThuAnToan > 0
+                                    ? doanhThuTienMat
+                                      * 100
+                                      / tongDoanhThuAnToan
+                                    : 0}"/>
+
+                    <c:set var="tyLeKhac"
+                           value="${tongDoanhThuAnToan > 0
+                                    ? doanhThuKhac
+                                      * 100
+                                      / tongDoanhThuAnToan
+                                    : 0}"/>
+
+                    <div class="revenue-type-row">
+
+                        <div class="revenue-type-label">
+                            <span>Tại bàn</span>
+
+                            <strong>
+                                <fmt:formatNumber
+                                    value="${tyLeTaiBan}"
+                                    maxFractionDigits="1"/>
+
+                                %
+                            </strong>
+                        </div>
+
+                        <div class="progress">
+
+                            <div class="progress-bar"
+                                 style="width:${tyLeTaiBan}%;"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="revenue-type-row">
+
+                        <div class="revenue-type-label">
+                            <span>Mang về</span>
+
+                            <strong>
+                                <fmt:formatNumber
+                                    value="${tyLeMangVe}"
+                                    maxFractionDigits="1"/>
+
+                                %
+                            </strong>
+                        </div>
+
+                        <div class="progress">
+
+                            <div class="progress-bar green"
+                                 style="width:${tyLeMangVe}%;"></div>
+                        </div>
+
+                    </div>
+
+                    <hr style="
+                        margin:22px 0;
+                        border:0;
+                        border-top:1px solid #edf0f2;">
+
+                    <div class="revenue-type-row">
+
+                        <div class="revenue-type-label">
+                            <span>Tiền mặt</span>
+
+                            <strong>
+                                <fmt:formatNumber
+                                    value="${tyLeTienMat}"
+                                    maxFractionDigits="1"/>
+
+                                %
+                            </strong>
+                        </div>
+
+                        <div class="progress">
+
+                            <div class="progress-bar green"
+                                 style="width:${tyLeTienMat}%;"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="revenue-type-row">
+
+                        <div class="revenue-type-label">
+                            <span>Phương thức khác</span>
+
+                            <strong>
+                                <fmt:formatNumber
+                                    value="${tyLeKhac}"
+                                    maxFractionDigits="1"/>
+
+                                %
+                            </strong>
+                        </div>
+
+                        <div class="progress">
+
+                            <div class="progress-bar"
+                                 style="width:${tyLeKhac}%;"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ==================== DANH SÁCH HÓA ĐƠN ==================== -->
+            <section class="table-card">
+
+                <div class="table-toolbar">
+
+                    <h3>
+                        Danh sách hóa đơn đã thanh toán
+                    </h3>
+
+                    <div class="search-box">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <input type="text"
+                               id="invoiceSearch"
+                               autocomplete="off"
+                               placeholder="Tìm mã hóa đơn, khách, nhân viên...">
+                    </div>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Mã hóa đơn</th>
+                                <th>Ngày thanh toán</th>
+                                <th>Hình thức</th>
+                                <th>Bàn</th>
+                                <th>Khách hàng</th>
+                                <th>Nhân viên</th>
+                                <th>Thanh toán</th>
+                                <th>Tổng tiền</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="invoiceRows">
+
+                            <c:choose>
+
+                                <c:when test="${not empty dsThongKe}">
+
+                                    <c:forEach var="hd"
+                                               items="${dsThongKe}">
+
+                                        <tr data-search="${fn:toLowerCase(hd.maHienThi)}
+                                                         ${fn:toLowerCase(hd.tenKhachHang)}
+                                                         ${fn:toLowerCase(hd.maNV)}
+                                                         ${fn:toLowerCase(hd.phuongThucThanhToan)}
+                                                         ${fn:toLowerCase(hd.hinhThuc)}
+                                                         ${hd.maBan}">
+
+                                            <td class="invoice-code">
+                                                ${hd.maHienThi}
+                                            </td>
+
+                                            <td>
+                                                ${hd.ngayThanhToan}
+                                            </td>
+
+                                            <td>
+
+                                                <c:choose>
+
+                                                    <c:when test="${hd.hinhThuc == 'Mang về'}">
+
+                                                        <span class="badge badge-takeaway">
+                                                            <i class="fa-solid fa-bag-shopping"></i>
+                                                            Mang về
+                                                        </span>
+
+                                                    </c:when>
+
+                                                    <c:otherwise>
+
+                                                        <span class="badge badge-table">
+                                                            <i class="fa-solid fa-chair"></i>
+                                                            Tại bàn
+                                                        </span>
+
+                                                    </c:otherwise>
+
+                                                </c:choose>
+
+                                            </td>
+
+                                            <td>
+
+                                                <c:choose>
+
+                                                    <c:when test="${empty hd.maBan}">
+                                                        —
+                                                    </c:when>
+
+                                                    <c:otherwise>
+                                                        Bàn ${hd.maBan}
+                                                    </c:otherwise>
+
+                                                </c:choose>
+
+                                            </td>
+
+                                            <td>
+                                                ${empty hd.tenKhachHang
+                                                    ? 'Khách lẻ'
+                                                    : hd.tenKhachHang}
+                                            </td>
+
+                                            <td>
+                                                ${hd.maNV}
+                                            </td>
+
+                                            <td>
+
+                                                <c:choose>
+
+                                                    <c:when test="${hd.phuongThucThanhToan == 'Tiền mặt'}">
+
+                                                        <span class="badge badge-cash">
+                                                            <i class="fa-solid fa-money-bill"></i>
+                                                            Tiền mặt
+                                                        </span>
+
+                                                    </c:when>
+
+                                                    <c:otherwise>
+
+                                                        <span class="badge badge-other">
+                                                            <i class="fa-solid fa-wallet"></i>
+
+                                                            ${empty hd.phuongThucThanhToan
+                                                                ? 'Khác'
+                                                                : hd.phuongThucThanhToan}
+                                                        </span>
+
+                                                    </c:otherwise>
+
+                                                </c:choose>
+
+                                            </td>
+
+                                            <td class="money">
+
+                                                <fmt:formatNumber
+                                                    value="${empty hd.tongTien
+                                                        ? 0
+                                                        : hd.tongTien}"
+                                                    pattern="#,##0"/>
+
+                                                đ
+                                            </td>
+
+                                        </tr>
+
+                                    </c:forEach>
+
+                                    <tr id="noSearchResult"
+                                        style="display:none;">
+
+                                        <td colspan="8"
+                                            class="empty-row">
+
+                                            <i class="fa-solid fa-magnifying-glass"></i>
+
+                                            Không tìm thấy hóa đơn phù hợp.
+                                        </td>
+                                    </tr>
+
+                                </c:when>
+
+                                <c:otherwise>
+
+                                    <tr>
+
+                                        <td colspan="8"
+                                            class="empty-row">
+
+                                            <i class="fa-regular fa-file-lines"></i>
+
+                                            Không có hóa đơn đã thanh toán
+                                            trong khoảng thời gian này.
+                                        </td>
+
+                                    </tr>
+
+                                </c:otherwise>
+
+                            </c:choose>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="table-footer">
+
+                    Hiển thị
+                    ${fn:length(dsThongKe)}
+                    hóa đơn đã thanh toán từ
+                    <b>${tuNgay}</b>
+                    đến
+                    <b>${denNgay}</b>.
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                const searchInput =
+                    document.getElementById(
+                        "invoiceSearch"
+                    );
+
+                const invoiceRows =
+                    document.querySelectorAll(
+                        "#invoiceRows tr[data-search]"
+                    );
+
+                const noSearchResult =
+                    document.getElementById(
+                        "noSearchResult"
+                    );
+
+                function normalizeText(value) {
+                    return String(value || "")
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(
+                            /[\u0300-\u036f]/g,
+                            ""
+                        );
+                }
+
+                if (searchInput) {
+                    searchInput.addEventListener(
+                        "input",
+                        function () {
+
+                            const keyword =
+                                normalizeText(
+                                    searchInput.value.trim()
+                                );
+
+                            let visibleCount = 0;
+
+                            invoiceRows.forEach(
+                                function (row) {
+
+                                    const rowData =
+                                        normalizeText(
+                                            row.dataset.search
+                                        );
+
+                                    const visible =
+                                        keyword === ""
+                                        || rowData.includes(
+                                            keyword
+                                        );
+
+                                    row.style.display =
+                                        visible
+                                            ? ""
+                                            : "none";
+
+                                    if (visible) {
+                                        visibleCount++;
+                                    }
+                                }
+                            );
+
+                            if (noSearchResult) {
+                                noSearchResult.style.display =
+                                    visibleCount === 0
+                                        ? ""
+                                        : "none";
+                            }
+                        }
+                    );
+                }
+
+                const chartElement =
+                    document.getElementById(
+                        "revenueChart"
+                    );
+
+                if (
+                    chartElement
+                    && typeof Chart !== "undefined"
+                ) {
+                    const labels = [
+
+                        <c:forEach var="item"
+                                   items="${dsDoanhThuNgay}"
+                                   varStatus="status">
+
+                            "${item.ngay}"
+
+                            <c:if test="${not status.last}">
+                                ,
+                            </c:if>
+
+                        </c:forEach>
+
+                    ];
+
+                    const revenueData = [
+
+                        <c:forEach var="item"
+                                   items="${dsDoanhThuNgay}"
+                                   varStatus="status">
+
+                            ${empty item.doanhThu
+                                ? 0
+                                : item.doanhThu}
+
+                            <c:if test="${not status.last}">
+                                ,
+                            </c:if>
+
+                        </c:forEach>
+
+                    ];
+
+                    const invoiceCountData = [
+
+                        <c:forEach var="item"
+                                   items="${dsDoanhThuNgay}"
+                                   varStatus="status">
+
+                            ${item.soHoaDon}
+
+                            <c:if test="${not status.last}">
+                                ,
+                            </c:if>
+
+                        </c:forEach>
+
+                    ];
+
+                    new Chart(
+                        chartElement,
+                        {
+                            type: "bar",
+
+                            data: {
+                                labels: labels,
+
+                                datasets: [
+                                    {
+                                        label: "Doanh thu",
+
+                                        data: revenueData,
+
+                                        borderWidth: 1,
+
+                                        borderRadius: 5,
+
+                                        yAxisID: "revenue"
+                                    },
+
+                                    {
+                                        type: "line",
+
+                                        label: "Số hóa đơn",
+
+                                        data: invoiceCountData,
+
+                                        tension: 0.25,
+
+                                        borderWidth: 2,
+
+                                        yAxisID: "invoiceCount"
+                                    }
+                                ]
+                            },
+
+                            options: {
+                                responsive: true,
+
+                                maintainAspectRatio: false,
+
+                                interaction: {
+                                    mode: "index",
+                                    intersect: false
+                                },
+
+                                plugins: {
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function (
+                                                context
+                                            ) {
+                                                if (
+                                                    context.dataset
+                                                        .yAxisID
+                                                    === "revenue"
+                                                ) {
+                                                    return (
+                                                        " Doanh thu: "
+                                                        + Number(
+                                                            context.raw
+                                                        )
+                                                        .toLocaleString(
+                                                            "vi-VN"
+                                                        )
+                                                        + "đ"
+                                                    );
+                                                }
+
+                                                return (
+                                                    " Số hóa đơn: "
+                                                    + context.raw
+                                                );
+                                            }
+                                        }
+                                    }
+                                },
+
+                                scales: {
+                                    revenue: {
+                                        type: "linear",
+                                        position: "left",
+                                        beginAtZero: true,
+
+                                        ticks: {
+                                            callback: function (
+                                                value
+                                            ) {
+                                                return Number(
+                                                    value
+                                                ).toLocaleString(
+                                                    "vi-VN"
+                                                ) + "đ";
+                                            }
+                                        }
+                                    },
+
+                                    invoiceCount: {
+                                        type: "linear",
+                                        position: "right",
+                                        beginAtZero: true,
+
+                                        grid: {
+                                            drawOnChartArea: false
+                                        },
+
+                                        ticks: {
+                                            precision: 0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    );
+                }
+            }
+        );
+    </script>
+
+</body>
 </html>

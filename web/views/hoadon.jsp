@@ -66,10 +66,10 @@
         }
 
         .menu {
-            list-style: none;
-            padding: 18px 0;
-            margin: 0;
             flex: 1;
+            margin: 0;
+            padding: 18px 0;
+            list-style: none;
         }
 
         .menu li {
@@ -78,7 +78,7 @@
             gap: 12px;
             padding: 13px 22px;
             cursor: pointer;
-            transition: .2s;
+            transition: background .2s;
         }
 
         .menu li:hover,
@@ -96,9 +96,9 @@
             align-items: center;
             gap: 12px;
             padding: 16px 22px;
+            border-top: 1px solid rgba(255, 255, 255, .12);
             color: #ff9f9f;
             text-decoration: none;
-            border-top: 1px solid rgba(255, 255, 255, .12);
         }
 
         .main-content {
@@ -110,17 +110,17 @@
 
         .page-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             gap: 20px;
             margin-bottom: 24px;
         }
 
         .page-header h1 {
             margin: 0;
+            color: #253746;
             font-family: "Playfair Display", serif;
             font-size: 30px;
-            color: #253746;
         }
 
         .page-header p {
@@ -129,41 +129,43 @@
             font-size: 14px;
         }
 
-        .btn-add {
+        .btn-takeaway {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             padding: 11px 17px;
-            border: none;
+            border: 0;
             border-radius: 9px;
             background: #198754;
             color: white;
             text-decoration: none;
             font-weight: 700;
             box-shadow: 0 3px 8px rgba(25, 135, 84, .2);
+            transition: background .2s;
         }
 
-        .btn-add:hover {
+        .btn-takeaway:hover {
             background: #157347;
         }
 
         .message {
             margin-bottom: 20px;
             padding: 13px 16px;
+            border: 1px solid transparent;
             border-radius: 9px;
             font-weight: 600;
         }
 
-        .message.error {
-            background: #f8d7da;
-            color: #842029;
-            border: 1px solid #f5c2c7;
-        }
-
         .message.success {
+            border-color: #badbcc;
             background: #d1e7dd;
             color: #0f5132;
-            border: 1px solid #badbcc;
+        }
+
+        .message.error {
+            border-color: #f5c2c7;
+            background: #f8d7da;
+            color: #842029;
         }
 
         .toolbar {
@@ -171,10 +173,10 @@
             flex-wrap: wrap;
             align-items: center;
             gap: 10px;
-            padding: 15px;
             margin-bottom: 22px;
-            background: white;
+            padding: 15px;
             border-radius: 12px;
+            background: white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
         }
 
@@ -188,8 +190,8 @@
             position: absolute;
             top: 50%;
             left: 13px;
-            transform: translateY(-50%);
             color: #7c8791;
+            transform: translateY(-50%);
         }
 
         .search-box input {
@@ -198,8 +200,8 @@
             padding: 0 14px 0 39px;
             border: 1px solid #dfe4e8;
             border-radius: 8px;
-            font-family: inherit;
             outline: none;
+            font-family: inherit;
         }
 
         .search-box input:focus {
@@ -214,16 +216,16 @@
             border-radius: 8px;
             background: white;
             color: #4a5560;
+            cursor: pointer;
             font-family: inherit;
             font-weight: 600;
-            cursor: pointer;
         }
 
         .filter-btn:hover,
         .filter-btn.active {
+            border-color: #2c3e50;
             background: #2c3e50;
             color: white;
-            border-color: #2c3e50;
         }
 
         .invoice-grid {
@@ -236,12 +238,12 @@
         .invoice-card {
             display: flex;
             flex-direction: column;
-            min-height: 260px;
+            min-height: 290px;
             padding: 20px;
-            background: white;
             border: 1px solid #edf0f2;
             border-top: 4px solid #e67e22;
             border-radius: 12px;
+            background: white;
             box-shadow: 0 3px 12px rgba(0, 0, 0, .05);
             transition: transform .2s, box-shadow .2s;
         }
@@ -255,10 +257,15 @@
             border-top-color: #198754;
         }
 
+        .invoice-card.cancelled {
+            border-top-color: #dc3545;
+            opacity: .88;
+        }
+
         .invoice-top {
             display: flex;
-            justify-content: space-between;
             align-items: flex-start;
+            justify-content: space-between;
             gap: 10px;
             margin-bottom: 18px;
         }
@@ -285,6 +292,11 @@
             color: #0f5132;
         }
 
+        .status.cancelled {
+            background: #f8d7da;
+            color: #842029;
+        }
+
         .invoice-info {
             flex: 1;
         }
@@ -304,6 +316,10 @@
             text-align: center;
         }
 
+        .invoice-info strong {
+            color: #374151;
+        }
+
         .total {
             margin-top: 15px;
             padding-top: 15px;
@@ -314,10 +330,20 @@
         }
 
         .points {
-            margin-top: 7px;
+            margin-top: 8px;
             color: #8a671f;
             font-size: 13px;
             font-weight: 700;
+        }
+
+        .cancel-reason {
+            margin-top: 8px;
+            padding: 8px 10px;
+            border-radius: 7px;
+            background: #f8d7da;
+            color: #842029;
+            font-size: 12px;
+            line-height: 1.45;
         }
 
         .btn-view {
@@ -337,18 +363,18 @@
         }
 
         .btn-view:hover {
+            border-color: #2c3e50;
             background: #2c3e50;
             color: white;
-            border-color: #2c3e50;
         }
 
         .empty-state {
             grid-column: 1 / -1;
             padding: 55px 20px;
-            background: white;
             border-radius: 12px;
-            text-align: center;
+            background: white;
             color: #77828c;
+            text-align: center;
             box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
         }
 
@@ -364,6 +390,16 @@
             margin-bottom: 7px;
             color: #45515c;
             font-size: 17px;
+        }
+
+        .no-filter-result {
+            display: none;
+            grid-column: 1 / -1;
+            padding: 35px 20px;
+            border-radius: 12px;
+            background: white;
+            color: #77828c;
+            text-align: center;
         }
 
         @media (max-width: 900px) {
@@ -382,6 +418,32 @@
                 flex-direction: column;
             }
         }
+
+        @media (max-width: 680px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+            }
+
+            body {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .menu {
+                display: none;
+            }
+
+            .invoice-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -396,62 +458,51 @@
 
         <ul class="menu">
 
-            <li onclick="location.href=
-                '${pageContext.request.contextPath}/views/homepage.jsp'">
-
+            <li onclick="location.href='${pageContext.request.contextPath}/views/homepage.jsp'">
                 <i class="fa-solid fa-house"></i>
                 <span>Trang chủ</span>
             </li>
 
-            <li onclick="location.href=
-                '${pageContext.request.contextPath}/nhanvien'">
-
+            <li onclick="location.href='${pageContext.request.contextPath}/nhanvien'">
                 <i class="fa-solid fa-user"></i>
                 <span>Nhân viên</span>
             </li>
 
             <li class="active"
-                onclick="location.href=
-                '${pageContext.request.contextPath}/hoadon?action=list'">
+                onclick="location.href='${pageContext.request.contextPath}/hoadon'">
 
                 <i class="fa-solid fa-file-invoice-dollar"></i>
                 <span>Hóa đơn</span>
             </li>
 
-            <li onclick="location.href=
-                '${pageContext.request.contextPath}/menu'">
-
+            <li onclick="location.href='${pageContext.request.contextPath}/menu'">
                 <i class="fa-solid fa-mug-saucer"></i>
                 <span>Menu</span>
             </li>
 
-            <li onclick="location.href=
-                '${pageContext.request.contextPath}/ban'">
-
+            <li onclick="location.href='${pageContext.request.contextPath}/ban'">
                 <i class="fa-solid fa-chair"></i>
                 <span>Bàn</span>
             </li>
 
-            <li onclick="location.href=
-                '${pageContext.request.contextPath}/KhoServlet'">
-
+            <li onclick="location.href='${pageContext.request.contextPath}/KhoServlet'">
                 <i class="fa-solid fa-box"></i>
                 <span>Kho</span>
             </li>
 
-            <li onclick="location.href=
-                '${pageContext.request.contextPath}/khachhang'">
-
+            <li onclick="location.href='${pageContext.request.contextPath}/khachhang'">
                 <i class="fa-solid fa-users"></i>
                 <span>Khách hàng</span>
             </li>
 
-            <li onclick="location.href=
-                '${pageContext.request.contextPath}/ThongKeServlet'">
+            <c:if test="${sessionScope.chucVu == 'Quản lý'}">
 
-                <i class="fa-solid fa-chart-column"></i>
-                <span>Thống kê</span>
-            </li>
+                <li onclick="location.href='${pageContext.request.contextPath}/ThongKeServlet'">
+                    <i class="fa-solid fa-chart-column"></i>
+                    <span>Thống kê</span>
+                </li>
+
+            </c:if>
 
         </ul>
 
@@ -472,32 +523,54 @@
                 <h1>Quản lý hóa đơn</h1>
 
                 <p>
-                    Theo dõi hóa đơn đang phục vụ và
-                    hóa đơn đã thanh toán
+                    Theo dõi đơn tại bàn và đơn bán cho khách mang về
                 </p>
             </div>
 
-            <a class="btn-add"
-               href="${pageContext.request.contextPath}/hoadon?action=new">
+            <a class="btn-takeaway"
+               href="${pageContext.request.contextPath}/hoadon?action=takeaway">
 
-                <i class="fa-solid fa-plus"></i>
-                Lập hóa đơn mới
+                <i class="fa-solid fa-bag-shopping"></i>
+                Bán cho khách mang về
             </a>
 
         </div>
 
         <c:if test="${not empty errorMessage}">
+
             <div class="message error">
                 <i class="fa-solid fa-circle-exclamation"></i>
                 ${errorMessage}
             </div>
+
+        </c:if>
+
+        <c:if test="${not empty param.error}">
+
+            <div class="message error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                Không xử lý được yêu cầu:
+                ${param.error}
+            </div>
+
         </c:if>
 
         <c:if test="${param.success == 'paid'}">
+
             <div class="message success">
                 <i class="fa-solid fa-circle-check"></i>
                 Thanh toán hóa đơn thành công.
             </div>
+
+        </c:if>
+
+        <c:if test="${param.success == 'cancel'}">
+
+            <div class="message success">
+                <i class="fa-solid fa-circle-check"></i>
+                Đã chuyển hóa đơn sang trạng thái Đã hủy.
+            </div>
+
         </c:if>
 
         <div class="toolbar">
@@ -507,25 +580,36 @@
 
                 <input type="text"
                        id="invoiceSearch"
-                       placeholder="Tìm theo mã hóa đơn, bàn hoặc nhân viên...">
+                       autocomplete="off"
+                       placeholder="Tìm mã hóa đơn, bàn, khách hoặc nhân viên...">
             </div>
 
             <button type="button"
                     class="filter-btn active"
                     data-status="all">
+
                 Tất cả
             </button>
 
             <button type="button"
                     class="filter-btn"
                     data-status="Đang phục vụ">
+
                 Đang phục vụ
             </button>
 
             <button type="button"
                     class="filter-btn"
                     data-status="Đã thanh toán">
+
                 Đã thanh toán
+            </button>
+
+            <button type="button"
+                    class="filter-btn"
+                    data-status="Đã hủy">
+
+                Đã hủy
             </button>
 
         </div>
@@ -540,22 +624,45 @@
                     <c:forEach var="hd"
                                items="${listHoaDon}">
 
-                        <fmt:formatNumber
-                            var="maHDFormatted"
-                            value="${hd.maHD}"
-                            pattern="000000"/>
+                        <fmt:formatNumber var="maHDFormatted"
+                                          value="${hd.maHD}"
+                                          pattern="000000"/>
 
-                        <div class="invoice-card
-                                    ${hd.trangThai eq 'Đã thanh toán'
-                                        ? 'paid'
-                                        : ''}"
+                        <c:set var="cardClass"
+                               value=""/>
 
+                        <c:set var="statusClass"
+                               value=""/>
+
+                        <c:choose>
+
+                            <c:when test="${hd.trangThai == 'Đã thanh toán'}">
+                                <c:set var="cardClass"
+                                       value="paid"/>
+
+                                <c:set var="statusClass"
+                                       value="paid"/>
+                            </c:when>
+
+                            <c:when test="${hd.trangThai == 'Đã hủy'}">
+                                <c:set var="cardClass"
+                                       value="cancelled"/>
+
+                                <c:set var="statusClass"
+                                       value="cancelled"/>
+                            </c:when>
+
+                        </c:choose>
+
+                        <div class="invoice-card ${cardClass}"
                              data-status="${hd.trangThai}"
-
                              data-search="HD${maHDFormatted}
+                                          ${hd.maHD}
                                           ${hd.maBan}
                                           ${hd.maNV}
-                                          ${hd.maKH}">
+                                          ${hd.maKH}
+                                          ${hd.tenKhachHang}
+                                          ${hd.hinhThuc}">
 
                             <div class="invoice-top">
 
@@ -563,11 +670,7 @@
                                     HD${maHDFormatted}
                                 </span>
 
-                                <span class="status
-                                             ${hd.trangThai eq
-                                               'Đã thanh toán'
-                                                ? 'paid'
-                                                : ''}">
+                                <span class="status ${statusClass}">
 
                                     ${empty hd.trangThai
                                         ? 'Đang phục vụ'
@@ -579,12 +682,25 @@
                             <div class="invoice-info">
 
                                 <p>
+                                    <i class="fa-solid fa-bag-shopping"></i>
+
+                                    Hình thức:
+
+                                    <strong>
+                                        ${empty hd.hinhThuc
+                                            ? 'Tại bàn'
+                                            : hd.hinhThuc}
+                                    </strong>
+                                </p>
+
+                                <p>
                                     <i class="fa-solid fa-chair"></i>
 
                                     Bàn:
+
                                     <strong>
                                         ${empty hd.maBan
-                                            ? '—'
+                                            ? 'Không có'
                                             : hd.maBan}
                                     </strong>
                                 </p>
@@ -593,6 +709,7 @@
                                     <i class="fa-solid fa-user-tie"></i>
 
                                     Nhân viên:
+
                                     <strong>
                                         ${empty hd.maNV
                                             ? '—'
@@ -604,22 +721,26 @@
                                     <i class="fa-solid fa-user-group"></i>
 
                                     Khách:
+
                                     <strong>
-                                        ${empty hd.maKH
+                                        ${empty hd.tenKhachHang
                                             ? 'Khách lẻ'
-                                            : hd.maKH}
+                                            : hd.tenKhachHang}
                                     </strong>
                                 </p>
 
                                 <p>
                                     <i class="fa-regular fa-calendar"></i>
 
-                                    ${empty hd.ngayTao
-                                        ? 'Chưa có ngày tạo'
-                                        : hd.ngayTao}
+                                    <span>
+                                        ${empty hd.ngayTao
+                                            ? 'Chưa có ngày tạo'
+                                            : hd.ngayTao}
+                                    </span>
                                 </p>
 
                                 <div class="total">
+
                                     Tổng tiền:
 
                                     <fmt:formatNumber
@@ -627,14 +748,30 @@
                                             ? 0
                                             : hd.tongTien}"
                                         pattern="#,##0"/>
+
                                     đ
                                 </div>
 
                                 <c:if test="${hd.diemCong > 0}">
+
                                     <div class="points">
                                         <i class="fa-solid fa-star"></i>
                                         Đã cộng ${hd.diemCong} điểm
                                     </div>
+
+                                </c:if>
+
+                                <c:if test="${hd.trangThai == 'Đã hủy'
+                                              and not empty hd.lyDoHuy}">
+
+                                    <div class="cancel-reason">
+
+                                        <i class="fa-solid fa-circle-xmark"></i>
+
+                                        <b>Lý do hủy:</b>
+                                        ${hd.lyDoHuy}
+                                    </div>
+
                                 </c:if>
 
                             </div>
@@ -650,9 +787,18 @@
 
                     </c:forEach>
 
+                    <div class="no-filter-result"
+                         id="noFilterResult">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        Không tìm thấy hóa đơn phù hợp.
+                    </div>
+
                 </c:when>
 
                 <c:otherwise>
+
                     <div class="empty-state">
 
                         <i class="fa-regular fa-file-lines"></i>
@@ -662,9 +808,10 @@
                         </strong>
 
                         <span>
-                            Nhận bàn hoặc lập hóa đơn mới để bắt đầu.
+                            Nhận bàn hoặc bán cho khách mang về để bắt đầu.
                         </span>
                     </div>
+
                 </c:otherwise>
 
             </c:choose>
@@ -675,93 +822,130 @@
 
     <script>
         document.addEventListener(
-            "DOMContentLoaded",
-            function () {
+                "DOMContentLoaded",
+                function () {
 
-                const searchInput =
-                        document.getElementById(
-                            "invoiceSearch"
-                        );
+                    const searchInput =
+                            document.getElementById(
+                                    "invoiceSearch"
+                            );
 
-                const filterButtons =
-                        document.querySelectorAll(
-                            ".filter-btn"
-                        );
+                    const filterButtons =
+                            document.querySelectorAll(
+                                    ".filter-btn"
+                            );
 
-                const cards =
-                        document.querySelectorAll(
-                            ".invoice-card"
-                        );
+                    const cards =
+                            document.querySelectorAll(
+                                    ".invoice-card"
+                            );
 
-                let selectedStatus = "all";
+                    const noFilterResult =
+                            document.getElementById(
+                                    "noFilterResult"
+                            );
 
-                function applyFilters() {
-                    const keyword =
-                            searchInput.value
-                                .trim()
-                                .toLowerCase();
+                    let selectedStatus = "all";
 
-                    cards.forEach(function (card) {
-                        const cardStatus =
-                                card.dataset.status || "";
+                    function normalizeText(value) {
+                        return (value || "")
+                                .toLowerCase()
+                                .normalize("NFD")
+                                .replace(
+                                        /[\u0300-\u036f]/g,
+                                        ""
+                                );
+                    }
 
-                        const searchData =
-                                card.dataset.search
-                                    .toLowerCase();
-
-                        const statusMatched =
-                                selectedStatus === "all"
-                                || cardStatus
-                                    === selectedStatus;
-
-                        const keywordMatched =
-                                keyword === ""
-                                || searchData
-                                    .includes(keyword);
-
-                        card.style.display =
-                                statusMatched
-                                && keywordMatched
-                                ? "flex"
-                                : "none";
-                    });
-                }
-
-                searchInput.addEventListener(
-                    "input",
-                    applyFilters
-                );
-
-                filterButtons.forEach(
-                    function (button) {
-
-                        button.addEventListener(
-                            "click",
-                            function () {
-
-                                filterButtons
-                                    .forEach(
-                                        function (item) {
-                                            item.classList
-                                                .remove(
-                                                    "active"
-                                                );
-                                        }
-                                    );
-
-                                button.classList.add(
-                                    "active"
+                    function applyFilters() {
+                        const keyword =
+                                normalizeText(
+                                        searchInput.value.trim()
                                 );
 
-                                selectedStatus =
-                                        button.dataset.status;
+                        let visibleCount = 0;
 
-                                applyFilters();
-                            }
+                        cards.forEach(
+                                function (card) {
+
+                                    const cardStatus =
+                                            card.dataset.status
+                                            || "";
+
+                                    const searchData =
+                                            normalizeText(
+                                                    card.dataset.search
+                                            );
+
+                                    const statusMatched =
+                                            selectedStatus === "all"
+                                            || cardStatus
+                                            === selectedStatus;
+
+                                    const keywordMatched =
+                                            keyword === ""
+                                            || searchData.includes(
+                                                    keyword
+                                            );
+
+                                    const visible =
+                                            statusMatched
+                                            && keywordMatched;
+
+                                    card.style.display =
+                                            visible
+                                            ? "flex"
+                                            : "none";
+
+                                    if (visible) {
+                                        visibleCount++;
+                                    }
+                                }
+                        );
+
+                        if (noFilterResult) {
+                            noFilterResult.style.display =
+                                    visibleCount === 0
+                                    ? "block"
+                                    : "none";
+                        }
+                    }
+
+                    if (searchInput) {
+                        searchInput.addEventListener(
+                                "input",
+                                applyFilters
                         );
                     }
-                );
-            }
+
+                    filterButtons.forEach(
+                            function (button) {
+
+                                button.addEventListener(
+                                        "click",
+                                        function () {
+
+                                            filterButtons.forEach(
+                                                    function (item) {
+                                                        item.classList.remove(
+                                                                "active"
+                                                        );
+                                                    }
+                                            );
+
+                                            button.classList.add(
+                                                    "active"
+                                            );
+
+                                            selectedStatus =
+                                                    button.dataset.status;
+
+                                            applyFilters();
+                                        }
+                                );
+                            }
+                    );
+                }
         );
     </script>
 

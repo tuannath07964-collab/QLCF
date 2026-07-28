@@ -17,12 +17,11 @@ import java.util.List;
 public class MenuDAO {
 
     private static final String SELECT_BASE = """
-        SELECT
-            MaMon,
-            TenMon,
-            LoaiMon,
-            Gia,
-            TrangThai
+        SELECT MaMon,
+               TenMon,
+               LoaiMon,
+               Gia,
+               TrangThai
         FROM Menu
         """;
 
@@ -34,9 +33,7 @@ public class MenuDAO {
         );
     }
 
-    public Menu getMenuById(
-            String maMon
-    ) {
+    public Menu getMenuById(String maMon) {
         ArrayList<Menu> list =
                 loadMenuList(
                         SELECT_BASE
@@ -69,10 +66,10 @@ public class MenuDAO {
         String sql =
                 SELECT_BASE
                 + """
-                   WHERE TenMon LIKE ?
-                      OR MaMon LIKE ?
-                   ORDER BY MaMon
-                   """;
+                  WHERE TenMon LIKE ?
+                     OR MaMon LIKE ?
+                  ORDER BY MaMon
+                  """;
 
         try (
             Connection conn =
@@ -85,8 +82,8 @@ public class MenuDAO {
                     "%"
                     + (
                         keyword == null
-                        ? ""
-                        : keyword.trim()
+                            ? ""
+                            : keyword.trim()
                     )
                     + "%";
 
@@ -118,6 +115,8 @@ public class MenuDAO {
     }
 
     public boolean insertMenu(Menu menu) {
+        validateMenu(menu);
+
         String sql = """
             INSERT INTO Menu(
                 MaMon,
@@ -138,17 +137,17 @@ public class MenuDAO {
         ) {
             ps.setString(
                     1,
-                    menu.getMaMon()
+                    menu.getMaMon().trim()
             );
 
             ps.setString(
                     2,
-                    menu.getTenMon()
+                    menu.getTenMon().trim()
             );
 
             ps.setString(
                     3,
-                    menu.getLoaiMon()
+                    menu.getLoaiMon().trim()
             );
 
             ps.setBigDecimal(
@@ -165,13 +164,16 @@ public class MenuDAO {
 
         } catch (SQLException e) {
             throw new IllegalStateException(
-                    "Không thêm được món.",
+                    "Không thêm được món. "
+                    + "Kiểm tra mã món đã tồn tại.",
                     e
             );
         }
     }
 
     public boolean updateMenu(Menu menu) {
+        validateMenu(menu);
+
         String sql = """
             UPDATE Menu
             SET TenMon = ?,
@@ -190,12 +192,12 @@ public class MenuDAO {
         ) {
             ps.setString(
                     1,
-                    menu.getTenMon()
+                    menu.getTenMon().trim()
             );
 
             ps.setString(
                     2,
-                    menu.getLoaiMon()
+                    menu.getLoaiMon().trim()
             );
 
             ps.setBigDecimal(
@@ -210,7 +212,7 @@ public class MenuDAO {
 
             ps.setString(
                     5,
-                    menu.getMaMon()
+                    menu.getMaMon().trim()
             );
 
             return ps.executeUpdate() == 1;
@@ -223,12 +225,11 @@ public class MenuDAO {
         }
     }
 
-    public boolean deleteMenu(
-            String maMon
-    ) {
-        String sql =
-                "DELETE FROM Menu "
-                + "WHERE MaMon = ?";
+    public boolean deleteMenu(String maMon) {
+        String sql = """
+            DELETE FROM Menu
+            WHERE MaMon = ?
+            """;
 
         try (
             Connection conn =
@@ -298,18 +299,16 @@ public class MenuDAO {
     ) throws SQLException {
 
         String sql = """
-            SELECT
-                k.TenNL,
-                k.SoLuong,
-                k.DonVi,
-                ct.SoLuongCan
+            SELECT k.TenNL,
+                   k.SoLuong,
+                   k.DonVi,
+                   ct.SoLuongCan
             FROM CongThucMon ct
             JOIN Kho k
                 ON k.MaNL = ct.MaNL
             WHERE ct.MaMon = ?
-            ORDER BY
-                ct.ThuTu,
-                k.MaNL
+            ORDER BY ct.ThuTu,
+                     k.MaNL
             """;
 
         try (
@@ -328,7 +327,8 @@ public class MenuDAO {
                 int soPhan =
                         Integer.MAX_VALUE;
 
-                boolean coCongThuc = false;
+                boolean coCongThuc =
+                        false;
 
                 try (
                     ResultSet rs =
@@ -359,7 +359,7 @@ public class MenuDAO {
                         nguyenLieu
                                 .append(
                                     formatNumber(
-                                        soLuongCan
+                                            soLuongCan
                                     )
                                 )
                                 .append(" ")
@@ -367,7 +367,7 @@ public class MenuDAO {
                                 .append(" ")
                                 .append(
                                     rs.getString(
-                                        "TenNL"
+                                            "TenNL"
                                     )
                                 );
 
@@ -378,10 +378,11 @@ public class MenuDAO {
                                         RoundingMode.DOWN
                                 ).intValue();
 
-                        soPhan = Math.min(
-                                soPhan,
-                                phanTheoNguyenLieu
-                        );
+                        soPhan =
+                                Math.min(
+                                        soPhan,
+                                        phanTheoNguyenLieu
+                                );
                     }
                 }
 
@@ -391,6 +392,7 @@ public class MenuDAO {
                     );
 
                     menu.setSoPhanCoThePha(0);
+
                     menu.setTrangThai(false);
 
                 } else {
@@ -402,6 +404,10 @@ public class MenuDAO {
                             Math.max(0, soPhan)
                     );
 
+                    /*
+                     * Món phải được bật trong bảng Menu
+                     * và còn đủ nguyên liệu.
+                     */
                     menu.setTrangThai(
                             menu.isTrangThai()
                             && soPhan > 0
@@ -409,14 +415,6 @@ public class MenuDAO {
                 }
             }
         }
-    }
-
-    private String formatNumber(
-            BigDecimal value
-    ) {
-        return value
-                .stripTrailingZeros()
-                .toPlainString();
     }
 
     private Menu mapRow(
@@ -446,5 +444,63 @@ public class MenuDAO {
         );
 
         return menu;
+    }
+
+    private String formatNumber(
+            BigDecimal value
+    ) {
+        if (value == null) {
+            return "0";
+        }
+
+        return value
+                .stripTrailingZeros()
+                .toPlainString();
+    }
+
+    private void validateMenu(Menu menu) {
+        if (menu == null) {
+            throw new IllegalArgumentException(
+                    "Thông tin món không hợp lệ."
+            );
+        }
+
+        if (
+            menu.getMaMon() == null
+            || menu.getMaMon().isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    "Mã món là bắt buộc."
+            );
+        }
+
+        if (
+            menu.getTenMon() == null
+            || menu.getTenMon().isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    "Tên món là bắt buộc."
+            );
+        }
+
+        if (
+            menu.getLoaiMon() == null
+            || menu.getLoaiMon().isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    "Loại món là bắt buộc."
+            );
+        }
+
+        if (
+            menu.getGia() == null
+            || menu.getGia().compareTo(
+                    BigDecimal.ZERO
+            ) < 0
+        ) {
+            throw new IllegalArgumentException(
+                    "Giá món không hợp lệ."
+            );
+        }
     }
 }

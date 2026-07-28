@@ -66,9 +66,7 @@ public class Menu {
         return trangThai;
     }
 
-    public void setTrangThai(
-            boolean trangThai
-    ) {
+    public void setTrangThai(boolean trangThai) {
         this.trangThai = trangThai;
     }
 
@@ -89,7 +87,6 @@ public class Menu {
     public void setSoPhanCoThePha(
             int soPhanCoThePha
     ) {
-        this.soPhanCoThePha =
-                soPhanCoThePha;
+        this.soPhanCoThePha = soPhanCoThePha;
     }
 }

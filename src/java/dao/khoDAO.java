@@ -4,12 +4,10 @@ import model.NguyenLieu;
 import util.DBConnect;
 
 import java.math.BigDecimal;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,29 +21,26 @@ public class khoDAO {
                 new LinkedHashMap<>();
 
         String sqlKho = """
-            SELECT
-                MaNL,
-                TenNL,
-                SoLuong,
-                DonVi
+            SELECT MaNL,
+                   TenNL,
+                   SoLuong,
+                   DonVi
             FROM Kho
             ORDER BY MaNL
             """;
 
         String sqlCongThuc = """
-            SELECT
-                ct.MaNL,
-                m.TenMon,
-                ct.SoLuongCan,
-                k.DonVi
+            SELECT ct.MaNL,
+                   m.TenMon,
+                   ct.SoLuongCan,
+                   k.DonVi
             FROM CongThucMon ct
             JOIN Menu m
                 ON m.MaMon = ct.MaMon
             JOIN Kho k
                 ON k.MaNL = ct.MaNL
-            ORDER BY
-                ct.MaNL,
-                m.MaMon
+            ORDER BY ct.MaNL,
+                     m.MaMon
             """;
 
         try (
@@ -53,7 +48,9 @@ public class khoDAO {
                     DBConnect.getConnection();
 
             PreparedStatement psKho =
-                    conn.prepareStatement(sqlKho);
+                    conn.prepareStatement(
+                            sqlKho
+                    );
 
             ResultSet rsKho =
                     psKho.executeQuery()
@@ -69,52 +66,59 @@ public class khoDAO {
             }
 
             try (
-                PreparedStatement ps =
+                PreparedStatement psCongThuc =
                         conn.prepareStatement(
                                 sqlCongThuc
                         );
 
-                ResultSet rs =
-                        ps.executeQuery()
+                ResultSet rsCongThuc =
+                        psCongThuc.executeQuery()
             ) {
-                while (rs.next()) {
-                    NguyenLieu nl =
-                            data.get(
-                                rs.getString(
+                while (rsCongThuc.next()) {
+                    String maNL =
+                            rsCongThuc.getString(
                                     "MaNL"
-                                )
                             );
+
+                    NguyenLieu nl =
+                            data.get(maNL);
 
                     if (nl == null) {
                         continue;
                     }
 
-                    String dong =
-                            rs.getString("TenMon")
+                    String dongCongThuc =
+                            rsCongThuc.getString(
+                                    "TenMon"
+                            )
                             + ": "
                             + formatNumber(
-                                rs.getBigDecimal(
-                                    "SoLuongCan"
-                                )
+                                rsCongThuc
+                                    .getBigDecimal(
+                                        "SoLuongCan"
+                                    )
                             )
                             + " "
-                            + rs.getString("DonVi")
+                            + rsCongThuc.getString(
+                                    "DonVi"
+                            )
                             + "/phần";
 
                     if (
                         nl.getCongThucSuDung()
-                                == null
+                            == null
                         || nl.getCongThucSuDung()
-                                .isBlank()
+                            .isBlank()
                     ) {
                         nl.setCongThucSuDung(
-                                dong
+                                dongCongThuc
                         );
+
                     } else {
                         nl.setCongThucSuDung(
-                            nl.getCongThucSuDung()
-                            + " • "
-                            + dong
+                                nl.getCongThucSuDung()
+                                + " • "
+                                + dongCongThuc
                         );
                     }
                 }
@@ -136,11 +140,10 @@ public class khoDAO {
             String maNL
     ) {
         String sql = """
-            SELECT
-                MaNL,
-                TenNL,
-                SoLuong,
-                DonVi
+            SELECT MaNL,
+                   TenNL,
+                   SoLuong,
+                   DonVi
             FROM Kho
             WHERE MaNL = ?
             """;
@@ -152,7 +155,10 @@ public class khoDAO {
             PreparedStatement ps =
                     conn.prepareStatement(sql)
         ) {
-            ps.setString(1, maNL);
+            ps.setString(
+                    1,
+                    maNL
+            );
 
             try (
                 ResultSet rs =
@@ -174,6 +180,8 @@ public class khoDAO {
     public boolean insertNguyenLieu(
             NguyenLieu nl
     ) {
+        validateNguyenLieu(nl);
+
         String sql = """
             INSERT INTO Kho(
                 MaNL,
@@ -193,12 +201,12 @@ public class khoDAO {
         ) {
             ps.setString(
                     1,
-                    nl.getMaNL()
+                    nl.getMaNL().trim()
             );
 
             ps.setString(
                     2,
-                    nl.getTenNL()
+                    nl.getTenNL().trim()
             );
 
             ps.setBigDecimal(
@@ -208,12 +216,24 @@ public class khoDAO {
 
             ps.setString(
                     4,
-                    nl.getDonVi()
+                    nl.getDonVi().trim()
             );
 
             return ps.executeUpdate() == 1;
 
         } catch (SQLException e) {
+            if (
+                e.getMessage() != null
+                && e.getMessage()
+                    .toLowerCase()
+                    .contains("duplicate")
+            ) {
+                throw new IllegalStateException(
+                        "Mã nguyên liệu đã tồn tại.",
+                        e
+                );
+            }
+
             throw new IllegalStateException(
                     "Không thêm được nguyên liệu.",
                     e
@@ -224,6 +244,8 @@ public class khoDAO {
     public boolean updateNguyenLieu(
             NguyenLieu nl
     ) {
+        validateNguyenLieu(nl);
+
         String sql = """
             UPDATE Kho
             SET TenNL = ?,
@@ -241,7 +263,7 @@ public class khoDAO {
         ) {
             ps.setString(
                     1,
-                    nl.getTenNL()
+                    nl.getTenNL().trim()
             );
 
             ps.setBigDecimal(
@@ -251,12 +273,12 @@ public class khoDAO {
 
             ps.setString(
                     3,
-                    nl.getDonVi()
+                    nl.getDonVi().trim()
             );
 
             ps.setString(
                     4,
-                    nl.getMaNL()
+                    nl.getMaNL().trim()
             );
 
             return ps.executeUpdate() == 1;
@@ -269,32 +291,10 @@ public class khoDAO {
         }
     }
 
-    public boolean deleteNguyenLieu(
-            String maNL
-    ) {
-        String sql =
-                "DELETE FROM Kho "
-                + "WHERE MaNL = ?";
-
-        try (
-            Connection conn =
-                    DBConnect.getConnection();
-
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
-        ) {
-            ps.setString(1, maNL);
-
-            return ps.executeUpdate() == 1;
-
-        } catch (SQLException e) {
-            throw new IllegalStateException(
-                    "Không thể xóa nguyên liệu "
-                    + "đang được dùng trong công thức.",
-                    e
-            );
-        }
-    }
+    /*
+     * Không có hàm xóa nguyên liệu.
+     * Nguyên liệu chỉ được thêm hoặc cập nhật.
+     */
 
     private NguyenLieu mapRow(
             ResultSet rs
@@ -322,9 +322,66 @@ public class khoDAO {
         return nl;
     }
 
+    private void validateNguyenLieu(
+            NguyenLieu nl
+    ) {
+        if (nl == null) {
+            throw new IllegalArgumentException(
+                    "Thông tin nguyên liệu không hợp lệ."
+            );
+        }
+
+        if (
+            nl.getMaNL() == null
+            || nl.getMaNL().isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    "Mã nguyên liệu là bắt buộc."
+            );
+        }
+
+        if (
+            nl.getTenNL() == null
+            || nl.getTenNL().isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    "Tên nguyên liệu là bắt buộc."
+            );
+        }
+
+        if (nl.getSoLuong() == null) {
+            throw new IllegalArgumentException(
+                    "Số lượng nguyên liệu là bắt buộc."
+            );
+        }
+
+        if (
+            nl.getSoLuong().compareTo(
+                    BigDecimal.ZERO
+            ) < 0
+        ) {
+            throw new IllegalArgumentException(
+                    "Số lượng nguyên liệu không được âm."
+            );
+        }
+
+        if (
+            nl.getDonVi() == null
+            || nl.getDonVi().isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    "Đơn vị tính là bắt buộc."
+            );
+        }
+    }
+
     private String formatNumber(
             BigDecimal value
     ) {
+        if (value == null) {
+            return "0";
+        }
+
         return value
                 .stripTrailingZeros()
                 .toPlainString();

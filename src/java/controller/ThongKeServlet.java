@@ -1,54 +1,293 @@
 package controller;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import dao.ThongKeDAO;
+import dao.ThongKeDAO.TongQuanDoanhThu;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-// Nếu bạn đã có class model HoaDon hoặc tương tự, hãy import vào đây. 
-// Ví dụ: import model.HoaDon;
+import java.io.IOException;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 @WebServlet("/ThongKeServlet")
-public class ThongKeServlet extends HttpServlet {
+public class ThongKeServlet
+        extends HttpServlet {
+
+    private ThongKeDAO thongKeDAO;
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
-        // 1. Kiểm tra quyền đăng nhập giống như hệ thống của bạn (bảo mật)
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("maNV") == null) {
-            // Nếu chưa đăng nhập, đá về trang login
-            response.sendRedirect(request.getContextPath() + "/LoginServlet");
-            return;
-        }
+    public void init()
+            throws ServletException {
 
-        // 2. Tạo dữ liệu mẫu cho danh sách hóa đơn doanh thu (tương tự cách bạn làm ở khoServlet)
-        // Chú ý: Ở đây tôi dùng một Class giả lập Object[] để bạn dễ hiển thị dữ liệu lên bảng jsp trước.
-        // Khi nào bạn có model HoaDon cụ thể, chỉ cần thay thế Object[] bằng tên model của bạn.
-        ArrayList<Object[]> dsHoaDon = new ArrayList<>();
-
-        // Thêm dữ liệu chạy thử nghiệm: { Mã HD, Ngày thanh toán, Phương thức, Tổng tiền }
-        dsHoaDon.add(new Object[]{"HD001", "14/07/2026", "Tiền mặt", "150,000đ"});
-        dsHoaDon.add(new Object[]{"HD002", "14/07/2026", "Chuyển khoản", "320,000đ"});
-        dsHoaDon.add(new Object[]{"HD003", "13/07/2026", "Tiền mặt", "85,000đ"});
-        dsHoaDon.add(new Object[]{"HD004", "12/07/2026", "Chuyển khoản", "450,000đ"});
-
-        // 3. Đẩy danh sách này sang giao diện hiển thị
-        request.setAttribute("dsThongKe", dsHoaDon);
-
-        // 4. Chuyển hướng sang file JSP nằm trong thư mục views
-        request.getRequestDispatcher("/views/ThongKeDoanhThu.jsp")
-                .forward(request, response);
+        thongKeDAO =
+                new ThongKeDAO();
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws ServletException, IOException {
+
+        request.setCharacterEncoding(
+                "UTF-8"
+        );
+
+        response.setCharacterEncoding(
+                "UTF-8"
+        );
+
+        response.setContentType(
+                "text/html; charset=UTF-8"
+        );
+
+        HttpSession session =
+                request.getSession(false);
+
+        if (
+            session == null
+            || session.getAttribute(
+                    "maNV"
+            ) == null
+        ) {
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/LoginServlet"
+            );
+
+            return;
+        }
+
+        if (
+            !"Quản lý".equals(
+                    session.getAttribute(
+                            "chucVu"
+                    )
+            )
+        ) {
+            response.sendError(
+                    HttpServletResponse
+                        .SC_FORBIDDEN,
+                    "Chỉ quản lý được xem "
+                    + "thống kê doanh thu."
+            );
+
+            return;
+        }
+
+        try {
+            LocalDate homNay =
+                    LocalDate.now();
+
+            LocalDate tuNgay =
+                    parseDate(
+                        request.getParameter(
+                                "tuNgay"
+                        ),
+                        homNay.withDayOfMonth(1)
+                    );
+
+            LocalDate denNgay =
+                    parseDate(
+                        request.getParameter(
+                                "denNgay"
+                        ),
+                        homNay
+                    );
+
+            if (tuNgay.isAfter(denNgay)) {
+                throw new IllegalArgumentException(
+                        "Ngày bắt đầu không được "
+                        + "lớn hơn ngày kết thúc."
+                );
+            }
+
+            /*
+             * Giới hạn tối đa 1 năm để tránh
+             * tải quá nhiều dữ liệu lên giao diện.
+             */
+            if (
+                tuNgay.plusYears(1)
+                    .isBefore(denNgay)
+            ) {
+                throw new IllegalArgumentException(
+                        "Khoảng thời gian thống kê "
+                        + "không được vượt quá 1 năm."
+                );
+            }
+
+            TongQuanDoanhThu tongQuan =
+                    thongKeDAO.getTongQuan(
+                            tuNgay,
+                            denNgay
+                    );
+
+            request.setAttribute(
+                    "tuNgay",
+                    tuNgay.toString()
+            );
+
+            request.setAttribute(
+                    "denNgay",
+                    denNgay.toString()
+            );
+
+            request.setAttribute(
+                    "dsThongKe",
+                    thongKeDAO
+                        .getHoaDonDaThanhToan(
+                            tuNgay,
+                            denNgay
+                        )
+            );
+
+            request.setAttribute(
+                    "dsDoanhThuNgay",
+                    thongKeDAO
+                        .getDoanhThuTheoNgay(
+                            tuNgay,
+                            denNgay
+                        )
+            );
+
+            request.setAttribute(
+                    "soHoaDon",
+                    tongQuan.getSoHoaDon()
+            );
+
+            request.setAttribute(
+                    "tongDoanhThu",
+                    tongQuan.getTongDoanhThu()
+            );
+
+            request.setAttribute(
+                    "doanhThuTienMat",
+                    tongQuan
+                        .getDoanhThuTienMat()
+            );
+
+            request.setAttribute(
+                    "doanhThuKhac",
+                    tongQuan.getDoanhThuKhac()
+            );
+
+            request.setAttribute(
+                    "doanhThuMangVe",
+                    tongQuan
+                        .getDoanhThuMangVe()
+            );
+
+            request.setAttribute(
+                    "doanhThuTaiBan",
+                    tongQuan
+                        .getDoanhThuTaiBan()
+            );
+
+        } catch (
+            IllegalArgumentException
+            | DateTimeParseException e
+        ) {
+            request.setAttribute(
+                    "errorMessage",
+                    e.getMessage() == null
+                    ? "Khoảng ngày không hợp lệ."
+                    : e.getMessage()
+            );
+
+            ganDuLieuRong(request);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            request.setAttribute(
+                    "errorMessage",
+                    "Không tải được thống kê: "
+                    + e.getMessage()
+            );
+
+            ganDuLieuRong(request);
+        }
+
+        request.getRequestDispatcher(
+                "/views/ThongKeDoanhThu.jsp"
+        ).forward(request, response);
+    }
+
+    @Override
+    protected void doPost(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws ServletException, IOException {
+
         doGet(request, response);
+    }
+
+    private LocalDate parseDate(
+            String value,
+            LocalDate defaultValue
+    ) {
+        if (
+            value == null
+            || value.isBlank()
+        ) {
+            return defaultValue;
+        }
+
+        return LocalDate.parse(
+                value.trim()
+        );
+    }
+
+    private void ganDuLieuRong(
+            HttpServletRequest request
+    ) {
+        request.setAttribute(
+                "dsThongKe",
+                java.util.Collections
+                    .emptyList()
+        );
+
+        request.setAttribute(
+                "dsDoanhThuNgay",
+                java.util.Collections
+                    .emptyList()
+        );
+
+        request.setAttribute(
+                "soHoaDon",
+                0
+        );
+
+        request.setAttribute(
+                "tongDoanhThu",
+                java.math.BigDecimal.ZERO
+        );
+
+        request.setAttribute(
+                "doanhThuTienMat",
+                java.math.BigDecimal.ZERO
+        );
+
+        request.setAttribute(
+                "doanhThuKhac",
+                java.math.BigDecimal.ZERO
+        );
+
+        request.setAttribute(
+                "doanhThuMangVe",
+                java.math.BigDecimal.ZERO
+        );
+
+        request.setAttribute(
+                "doanhThuTaiBan",
+                java.math.BigDecimal.ZERO
+        );
     }
 }

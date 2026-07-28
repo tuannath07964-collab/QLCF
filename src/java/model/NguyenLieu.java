@@ -45,9 +45,7 @@ public class NguyenLieu {
         return soLuong;
     }
 
-    public void setSoLuong(
-            BigDecimal soLuong
-    ) {
+    public void setSoLuong(BigDecimal soLuong) {
         this.soLuong = soLuong;
     }
 
@@ -68,5 +66,34 @@ public class NguyenLieu {
     ) {
         this.congThucSuDung =
                 congThucSuDung;
+    }
+
+    public boolean isHetHang() {
+        return soLuong == null
+                || soLuong.compareTo(
+                        BigDecimal.ZERO
+                ) <= 0;
+    }
+
+    public boolean isSapHetHang() {
+        return soLuong != null
+                && soLuong.compareTo(
+                        BigDecimal.ZERO
+                ) > 0
+                && soLuong.compareTo(
+                        new BigDecimal("10")
+                ) <= 0;
+    }
+
+    public String getTrangThaiKho() {
+        if (isHetHang()) {
+            return "Hết hàng";
+        }
+
+        if (isSapHetHang()) {
+            return "Sắp hết";
+        }
+
+        return "Còn hàng";
     }
 }

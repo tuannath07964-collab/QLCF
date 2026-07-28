@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import java.util.ArrayList;
 
@@ -19,11 +20,10 @@ public class KhachHangDAO {
                 new ArrayList<>();
 
         String sql = """
-            SELECT
-                MaKH,
-                HoTen,
-                SDT,
-                DiemTichLuy
+            SELECT MaKH,
+                   HoTen,
+                   SDT,
+                   DiemTichLuy
             FROM KhachHang
             ORDER BY MaKH
             """;
@@ -56,11 +56,10 @@ public class KhachHangDAO {
             String maKH
     ) {
         String sql = """
-            SELECT
-                MaKH,
-                HoTen,
-                SDT,
-                DiemTichLuy
+            SELECT MaKH,
+                   HoTen,
+                   SDT,
+                   DiemTichLuy
             FROM KhachHang
             WHERE MaKH = ?
             """;
@@ -94,6 +93,8 @@ public class KhachHangDAO {
     public boolean insertKhachHang(
             KhachHang kh
     ) {
+        validateKhachHang(kh);
+
         String sql = """
             INSERT INTO KhachHang(
                 MaKH,
@@ -113,15 +114,16 @@ public class KhachHangDAO {
         ) {
             ps.setString(
                     1,
-                    kh.getMaKH()
+                    kh.getMaKH().trim()
             );
 
             ps.setString(
                     2,
-                    kh.getHoTen()
+                    kh.getHoTen().trim()
             );
 
-            ps.setString(
+            setNullableString(
+                    ps,
                     3,
                     kh.getSdt()
             );
@@ -131,8 +133,7 @@ public class KhachHangDAO {
         } catch (SQLException e) {
             throw new IllegalStateException(
                     "Không thêm được khách hàng. "
-                    + "Kiểm tra mã hoặc số điện thoại "
-                    + "đã tồn tại.",
+                    + "Kiểm tra mã hoặc số điện thoại.",
                     e
             );
         }
@@ -141,6 +142,8 @@ public class KhachHangDAO {
     public boolean updateKhachHang(
             KhachHang kh
     ) {
+        validateKhachHang(kh);
+
         String sql = """
             UPDATE KhachHang
             SET HoTen = ?,
@@ -157,17 +160,18 @@ public class KhachHangDAO {
         ) {
             ps.setString(
                     1,
-                    kh.getHoTen()
+                    kh.getHoTen().trim()
             );
 
-            ps.setString(
+            setNullableString(
+                    ps,
                     2,
                     kh.getSdt()
             );
 
             ps.setString(
                     3,
-                    kh.getMaKH()
+                    kh.getMaKH().trim()
             );
 
             return ps.executeUpdate() == 1;
@@ -201,7 +205,8 @@ public class KhachHangDAO {
 
         } catch (SQLException e) {
             throw new IllegalStateException(
-                    "Không xóa được khách hàng.",
+                    "Không xóa được khách hàng "
+                    + "đã liên kết với hóa đơn.",
                     e
             );
         }
@@ -231,5 +236,55 @@ public class KhachHangDAO {
         );
 
         return kh;
+    }
+
+    private void validateKhachHang(
+            KhachHang kh
+    ) {
+        if (kh == null) {
+            throw new IllegalArgumentException(
+                    "Thông tin khách hàng không hợp lệ."
+            );
+        }
+
+        if (
+            kh.getMaKH() == null
+            || kh.getMaKH().isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    "Mã khách hàng là bắt buộc."
+            );
+        }
+
+        if (
+            kh.getHoTen() == null
+            || kh.getHoTen().isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    "Họ tên khách hàng là bắt buộc."
+            );
+        }
+    }
+
+    private void setNullableString(
+            PreparedStatement ps,
+            int index,
+            String value
+    ) throws SQLException {
+
+        if (
+            value == null
+            || value.isBlank()
+        ) {
+            ps.setNull(
+                    index,
+                    Types.NVARCHAR
+            );
+        } else {
+            ps.setString(
+                    index,
+                    value.trim()
+            );
+        }
     }
 }

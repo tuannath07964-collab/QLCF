@@ -12,20 +12,18 @@ public class NhanVien {
     private String sdt;
     private String chucVu;
     private BigDecimal luongCoBan;
-    private String matKhau; // Thêm trường mật khẩu phục vụ đăng nhập
+    private String matKhau;
+    private String trangThai;
 
-    // Thuộc tính ca làm việc
     private boolean caSang;
     private boolean caChieu;
     private boolean caToi;
     private String gioBatDau;
     private String gioKetThuc;
 
-    // Constructor mặc định
     public NhanVien() {
     }
 
-    // Getters và Setters
     public String getMaNV() {
         return maNV;
     }
@@ -90,6 +88,14 @@ public class NhanVien {
         this.matKhau = matKhau;
     }
 
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
+
     public boolean isCaSang() {
         return caSang;
     }
@@ -128,5 +134,21 @@ public class NhanVien {
 
     public void setGioKetThuc(String gioKetThuc) {
         this.gioKetThuc = gioKetThuc;
+    }
+
+    public boolean isQuanLy() {
+        return "Quản lý".equalsIgnoreCase(chucVu);
+    }
+
+    public boolean isDangLam() {
+        return "Đang làm".equalsIgnoreCase(trangThai);
+    }
+
+    public boolean isCoCaLam() {
+        return (caSang || caChieu || caToi)
+                && gioBatDau != null
+                && !gioBatDau.isBlank()
+                && gioKetThuc != null
+                && !gioKetThuc.isBlank();
     }
 }

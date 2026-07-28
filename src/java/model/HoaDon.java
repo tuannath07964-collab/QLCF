@@ -6,18 +6,20 @@ public class HoaDon {
     private String maBan;
     private String maNV;
     private String maKH;
+    private String tenKhachHang;
     private String ngayTao;
 
     private double tamTinh;
     private double thueVAT;
     private double tongTien;
-
     private int diemCong;
 
     private String trangThai;
     private String danhSachMon;
     private String phuongThucThanhToan;
     private String ngayThanhToan;
+    private String hinhThuc;
+    private String lyDoHuy;
 
     public HoaDon() {
     }
@@ -69,6 +71,14 @@ public class HoaDon {
 
     public void setMaKH(String maKH) {
         this.maKH = maKH;
+    }
+
+    public String getTenKhachHang() {
+        return tenKhachHang;
+    }
+
+    public void setTenKhachHang(String tenKhachHang) {
+        this.tenKhachHang = tenKhachHang;
     }
 
     public String getNgayTao() {
@@ -123,9 +133,7 @@ public class HoaDon {
         return danhSachMon;
     }
 
-    public void setDanhSachMon(
-            String danhSachMon
-    ) {
+    public void setDanhSachMon(String danhSachMon) {
         this.danhSachMon = danhSachMon;
     }
 
@@ -144,9 +152,27 @@ public class HoaDon {
         return ngayThanhToan;
     }
 
-    public void setNgayThanhToan(
-            String ngayThanhToan
-    ) {
+    public void setNgayThanhToan(String ngayThanhToan) {
         this.ngayThanhToan = ngayThanhToan;
+    }
+
+    public String getHinhThuc() {
+        return hinhThuc;
+    }
+
+    public void setHinhThuc(String hinhThuc) {
+        this.hinhThuc = hinhThuc;
+    }
+
+    public String getLyDoHuy() {
+        return lyDoHuy;
+    }
+
+    public void setLyDoHuy(String lyDoHuy) {
+        this.lyDoHuy = lyDoHuy;
+    }
+
+    public boolean isMangVe() {
+        return "Mang về".equalsIgnoreCase(hinhThuc);
     }
 }
