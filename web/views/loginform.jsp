@@ -18,269 +18,217 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <link rel="stylesheet"
-      href="${pageContext.request.contextPath}/css/loginform.css?v=11">
+          href="${pageContext.request.contextPath}/css/loginform.css?v=30">
 </head>
 
 <body>
 
-    <main class="login-layout">
+    <main class="login-page">
 
-        <section class="login-intro">
+        <div class="background-left"></div>
+        <div class="background-right"></div>
 
-            <div class="intro-brand">
+        <section class="login-card">
 
-                <span class="intro-logo">
+            <div class="brand">
+
+                <div class="brand-icon">
                     <i class="fa-solid fa-mug-hot"></i>
-                </span>
+                </div>
 
-                <span>QLCF</span>
-            </div>
-
-            <div class="intro-content">
-
-                <span class="intro-label">
-                    HỆ THỐNG QUẢN LÝ QUÁN CAFE
-                </span>
-
-                <h1>
-                    Quản lý cửa hàng
-                    <span>nhanh chóng và hiệu quả.</span>
-                </h1>
-
-                <p class="intro-description">
-                    Quản lý bàn, hóa đơn, menu, khách hàng,
-                    kho nguyên liệu và nhân viên trên cùng một hệ thống.
-                </p>
-
-                <div class="feature-list">
-
-                    <div class="feature-item">
-
-                        <div class="feature-icon">
-                            <i class="fa-solid fa-chair"></i>
-                        </div>
-
-                        <div class="feature-content">
-
-                            <strong>Quản lý bàn</strong>
-
-                            <span>
-                                Theo dõi trạng thái bàn và phục vụ khách hàng.
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-
-                        <div class="feature-icon">
-                            <i class="fa-solid fa-file-invoice-dollar"></i>
-                        </div>
-
-                        <div class="feature-content">
-
-                            <strong>Bán hàng nhanh</strong>
-
-                            <span>
-                                Hỗ trợ khách tại bàn và khách mang về.
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-
-                        <div class="feature-icon">
-                            <i class="fa-solid fa-boxes-stacked"></i>
-                        </div>
-
-                        <div class="feature-content">
-
-                            <strong>Kiểm soát kho</strong>
-
-                            <span>
-                                Theo dõi tồn kho và nguyên liệu sắp hết.
-                            </span>
-                        </div>
-                    </div>
-
+                <div class="brand-text">
+                    <strong>QLCF</strong>
+                    <span>Quản lý quán Cafe</span>
                 </div>
 
             </div>
 
-            <div class="intro-footer">
-                © 2026 Quản lý quán Cafe
+            <div class="decoration decoration-one">
+                <i class="fa-solid fa-seedling"></i>
             </div>
 
-        </section>
-
-        <section class="login-panel">
-
-            <div class="mobile-brand">
-
-                <span class="mobile-logo">
-                    <i class="fa-solid fa-mug-hot"></i>
-                </span>
-
-                <strong>QLCF</strong>
+            <div class="decoration decoration-two">
+                <i class="fa-solid fa-seedling"></i>
             </div>
 
-            <div class="login-header">
+            <section class="introduction">
 
-                <span class="welcome-label">
-                    CHÀO MỪNG TRỞ LẠI
-                </span>
+                <div class="introduction-content">
 
-                <h2>Đăng nhập hệ thống</h2>
-
-                <p>
-                    Nhập tài khoản nhân viên để tiếp tục sử dụng hệ thống.
-                </p>
-
-            </div>
-
-            <c:if test="${not empty error}">
-
-                <div class="error-message">
-
-                    <div class="error-icon">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                    </div>
-
-                    <div class="error-content">
-
-                        <strong>Đăng nhập không thành công</strong>
-
-                        <span>
-                            <c:out value="${error}"/>
-                        </span>
-                    </div>
-
-                </div>
-
-            </c:if>
-
-            <form id="loginForm"
-                  action="${pageContext.request.contextPath}/LoginServlet"
-                  method="post">
-
-                <div class="form-group">
-
-                    <label for="employeeId">
-                        Mã nhân viên
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <span class="input-icon">
-                            <i class="fa-regular fa-user"></i>
-                        </span>
-
-                        <input type="text"
-                               id="employeeId"
-                               name="maNV"
-                               value="<c:out value='${param.maNV}'/>"
-                               placeholder="Ví dụ: NV001"
-                               maxlength="20"
-                               autocomplete="username"
-                               autofocus
-                               required>
-
-                    </div>
-
-                </div>
-
-                <div class="form-group">
-
-                    <div class="label-row">
-
-                        <label for="passwordField">
-                            Mật khẩu
-                        </label>
-
-                        <span id="capsLockWarning"
-                              class="caps-lock-warning">
-
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                            Caps Lock đang bật
-                        </span>
-
-                    </div>
-
-                    <div class="input-wrapper">
-
-                        <span class="input-icon">
-                            <i class="fa-solid fa-lock"></i>
-                        </span>
-
-                        <input type="password"
-                               id="passwordField"
-                               name="matKhau"
-                               placeholder="Nhập mật khẩu"
-                               autocomplete="current-password"
-                               required>
-
-                        <button type="button"
-                                id="togglePassword"
-                                class="password-toggle"
-                                title="Hiển thị mật khẩu">
-
-                            <i id="toggleIcon"
-                               class="fa-regular fa-eye"></i>
-                        </button>
-
-                    </div>
-
-                </div>
-
-                <div class="form-options">
-
-                    <label class="remember-option">
-
-                        <input type="checkbox"
-                               id="rememberEmployee">
-
-                        <span class="checkbox-design">
-                            <i class="fa-solid fa-check"></i>
-                        </span>
-
-                        <span>
-                            Ghi nhớ mã nhân viên
-                        </span>
-
-                    </label>
-
-                </div>
-
-                <button type="submit"
-                        id="loginButton"
-                        class="login-button">
-
-                    <span id="loginButtonText">
-                        Đăng nhập
+                    <span class="introduction-label">
+                        HỆ THỐNG QUẢN LÝ QUÁN CAFE
                     </span>
 
-                    <i id="loginButtonIcon"
-                       class="fa-solid fa-arrow-right"></i>
+                    <h1>
+                        Quản lý quán cafe
+                        <span>đơn giản và hiện đại</span>
+                    </h1>
 
-                </button>
+                </div>
 
-            </form>
+                <div class="coffee-image">
 
-            <div class="login-note">
+                    <img src="${pageContext.request.contextPath}/image/coffee.jpg"
+                         alt="Không gian quán cafe">
 
-                <i class="fa-regular fa-clock"></i>
+                </div>
 
-                <span>
-                    Nhân viên chỉ đăng nhập được trong ca làm
-                    đã được phân công.
-                </span>
+            </section>
 
-            </div>
+            <section class="login-content">
+
+                <div class="login-header">
+
+                    <div class="welcome-icon">
+                        <i class="fa-solid fa-hand"></i>
+                    </div>
+
+                    <h2>Chào mừng trở lại!</h2>
+
+                    <p>
+                        Đăng nhập để tiếp tục quản lý cửa hàng.
+                    </p>
+
+                </div>
+
+                <c:if test="${not empty error}">
+
+                    <div class="error-message">
+
+                        <i class="fa-solid fa-circle-exclamation"></i>
+
+                        <div>
+                            <strong>Đăng nhập không thành công</strong>
+
+                            <span>
+                                <c:out value="${error}"/>
+                            </span>
+                        </div>
+
+                    </div>
+
+                </c:if>
+
+                <form id="loginForm"
+                      action="${pageContext.request.contextPath}/LoginServlet"
+                      method="post">
+
+                    <div class="form-group">
+
+                        <label for="employeeId">
+                            Mã nhân viên
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-regular fa-user input-icon"></i>
+
+                            <input type="text"
+                                   id="employeeId"
+                                   name="maNV"
+                                   value="<c:out value='${param.maNV}'/>"
+                                   placeholder="Nhập mã nhân viên"
+                                   maxlength="20"
+                                   autocomplete="username"
+                                   autofocus
+                                   required>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <div class="label-row">
+
+                            <label for="passwordField">
+                                Mật khẩu
+                            </label>
+
+                            <span id="capsLockWarning"
+                                  class="caps-lock-warning">
+
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                Caps Lock đang bật
+                            </span>
+
+                        </div>
+
+                        <div class="input-wrapper">
+
+                            <i class="fa-solid fa-lock input-icon"></i>
+
+                            <input type="password"
+                                   id="passwordField"
+                                   name="matKhau"
+                                   placeholder="Nhập mật khẩu"
+                                   autocomplete="current-password"
+                                   required>
+
+                            <button type="button"
+                                    id="togglePassword"
+                                    class="password-toggle"
+                                    title="Hiển thị mật khẩu"
+                                    aria-label="Hiển thị mật khẩu">
+
+                                <i id="toggleIcon"
+                                   class="fa-regular fa-eye"></i>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-options">
+
+                        <label class="remember-option">
+
+                            <input type="checkbox"
+                                   id="rememberEmployee">
+
+                            <span class="checkbox-design">
+                                <i class="fa-solid fa-check"></i>
+                            </span>
+
+                            <span>Ghi nhớ mã nhân viên</span>
+
+                        </label>
+
+                    </div>
+
+                    <button type="submit"
+                            id="loginButton"
+                            class="login-button">
+
+                        <span id="loginButtonText">
+                            Đăng nhập
+                        </span>
+
+                        <i id="loginButtonIcon"
+                           class="fa-solid fa-arrow-right"></i>
+
+                    </button>
+
+                </form>
+
+                <div class="login-note">
+
+                    <i class="fa-regular fa-clock"></i>
+
+                    <span>
+                        Nhân viên chỉ đăng nhập được trong ca làm
+                        đã được phân công.
+                    </span>
+
+                </div>
+
+            </section>
 
         </section>
 
     </main>
 
-    <script src="${pageContext.request.contextPath}/js/loginform.js?v=11"></script>
+    <script src="${pageContext.request.contextPath}/js/loginform.js?v=30"></script>
 
 </body>
 </html>

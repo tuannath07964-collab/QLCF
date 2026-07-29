@@ -2024,3 +2024,20 @@ textarea.form-control {
         grid-template-columns: 1fr;
     }
 }
+
+.menu-search-form {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.menu-search-form .search-box {
+    width: 430px;
+    max-width: 100%;
+}
+
+.menu-search-form .btn {
+    flex-shrink: 0;
+    min-width: 115px;
+}

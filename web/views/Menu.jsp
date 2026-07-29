@@ -9,70 +9,68 @@
 
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
+    <head>
+        <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0">
 
-    <title>Quản lý menu</title>
+        <title>Quản lý menu</title>
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-    <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/css/app.css">
-</head>
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/app.css">
+    </head>
 
-<body>
+    <body>
 
-    <jsp:include page="/views/components/sidebar.jsp">
-        <jsp:param name="active"
-                   value="menu"/>
-    </jsp:include>
-
-    <main class="app-main">
-
-        <jsp:include page="/views/components/topbar.jsp">
-            <jsp:param name="title"
-                       value="Menu"/>
-
-            <jsp:param name="subtitle"
-                       value="Quản lý món, giá bán và trạng thái phục vụ"/>
+        <jsp:include page="/views/components/sidebar.jsp">
+            <jsp:param name="active"
+                       value="menu"/>
         </jsp:include>
 
-        <div class="app-content">
+        <main class="app-main">
 
-            <div class="page-header">
+            <jsp:include page="/views/components/topbar.jsp">
+                <jsp:param name="title"
+                           value="Menu"/>
 
-                <div>
-                    <h2>Danh sách món</h2>
+                <jsp:param name="subtitle"
+                           value="Quản lý món, giá bán và trạng thái phục vụ"/>
+            </jsp:include>
 
-                    <p>
-                        Trạng thái món được xác định theo kho nguyên liệu.
-                    </p>
+            <div class="app-content">
+
+                <div class="page-header">
+
+                    <div>
+                        <h2>Danh sách món</h2>
+
+                        <p>
+                            Trạng thái món được xác định theo kho nguyên liệu.
+                        </p>
+                    </div>
+
+                    <div class="page-actions">
+
+                        <button type="button"
+                                class="btn btn-primary"
+                                onclick="openMenuModal(
+                                                '${pageContext.request.contextPath}/menu?action=loadForm',
+                                                'Thêm món mới'
+                                                )">
+
+                            <i class="fa-solid fa-plus"></i>
+                            Thêm món
+                        </button>
+
+                    </div>
+
                 </div>
 
-                <div class="page-actions">
-
-                    <button type="button"
-                            class="btn btn-primary"
-                            onclick="openMenuModal(
-                                '${pageContext.request.contextPath}/menu?action=loadForm',
-                                'Thêm món mới'
-                            )">
-
-                        <i class="fa-solid fa-plus"></i>
-                        Thêm món
-                    </button>
-
-                </div>
-
-            </div>
-
-            <div class="toolbar">
-
-                <form class="toolbar-left"
+                <form class="toolbar-left menu-search-form"
                       action="${pageContext.request.contextPath}/menu"
                       method="get">
 
@@ -94,271 +92,270 @@
                     <button type="submit"
                             class="btn btn-outline">
 
+                        <i class="fa-solid fa-magnifying-glass"></i>
                         Tìm kiếm
                     </button>
 
                 </form>
 
-            </div>
+                <div class="filter-tabs">
 
-            <div class="filter-tabs">
+                    <a class="filter-tab ${empty selectedLoai
+                                           or selectedLoai == 'all'
+                                           ? 'active'
+                                           : ''}"
+                       href="${pageContext.request.contextPath}/menu?action=list&loaiMon=all">
 
-                <a class="filter-tab ${empty selectedLoai
-                                      or selectedLoai == 'all'
-                                        ? 'active'
-                                        : ''}"
-                   href="${pageContext.request.contextPath}/menu?action=list&loaiMon=all">
+                        Tất cả
+                    </a>
 
-                    Tất cả
-                </a>
+                    <a class="filter-tab ${selectedLoai == 'coffee'
+                                           ? 'active'
+                                           : ''}"
+                       href="${pageContext.request.contextPath}/menu?action=list&loaiMon=coffee">
 
-                <a class="filter-tab ${selectedLoai == 'coffee'
-                                        ? 'active'
-                                        : ''}"
-                   href="${pageContext.request.contextPath}/menu?action=list&loaiMon=coffee">
+                        Cà phê
+                    </a>
 
-                    Cà phê
-                </a>
+                    <a class="filter-tab ${selectedLoai == 'tea'
+                                           ? 'active'
+                                           : ''}"
+                       href="${pageContext.request.contextPath}/menu?action=list&loaiMon=tea">
 
-                <a class="filter-tab ${selectedLoai == 'tea'
-                                        ? 'active'
-                                        : ''}"
-                   href="${pageContext.request.contextPath}/menu?action=list&loaiMon=tea">
+                        Trà
+                    </a>
 
-                    Trà
-                </a>
+                    <a class="filter-tab ${selectedLoai == 'juice'
+                                           ? 'active'
+                                           : ''}"
+                       href="${pageContext.request.contextPath}/menu?action=list&loaiMon=juice">
 
-                <a class="filter-tab ${selectedLoai == 'juice'
-                                        ? 'active'
-                                        : ''}"
-                   href="${pageContext.request.contextPath}/menu?action=list&loaiMon=juice">
+                        Sinh tố / Nước ép
+                    </a>
 
-                    Sinh tố / Nước ép
-                </a>
+                    <a class="filter-tab ${selectedLoai == 'snack'
+                                           ? 'active'
+                                           : ''}"
+                       href="${pageContext.request.contextPath}/menu?action=list&loaiMon=snack">
 
-                <a class="filter-tab ${selectedLoai == 'snack'
-                                        ? 'active'
-                                        : ''}"
-                   href="${pageContext.request.contextPath}/menu?action=list&loaiMon=snack">
+                        Bánh / Ăn vặt
+                    </a>
 
-                    Bánh / Ăn vặt
-                </a>
+                </div>
 
-            </div>
+                <c:choose>
 
-            <c:choose>
+                    <c:when test="${not empty listMenu}">
 
-                <c:when test="${not empty listMenu}">
+                        <section class="menu-card-grid">
 
-                    <section class="menu-card-grid">
+                            <c:forEach var="m"
+                                       items="${listMenu}">
 
-                        <c:forEach var="m"
-                                   items="${listMenu}">
+                                <article class="menu-card">
 
-                            <article class="menu-card">
+                                    <div class="menu-card-image">
 
-                                <div class="menu-card-image">
+                                        <i class="fa-solid fa-mug-saucer"></i>
 
-                                    <i class="fa-solid fa-mug-saucer"></i>
+                                        <span class="badge ${m.trangThai
+                                                             ? 'badge-success'
+                                                             : 'badge-danger'}">
 
-                                    <span class="badge ${m.trangThai
-                                                        ? 'badge-success'
-                                                        : 'badge-danger'}">
-
-                                        ${m.trangThai
-                                            ? 'Còn hàng'
-                                            : 'Hết hàng'}
-                                    </span>
-
-                                </div>
-
-                                <div class="menu-card-body">
-
-                                    <span class="menu-card-category">
-                                        ${m.loaiMon}
-                                    </span>
-
-                                    <span class="menu-card-name">
-                                        ${m.tenMon}
-                                    </span>
-
-                                    <span class="menu-card-code">
-                                        Mã món: ${m.maMon}
-                                    </span>
-
-                                    <div class="menu-card-stock">
-
-                                        <c:choose>
-
-                                            <c:when test="${m.trangThai}">
-
-                                                Có thể pha khoảng
-                                                <strong>
-                                                    ${m.soPhanCoThePha}
-                                                </strong>
-                                                phần.
-                                            </c:when>
-
-                                            <c:otherwise>
-                                                Không đủ nguyên liệu để pha món.
-                                            </c:otherwise>
-
-                                        </c:choose>
+                                            ${m.trangThai
+                                              ? 'Còn hàng'
+                                              : 'Hết hàng'}
+                                        </span>
 
                                     </div>
 
-                                    <div class="menu-card-price">
+                                    <div class="menu-card-body">
 
-                                        <fmt:formatNumber
-                                            value="${m.gia}"
-                                            pattern="#,##0"/>
+                                        <span class="menu-card-category">
+                                            ${m.loaiMon}
+                                        </span>
 
-                                        đ
+                                        <span class="menu-card-name">
+                                            ${m.tenMon}
+                                        </span>
+
+                                        <span class="menu-card-code">
+                                            Mã món: ${m.maMon}
+                                        </span>
+
+                                        <div class="menu-card-stock">
+
+                                            <c:choose>
+
+                                                <c:when test="${m.trangThai}">
+
+                                                    Có thể pha khoảng
+                                                    <strong>
+                                                        ${m.soPhanCoThePha}
+                                                    </strong>
+                                                    phần.
+                                                </c:when>
+
+                                                <c:otherwise>
+                                                    Không đủ nguyên liệu để pha món.
+                                                </c:otherwise>
+
+                                            </c:choose>
+
+                                        </div>
+
+                                        <div class="menu-card-price">
+
+                                            <fmt:formatNumber
+                                                value="${m.gia}"
+                                                pattern="#,##0"/>
+
+                                            đ
+                                        </div>
+
                                     </div>
 
-                                </div>
+                                    <div class="menu-card-footer">
 
-                                <div class="menu-card-footer">
+                                        <button type="button"
+                                                onclick="openMenuModal(
+                                                                '${pageContext.request.contextPath}/menu?action=detail&maMon=${m.maMon}',
+                                                                                'Chi tiết món'
+                                                                                )">
 
-                                    <button type="button"
-                                            onclick="openMenuModal(
-                                                '${pageContext.request.contextPath}/menu?action=detail&maMon=${m.maMon}',
-                                                'Chi tiết món'
-                                            )">
+                                            <i class="fa-solid fa-eye"></i>
+                                            Xem
+                                        </button>
 
-                                        <i class="fa-solid fa-eye"></i>
-                                        Xem
-                                    </button>
+                                        <button type="button"
+                                                onclick="openMenuModal(
+                                                                '${pageContext.request.contextPath}/menu?action=loadForm&maMon=${m.maMon}',
+                                                                                'Cập nhật món'
+                                                                                )">
 
-                                    <button type="button"
-                                            onclick="openMenuModal(
-                                                '${pageContext.request.contextPath}/menu?action=loadForm&maMon=${m.maMon}',
-                                                'Cập nhật món'
-                                            )">
+                                            <i class="fa-solid fa-pen"></i>
+                                            Sửa
+                                        </button>
 
-                                        <i class="fa-solid fa-pen"></i>
-                                        Sửa
-                                    </button>
+                                        <a href="${pageContext.request.contextPath}/menu?action=delete&maMon=${m.maMon}"
+                                           onclick="return confirm('Xác nhận xóa món ${m.tenMon}?')">
 
-                                    <a href="${pageContext.request.contextPath}/menu?action=delete&maMon=${m.maMon}"
-                                       onclick="return confirm('Xác nhận xóa món ${m.tenMon}?')">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                            Xóa
+                                        </a>
 
-                                        <i class="fa-solid fa-trash-can"></i>
-                                        Xóa
-                                    </a>
+                                    </div>
 
-                                </div>
+                                </article>
 
-                            </article>
+                            </c:forEach>
 
-                        </c:forEach>
+                        </section>
 
-                    </section>
+                    </c:when>
 
-                </c:when>
+                    <c:otherwise>
 
-                <c:otherwise>
+                        <section class="card">
 
-                    <section class="card">
+                            <div class="empty-state">
 
-                        <div class="empty-state">
+                                <i class="fa-solid fa-mug-saucer"></i>
 
-                            <i class="fa-solid fa-mug-saucer"></i>
+                                <strong>
+                                    Không tìm thấy món
+                                </strong>
 
-                            <strong>
-                                Không tìm thấy món
-                            </strong>
+                                <span>
+                                    Thêm món mới hoặc thay đổi bộ lọc.
+                                </span>
+                            </div>
 
-                            <span>
-                                Thêm món mới hoặc thay đổi bộ lọc.
-                            </span>
-                        </div>
+                        </section>
 
-                    </section>
+                    </c:otherwise>
 
-                </c:otherwise>
-
-            </c:choose>
-
-        </div>
-
-    </main>
-
-    <div class="modal-overlay"
-         id="menuModal">
-
-        <div class="modal-dialog">
-
-            <div class="modal-header">
-
-                <h3 id="menuModalTitle">
-                    Thông tin món
-                </h3>
-
-                <button type="button"
-                        class="modal-close"
-                        onclick="closeMenuModal()">
-
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                </c:choose>
 
             </div>
 
-            <div class="modal-body"
-                 id="menuModalBody"></div>
+        </main>
+
+        <div class="modal-overlay"
+             id="menuModal">
+
+            <div class="modal-dialog">
+
+                <div class="modal-header">
+
+                    <h3 id="menuModalTitle">
+                        Thông tin món
+                    </h3>
+
+                    <button type="button"
+                            class="modal-close"
+                            onclick="closeMenuModal()">
+
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+
+                </div>
+
+                <div class="modal-body"
+                     id="menuModalBody"></div>
+
+            </div>
 
         </div>
 
-    </div>
+        <script>
+            const menuModal =
+                    document.getElementById("menuModal");
 
-    <script>
-        const menuModal =
-                document.getElementById("menuModal");
+            function openMenuModal(url, title) {
+                document.getElementById("menuModalTitle")
+                        .textContent = title;
 
-        function openMenuModal(url, title) {
-            document.getElementById("menuModalTitle")
-                    .textContent = title;
+                document.getElementById("menuModalBody")
+                        .innerHTML =
+                        '<div class="loading-state">Đang tải...</div>';
 
-            document.getElementById("menuModalBody")
-                    .innerHTML =
-                    '<div class="loading-state">Đang tải...</div>';
+                menuModal.classList.add("show");
 
-            menuModal.classList.add("show");
+                fetch(url)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Không tải được dữ liệu.");
+                            }
 
-            fetch(url)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("Không tải được dữ liệu.");
+                            return response.text();
+                        })
+                        .then(html => {
+                            document.getElementById("menuModalBody")
+                                    .innerHTML = html;
+                        })
+                        .catch(error => {
+                            document.getElementById("menuModalBody")
+                                    .innerHTML =
+                                    '<div class="alert alert-danger">'
+                                    + error.message
+                                    + '</div>';
+                        });
+            }
+
+            function closeMenuModal() {
+                menuModal.classList.remove("show");
+            }
+
+            menuModal.addEventListener(
+                    "click",
+                    function (event) {
+                        if (event.target === menuModal) {
+                            closeMenuModal();
                         }
-
-                        return response.text();
-                    })
-                    .then(html => {
-                        document.getElementById("menuModalBody")
-                                .innerHTML = html;
-                    })
-                    .catch(error => {
-                        document.getElementById("menuModalBody")
-                                .innerHTML =
-                                '<div class="alert alert-danger">'
-                                + error.message
-                                + '</div>';
-                    });
-        }
-
-        function closeMenuModal() {
-            menuModal.classList.remove("show");
-        }
-
-        menuModal.addEventListener(
-                "click",
-                function (event) {
-                    if (event.target === menuModal) {
-                        closeMenuModal();
                     }
-                }
-        );
-    </script>
+            );
+        </script>
 
-</body>
+    </body>
 </html>
