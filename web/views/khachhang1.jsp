@@ -4,91 +4,109 @@
 <%@ taglib prefix="c"
            uri="jakarta.tags.core" %>
 
+<c:set var="isEdit"
+       value="${mode == 'edit'}"/>
+
+<c:if test="${not empty errorMessage}">
+
+    <div class="alert alert-danger">
+
+        <i class="fa-solid fa-circle-exclamation"></i>
+        ${errorMessage}
+    </div>
+
+</c:if>
+
 <form action="${pageContext.request.contextPath}/khachhang"
-      method="post"
-      class="p-3">
+      method="post">
 
     <input type="hidden"
            name="action"
-           value="${mode == 'edit'
-               ? 'edit'
-               : 'add'}">
+           value="${isEdit ? 'edit' : 'add'}">
 
-    <c:if test="${not empty errorMessage}">
-        <div class="alert alert-danger">
-            ${errorMessage}
-        </div>
-    </c:if>
+    <div class="form-grid">
 
-    <div class="mb-3">
-        <label class="form-label fw-bold">
-            Mã khách hàng:
-        </label>
+        <div class="form-group">
 
-        <input type="text"
-               name="maKH"
-               value="${kh.maKH}"
-               ${mode == 'edit'
-                    ? 'readonly'
-                    : ''}
-               class="form-control"
-               required>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label fw-bold">
-            Tên khách hàng:
-        </label>
-
-        <input type="text"
-               name="hoTen"
-               value="${kh.hoTen}"
-               class="form-control"
-               required>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label fw-bold">
-            Số điện thoại:
-        </label>
-
-        <input type="text"
-               name="sdt"
-               value="${kh.sdt}"
-               class="form-control"
-               required>
-    </div>
-
-    <c:if test="${mode == 'edit'}">
-        <div class="mb-3">
-            <label class="form-label fw-bold">
-                Điểm tích lũy:
+            <label class="form-label">
+                Mã khách hàng
             </label>
 
-            <input type="text"
-                   value="${kh.diemTichLuy} điểm"
-                   class="form-control"
-                   readonly>
+            <c:choose>
 
-            <small class="text-muted">
-                Điểm được hệ thống tự cộng khi
-                thanh toán, không sửa thủ công.
-            </small>
+                <c:when test="${isEdit}">
+
+                    <input type="hidden"
+                           name="maKH"
+                           value="${kh.maKH}">
+
+                    <input class="form-control"
+                           type="text"
+                           value="${kh.maKH}"
+                           readonly>
+                </c:when>
+
+                <c:otherwise>
+
+                    <input class="form-control"
+                           type="text"
+                           name="maKH"
+                           maxlength="20"
+                           placeholder="Ví dụ: KH001"
+                           required>
+                </c:otherwise>
+
+            </c:choose>
+
         </div>
-    </c:if>
 
-    <div class="d-flex justify-content-end gap-2">
+        <div class="form-group">
+
+            <label class="form-label">
+                Họ và tên
+            </label>
+
+            <input class="form-control"
+                   type="text"
+                   name="hoTen"
+                   value="${kh.hoTen}"
+                   maxlength="100"
+                   required>
+        </div>
+
+        <div class="form-group full">
+
+            <label class="form-label">
+                Số điện thoại
+            </label>
+
+            <input class="form-control"
+                   type="tel"
+                   name="sdt"
+                   value="${kh.sdt}"
+                   maxlength="15"
+                   required>
+        </div>
+
+    </div>
+
+    <div class="form-actions">
+
         <button type="button"
-                onclick="closeModal()"
-                class="btn btn-secondary">
+                class="btn btn-outline"
+                onclick="closeCustomerModal()">
+
             Hủy
         </button>
 
         <button type="submit"
                 class="btn btn-primary">
-            ${mode == 'edit'
-                ? 'Cập nhật'
-                : 'Thêm mới'}
+
+            <i class="fa-solid fa-floppy-disk"></i>
+
+            ${isEdit ? 'Lưu thay đổi' : 'Thêm khách hàng'}
         </button>
+
     </div>
+
 </form>

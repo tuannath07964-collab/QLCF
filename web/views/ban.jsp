@@ -9,420 +9,309 @@
 
 <!DOCTYPE html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
 
-        <meta name="viewport"
-              content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-        <title>Quản lý bàn</title>
+    <title>Quản lý bàn</title>
 
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-        <link rel="stylesheet"
-              href="${pageContext.request.contextPath}/css/nhanvien.css">
+    <link rel="stylesheet"
+          href="${pageContext.request.contextPath}/css/app.css">
+</head>
 
-        <link rel="stylesheet"
-              href="${pageContext.request.contextPath}/css/ban.css">
+<body>
 
-        <style>
-            .table-message {
-                margin-bottom: 14px;
-                padding: 11px 14px;
-                border-radius: 8px;
-                font-weight: 700;
-            }
+    <jsp:include page="/views/components/sidebar.jsp">
+        <jsp:param name="active"
+                   value="table"/>
+    </jsp:include>
 
-            .table-message.success {
-                border: 1px solid #badbcc;
-                background: #d1e7dd;
-                color: #0f5132;
-            }
+    <main class="app-main">
 
-            .table-message.error {
-                border: 1px solid #f5c2c7;
-                background: #f8d7da;
-                color: #842029;
-            }
+        <jsp:include page="/views/components/topbar.jsp">
+            <jsp:param name="title"
+                       value="Bàn"/>
 
-            .table-toolbar {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 15px;
-                margin-bottom: 18px;
-            }
+            <jsp:param name="subtitle"
+                       value="Theo dõi và phục vụ khách tại bàn"/>
+        </jsp:include>
 
-            .fixed-table-notice {
-                padding: 10px 14px;
-                border-radius: 7px;
-                background: #eaf5ff;
-                color: #176b9e;
-                font-weight: 600;
-            }
+        <div class="app-content">
 
-            .ban-info-order {
-                display: block;
-                margin-top: 8px;
-                color: #b45309;
-                font-size: 13px;
-                font-weight: 700;
-            }
+            <c:if test="${param.success == 'paid'}">
 
-            @media (max-width: 850px) {
-                .table-toolbar {
-                    align-items: flex-start;
-                    flex-direction: column;
-                }
-            }
-        </style>
-    </head>
+                <div class="alert alert-success">
 
-    <body>
+                    <i class="fa-solid fa-circle-check"></i>
 
-        <!-- ==================== SIDEBAR ==================== -->
-        <aside class="sidebar">
+                    Thanh toán thành công.
+                    Bàn đã trở về trạng thái trống.
+                </div>
 
-            <div class="logo">
+            </c:if>
 
-                <i class="fa-solid fa-mug-hot"></i>
+            <c:if test="${param.success == 'cancel'}">
 
-                <span class="logo-text">
-                    QUẢN LÝ QUÁN CAFE
-                </span>
+                <div class="alert alert-success">
 
-                <button id="toggleBtn"
-                        type="button">
+                    <i class="fa-solid fa-circle-check"></i>
 
-                    <i class="fa-solid fa-bars"></i>
-                </button>
+                    Đã hủy hóa đơn và trả bàn thành công.
+                </div>
 
-            </div>
+            </c:if>
 
-            <ul class="menu">
+            <c:if test="${not empty param.error}">
 
-                <li onclick="location.href = '${pageContext.request.contextPath}/views/homepage.jsp'">
+                <div class="alert alert-danger">
 
-                    <i class="fa-solid fa-house"></i>
-                    <span>Trang chủ</span>
-                </li>
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    ${param.error}
+                </div>
 
-                <li onclick="location.href = '${pageContext.request.contextPath}/nhanvien'">
+            </c:if>
 
-                    <i class="fa-solid fa-user"></i>
-                    <span>Nhân viên</span>
-                </li>
+            <div class="page-header">
 
-                <li onclick="location.href = '${pageContext.request.contextPath}/hoadon'">
+                <div>
+                    <h2>Sơ đồ bàn</h2>
 
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                    <span>Hóa đơn</span>
-                </li>
+                    <p>
+                        Có ${fn:length(danhSachBan)} bàn được tải từ cơ sở dữ liệu.
+                    </p>
+                </div>
 
-                <li onclick="location.href = '${pageContext.request.contextPath}/menu'">
+                <div class="page-actions">
 
-                    <i class="fa-solid fa-mug-saucer"></i>
-                    <span>Menu</span>
-                </li>
+                    <a class="btn btn-blue"
+                       href="${pageContext.request.contextPath}/hoadon?action=takeaway">
 
-                <li class="active"
-                    onclick="location.href = '${pageContext.request.contextPath}/ban'">
-
-                    <i class="fa-solid fa-chair"></i>
-                    <span>Bàn</span>
-                </li>
-
-                <li onclick="location.href = '${pageContext.request.contextPath}/KhoServlet'">
-
-                    <i class="fa-solid fa-box"></i>
-                    <span>Kho</span>
-                </li>
-
-                <li onclick="location.href = '${pageContext.request.contextPath}/khachhang'">
-
-                    <i class="fa-solid fa-users"></i>
-                    <span>Khách hàng</span>
-                </li>
-
-                <c:if test="${sessionScope.chucVu == 'Quản lý'}">
-
-                    <li onclick="location.href = '${pageContext.request.contextPath}/ThongKeServlet'">
-
-                        <i class="fa-solid fa-chart-column"></i>
-                        <span>Thống kê</span>
-                    </li>
-
-                </c:if>
-
-            </ul>
-
-            <a class="logout"
-               href="${pageContext.request.contextPath}/LogoutServlet">
-
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Đăng xuất</span>
-            </a>
-
-        </aside>
-
-        <!-- ==================== MAIN ==================== -->
-        <div class="main">
-
-            <div class="header">
-
-                <h2>
-                    Quản lý bàn
-                </h2>
-
-                <div class="user-profile">
-
-                    <i class="fa-solid fa-user"></i>
-
-                    <span>
-                        ${sessionScope.maNV}
-                        -
-                        ${sessionScope.tenNV}
-                    </span>
+                        <i class="fa-solid fa-bag-shopping"></i>
+                        Bán mang về
+                    </a>
 
                 </div>
 
             </div>
 
-            <div class="content">
+            <div class="toolbar">
 
-                <!-- THANH TOÁN XONG MỚI HIỆN ĐÃ TRẢ BÀN -->
-                <c:if test="${param.success == 'paid'}">
+                <div class="zone-tabs">
 
-                    <div class="table-message success">
+                    <a class="zone-tab ${empty param.khu ? 'active' : ''}"
+                       href="${pageContext.request.contextPath}/ban">
 
-                        <i class="fa-solid fa-circle-check"></i>
+                        Tất cả
+                    </a>
 
-                        Thanh toán thành công.
-                        Bàn đã được trả về trạng thái Trống.
-                    </div>
+                    <a class="zone-tab ${param.khu == 'Tầng 1' ? 'active' : ''}"
+                       href="${pageContext.request.contextPath}/ban?khu=Tầng%201">
 
-                </c:if>
+                        Tầng 1
+                    </a>
 
-                <c:if test="${param.success == 'cancel'}">
+                    <a class="zone-tab ${param.khu == 'Tầng 2' ? 'active' : ''}"
+                       href="${pageContext.request.contextPath}/ban?khu=Tầng%202">
 
-                    <div class="table-message success">
+                        Tầng 2
+                    </a>
 
-                        <i class="fa-solid fa-circle-check"></i>
+                    <a class="zone-tab ${param.khu == 'Sân vườn' ? 'active' : ''}"
+                       href="${pageContext.request.contextPath}/ban?khu=Sân%20vườn">
 
-                        Đã hủy hóa đơn.
-                        Bàn đã được trả về trạng thái Trống.
-                    </div>
-
-                </c:if>
-
-                <c:if test="${not empty param.error}">
-
-                    <div class="table-message error">
-
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                        ${param.error}
-                    </div>
-
-                </c:if>
-
-                <div style="
-                     margin-bottom:15px;
-                     padding:10px;
-                     background:#fff3cd;
-                     color:#664d03;
-                     border-radius:6px;">
-
-                    Số bàn servlet gửi sang:
-                    <b>${fn:length(danhSachBan)}</b>
-                </div>
-
-                <div class="table-toolbar">
-
-                    <!-- LỌC KHU VỰC -->
-                    <div class="zone-tabs"
-                         style="margin-bottom:0;">
-
-                        <a href="${pageContext.request.contextPath}/ban"
-                           class="${empty param.khu
-                                    ? 'active'
-                                    : ''}">
-
-                            Tất cả
-                        </a>
-
-                        <a href="${pageContext.request.contextPath}/ban?khu=Tầng%201"
-                           class="${param.khu == 'Tầng 1'
-                                    ? 'active'
-                                    : ''}">
-
-                            Tầng 1
-                        </a>
-
-                        <a href="${pageContext.request.contextPath}/ban?khu=Tầng%202"
-                           class="${param.khu == 'Tầng 2'
-                                    ? 'active'
-                                    : ''}">
-
-                            Tầng 2
-                        </a>
-
-                        <a href="${pageContext.request.contextPath}/ban?khu=Sân%20vườn"
-                           class="${param.khu == 'Sân vườn'
-                                    ? 'active'
-                                    : ''}">
-
-                            Sân vườn
-                        </a>
-
-                    </div>
+                        Sân vườn
+                    </a>
 
                 </div>
 
-                <!-- CHÚ THÍCH -->
-                <div class="legend">
+            </div>
 
-                    <span>
-                        <i class="dot-legend dot-trong"></i>
-                        Trống
-                    </span>
+            <c:choose>
 
-                    <span>
-                        <i class="dot-legend dot-phucvu"></i>
-                        Đang phục vụ
-                    </span>
+                <c:when test="${not empty danhSachBan}">
 
-                </div>
+                    <section class="table-card-grid">
 
-                <!-- DANH SÁCH BÀN -->
-                <div class="ban-grid">
+                        <c:forEach var="ban"
+                                   items="${danhSachBan}">
 
-                    <c:choose>
+                            <c:choose>
 
-                        <c:when test="${not empty danhSachBan}">
+                                <c:when test="${ban.trangThai == 0}">
 
-                            <c:forEach var="ban"
-                                       items="${danhSachBan}">
+                                    <c:set var="cardClass"
+                                           value=""/>
 
-                                <c:choose>
+                                    <c:set var="statusClass"
+                                           value="badge-success"/>
 
-                                    <c:when test="${ban.trangThai == 1}">
+                                    <c:set var="statusText"
+                                           value="Trống"/>
 
-                                        <c:set var="cssClass"
-                                               value="phucvu"/>
+                                    <c:set var="buttonText"
+                                           value="Nhận bàn"/>
 
-                                        <c:set var="statusText"
-                                               value="Đang phục vụ"/>
+                                    <c:set var="buttonClass"
+                                           value="btn-success"/>
 
-                                        <c:set var="btnClass"
-                                               value="btn-phucvu"/>
+                                    <c:set var="buttonLink"
+                                           value="${pageContext.request.contextPath}/ban/nhanban?id=${ban.maBan}"/>
 
-                                        <c:set var="btnText"
-                                               value="Thanh toán / Trả bàn"/>
+                                </c:when>
 
-                                        <c:set var="btnLink"
-                                               value="${pageContext.request.contextPath}/ban/traban?id=${ban.maBan}"/>
+                                <c:when test="${ban.trangThai == 1}">
 
-                                    </c:when>
+                                    <c:set var="cardClass"
+                                           value="serving"/>
 
-                                    <c:otherwise>
+                                    <c:set var="statusClass"
+                                           value="badge-danger"/>
 
-                                        <c:set var="cssClass"
-                                               value="trong"/>
+                                    <c:set var="statusText"
+                                           value="Đang phục vụ"/>
 
-                                        <c:set var="statusText"
-                                               value="Trống"/>
+                                    <c:set var="buttonText"
+                                           value="Mở hóa đơn"/>
 
-                                        <c:set var="btnClass"
-                                               value="btn-trong"/>
+                                    <c:set var="buttonClass"
+                                           value="btn-danger"/>
 
-                                        <c:set var="btnText"
-                                               value="Nhận bàn"/>
+                                    <c:set var="buttonLink"
+                                           value="${pageContext.request.contextPath}/ban/traban?id=${ban.maBan}"/>
 
-                                        <c:set var="btnLink"
-                                               value="${pageContext.request.contextPath}/ban/nhanban?id=${ban.maBan}"/>
+                                </c:when>
 
-                                    </c:otherwise>
+                                <c:when test="${ban.trangThai == 2}">
 
-                                </c:choose>
+                                    <c:set var="cardClass"
+                                           value="reserved"/>
 
-                                <div class="ban-card ${cssClass}">
+                                    <c:set var="statusClass"
+                                           value="badge-warning"/>
 
-                                    <div class="ban-body">
+                                    <c:set var="statusText"
+                                           value="Đã đặt trước"/>
 
-                                        <span class="ban-ten">
-                                            ${ban.tenBan}
-                                        </span>
+                                    <c:set var="buttonText"
+                                           value="Kiểm tra bàn"/>
 
-                                        <span class="ban-meta">
+                                    <c:set var="buttonClass"
+                                           value="btn-outline"/>
 
-                                            <i class="fa-solid fa-user-group"></i>
+                                    <c:set var="buttonLink"
+                                           value="${pageContext.request.contextPath}/ban"/>
 
-                                            ${ban.soCho} chỗ ngồi
-                                            ·
-                                            ${ban.khuVuc}
-                                        </span>
+                                </c:when>
 
-                                        <span class="ban-status status-${cssClass}">
+                                <c:otherwise>
+
+                                    <c:set var="cardClass"
+                                           value="cleaning"/>
+
+                                    <c:set var="statusClass"
+                                           value="badge-blue"/>
+
+                                    <c:set var="statusText"
+                                           value="Đang dọn dẹp"/>
+
+                                    <c:set var="buttonText"
+                                           value="Kiểm tra bàn"/>
+
+                                    <c:set var="buttonClass"
+                                           value="btn-outline"/>
+
+                                    <c:set var="buttonLink"
+                                           value="${pageContext.request.contextPath}/ban"/>
+
+                                </c:otherwise>
+
+                            </c:choose>
+
+                            <article class="table-card ${cardClass}">
+
+                                <div class="table-card-body">
+
+                                    <div class="table-card-icon">
+                                        <i class="fa-solid fa-chair"></i>
+                                    </div>
+
+                                    <span class="table-card-name">
+                                        ${ban.tenBan}
+                                    </span>
+
+                                    <span class="table-card-meta">
+
+                                        ${ban.khuVuc}
+                                        ·
+                                        ${ban.soCho} chỗ ngồi
+                                    </span>
+
+                                    <div class="table-card-status">
+
+                                        <span class="badge ${statusClass}">
                                             ${statusText}
                                         </span>
 
-                                        <c:if test="${ban.trangThai == 1}">
-
-                                            <span class="ban-info-order">
-
-                                                <i class="fa-solid fa-file-invoice"></i>
-
-                                                Đơn:
-                                                ${empty ban.maDonHang
-                                                  ? 'Đang tạo'
-                                                  : ban.maDonHang}
-                                            </span>
-
-                                        </c:if>
-
                                     </div>
 
-                                    <div class="ban-footer">
+                                    <c:if test="${ban.trangThai == 1
+                                                  and not empty ban.maDonHang}">
 
-                                        <a class="btn-action ${btnClass}"
-                                           href="${btnLink}">
+                                        <p class="form-hint">
+                                            Đơn hàng: ${ban.maDonHang}
+                                        </p>
 
-                                            ${btnText}
-                                        </a>
-
-                                    </div>
+                                    </c:if>
 
                                 </div>
 
-                            </c:forEach>
+                                <div class="table-card-footer">
 
-                        </c:when>
+                                    <a class="btn ${buttonClass}"
+                                       href="${buttonLink}"
+                                       style="width:100%;">
 
-                        <c:otherwise>
+                                        ${buttonText}
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </a>
 
-                            <div style="
-                                 grid-column:1/-1;
-                                 padding:30px;
-                                 border-radius:10px;
-                                 background:#fff3cd;
-                                 color:#664d03;
-                                 text-align:center;">
+                                </div>
 
-                                Servlet chưa gửi được dữ liệu bàn sang JSP.
-                            </div>
+                            </article>
 
-                        </c:otherwise>
+                        </c:forEach>
 
-                    </c:choose>
+                    </section>
 
-                </div>
+                </c:when>
 
-            </div>
+                <c:otherwise>
+
+                    <section class="card">
+
+                        <div class="empty-state">
+
+                            <i class="fa-solid fa-chair"></i>
+
+                            <strong>
+                                Không có bàn trong khu vực này
+                            </strong>
+                        </div>
+
+                    </section>
+
+                </c:otherwise>
+
+            </c:choose>
 
         </div>
 
-        <script src="${pageContext.request.contextPath}/js/nhanvien.js"></script>
+    </main>
 
-    </body>
+</body>
 </html>

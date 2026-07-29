@@ -4,330 +4,282 @@
 <%@ taglib prefix="c"
            uri="jakarta.tags.core" %>
 
-<style>
-    .form-container {
-        width: 100%;
-        max-width: 430px;
-        margin: 0 auto;
-        font-family: sans-serif;
-    }
+<c:set var="isEdit"
+       value="${mode == 'edit'}"/>
 
-    .form-container label {
-        display: block;
-        margin-top: 10px;
-        font-weight: 700;
-    }
+<c:if test="${not empty errorMessage}">
 
-    .form-container input,
-    .form-container select {
-        width: 100%;
-        padding: 10px;
-        margin: 5px 0 13px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        box-sizing: border-box;
-    }
+    <div class="alert alert-danger">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        ${errorMessage}
+    </div>
 
-    .form-container input:focus,
-    .form-container select:focus {
-        outline: none;
-        border-color: #806044;
-        box-shadow: 0 0 0 3px rgba(128, 96, 68, .1);
-    }
+</c:if>
 
-    .radio-group {
-        margin: 8px 0 13px;
-    }
+<form action="${pageContext.request.contextPath}/nhanvien"
+      method="post">
 
-    .radio-group input {
-        width: auto;
-        margin-right: 4px;
-    }
+    <input type="hidden"
+           name="action"
+           value="${isEdit ? 'edit' : 'add'}">
 
-    .btn-group {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 18px;
-    }
-
-    .btn-group button {
-        padding: 10px 18px;
-        border: 0;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    .btn-submit {
-        background: #198754;
-        color: #fff;
-    }
-
-    .btn-cancel {
-        background: #6c757d;
-        color: #fff;
-    }
-
-    .password-wrapper {
-        position: relative;
-    }
-
-    .password-wrapper input {
-        padding-right: 42px;
-    }
-
-    .password-wrapper i {
-        position: absolute;
-        right: 12px;
-        top: 17px;
-        cursor: pointer;
-        color: #555;
-    }
-
-    .form-note {
-        display: block;
-        margin-top: -7px;
-        color: #777;
-        font-size: 12px;
-        line-height: 1.4;
-    }
-</style>
-
-<div class="form-container">
-
-    <form action="${pageContext.request.contextPath}/nhanvien"
-          method="post">
+    <c:if test="${isEdit}">
 
         <input type="hidden"
-               name="action"
-               value="${mode == 'edit'
-                        ? 'edit'
-                        : 'add'}">
+               name="maNV"
+               value="${nv.maNV}">
 
-        <label>Mã nhân viên</label>
+    </c:if>
 
-        <c:choose>
+    <div class="form-grid">
 
-            <c:when test="${mode == 'edit'}">
+        <div class="form-group">
 
-                <input type="text"
-                       name="maNV"
-                       value="${nv.maNV}"
-                       readonly>
-
-            </c:when>
-
-            <c:otherwise>
-
-                <input type="text"
-                       value="Tự động tạo khi lưu"
-                       readonly>
-
-            </c:otherwise>
-
-        </c:choose>
-
-        <label for="hoTen">
-            Họ tên
-        </label>
-
-        <input type="text"
-               id="hoTen"
-               name="hoTen"
-               value="${nv.hoTen}"
-               maxlength="100"
-               required>
-
-        <label>Giới tính</label>
-
-        <div class="radio-group">
-
-            <label style="
-                   display:inline;
-                   font-weight:400;">
-
-                <input type="radio"
-                       name="gioiTinh"
-                       value="Nam"
-                       ${nv.gioiTinh == 'Nam'
-                         or mode != 'edit'
-                            ? 'checked'
-                            : ''}>
-
-                Nam
+            <label class="form-label">
+                Mã nhân viên
             </label>
 
-            <label style="
-                   display:inline;
-                   font-weight:400;
-                   margin-left:14px;">
-
-                <input type="radio"
-                       name="gioiTinh"
-                       value="Nữ"
-                       ${nv.gioiTinh == 'Nữ'
-                            ? 'checked'
-                            : ''}>
-
-                Nữ
-            </label>
-
+            <input class="form-control"
+                   type="text"
+                   value="${isEdit ? nv.maNV : 'Hệ thống tự sinh khi lưu'}"
+                   readonly>
         </div>
 
-        <label for="ngaySinh">
-            Ngày sinh
-        </label>
+        <div class="form-group">
 
-        <input type="date"
-               id="ngaySinh"
-               name="ngaySinh"
-               value="${nv.ngaySinh}">
+            <label class="form-label"
+                   for="hoTen">
 
-        <label for="sdt">
-            Số điện thoại
-        </label>
+                Họ và tên
+            </label>
 
-        <input type="tel"
-               id="sdt"
-               name="sdt"
-               value="${nv.sdt}"
-               maxlength="15"
-               pattern="[0-9]{9,15}"
-               title="Số điện thoại gồm từ 9 đến 15 chữ số"
-               required>
-
-        <label for="chucVu">
-            Vai trò
-        </label>
-
-        <select id="chucVu"
-                name="chucVu"
-                required>
-
-            <option value="Nhân viên"
-                    ${nv.chucVu != 'Quản lý'
-                        ? 'selected'
-                        : ''}>
-
-                Nhân viên
-            </option>
-
-            <option value="Quản lý"
-                    ${nv.chucVu == 'Quản lý'
-                        ? 'selected'
-                        : ''}>
-
-                Quản lý
-            </option>
-
-        </select>
-
-        <label for="trangThai">
-            Trạng thái
-        </label>
-
-        <select id="trangThai"
-                name="trangThai"
-                required>
-
-            <option value="Đang làm"
-                    ${empty nv.trangThai
-                      or nv.trangThai == 'Đang làm'
-                        ? 'selected'
-                        : ''}>
-
-                Đang làm
-            </option>
-
-            <option value="Tạm nghỉ"
-                    ${nv.trangThai == 'Tạm nghỉ'
-                        ? 'selected'
-                        : ''}>
-
-                Tạm nghỉ
-            </option>
-
-            <option value="Nghỉ làm"
-                    ${nv.trangThai == 'Nghỉ làm'
-                        ? 'selected'
-                        : ''}>
-
-                Nghỉ làm
-            </option>
-
-        </select>
-
-        <label for="luongCoBan">
-            Lương cơ bản
-        </label>
-
-        <input type="number"
-               id="luongCoBan"
-               name="luongCoBan"
-               value="${empty nv.luongCoBan
-                        ? 0
-                        : nv.luongCoBan}"
-               min="0"
-               step="1000"
-               required>
-
-        <label for="passwordInput">
-            Mật khẩu
-        </label>
-
-        <div class="password-wrapper">
-
-            <input type="password"
-                   id="passwordInput"
-                   name="matKhau"
+            <input class="form-control"
+                   type="text"
+                   id="hoTen"
+                   name="hoTen"
+                   value="${nv.hoTen}"
                    maxlength="100"
-                   placeholder="${mode == 'edit'
-                       ? 'Để trống nếu không đổi'
-                       : 'Mặc định: 123456'}">
-
-            <i class="fa-solid fa-eye"
-               id="togglePassword"
-               onclick="togglePasswordVisibility()"></i>
-
+                   required>
         </div>
 
-        <small class="form-note">
+        <div class="form-group">
 
-            <c:choose>
+            <label class="form-label">
+                Giới tính
+            </label>
 
-                <c:when test="${mode == 'edit'}">
-                    Để trống nếu muốn giữ nguyên mật khẩu.
-                </c:when>
+            <select class="form-control"
+                    name="gioiTinh">
 
-                <c:otherwise>
-                    Nếu để trống, mật khẩu mặc định là
-                    <b>123456</b>.
-                </c:otherwise>
+                <option value="">
+                    Chưa cập nhật
+                </option>
 
-            </c:choose>
+                <option value="Nam"
+                        ${nv.gioiTinh == 'Nam'
+                            ? 'selected'
+                            : ''}>
 
-            Chỉ tài khoản Quản lý mới được thay đổi mật khẩu.
-        </small>
+                    Nam
+                </option>
 
-        <div class="btn-group">
+                <option value="Nữ"
+                        ${nv.gioiTinh == 'Nữ'
+                            ? 'selected'
+                            : ''}>
 
-            <button type="button"
-                    class="btn-cancel"
-                    onclick="closeModal()">
+                    Nữ
+                </option>
 
-                Hủy
-            </button>
+                <option value="Khác"
+                        ${nv.gioiTinh == 'Khác'
+                            ? 'selected'
+                            : ''}>
 
-            <button type="submit"
-                    class="btn-submit">
+                    Khác
+                </option>
 
-                ${mode == 'edit'
-                    ? 'Cập nhật'
-                    : 'Lưu nhân viên'}
-            </button>
-
+            </select>
         </div>
 
-    </form>
+        <div class="form-group">
 
-</div>
+            <label class="form-label"
+                   for="ngaySinh">
+
+                Ngày sinh
+            </label>
+
+            <input class="form-control"
+                   type="date"
+                   id="ngaySinh"
+                   name="ngaySinh"
+                   value="${nv.ngaySinh}">
+        </div>
+
+        <div class="form-group">
+
+            <label class="form-label"
+                   for="sdt">
+
+                Số điện thoại
+            </label>
+
+            <input class="form-control"
+                   type="tel"
+                   id="sdt"
+                   name="sdt"
+                   value="${nv.sdt}"
+                   maxlength="15"
+                   required>
+        </div>
+
+        <div class="form-group">
+
+            <label class="form-label">
+                Chức vụ
+            </label>
+
+            <select class="form-control"
+                    name="chucVu"
+                    required>
+
+                <option value="Nhân viên"
+                        ${nv.chucVu != 'Quản lý'
+                            ? 'selected'
+                            : ''}>
+
+                    Nhân viên
+                </option>
+
+                <option value="Quản lý"
+                        ${nv.chucVu == 'Quản lý'
+                            ? 'selected'
+                            : ''}>
+
+                    Quản lý
+                </option>
+
+            </select>
+        </div>
+
+        <div class="form-group">
+
+            <label class="form-label">
+                Trạng thái
+            </label>
+
+            <select class="form-control"
+                    name="trangThai"
+                    required>
+
+                <option value="Đang làm"
+                        ${empty nv.trangThai
+                          or nv.trangThai == 'Đang làm'
+                            ? 'selected'
+                            : ''}>
+
+                    Đang làm
+                </option>
+
+                <option value="Tạm nghỉ"
+                        ${nv.trangThai == 'Tạm nghỉ'
+                            ? 'selected'
+                            : ''}>
+
+                    Tạm nghỉ
+                </option>
+
+                <option value="Nghỉ làm"
+                        ${nv.trangThai == 'Nghỉ làm'
+                            ? 'selected'
+                            : ''}>
+
+                    Nghỉ làm
+                </option>
+
+            </select>
+        </div>
+
+        <div class="form-group">
+
+            <label class="form-label"
+                   for="luongCoBan">
+
+                Lương cơ bản
+            </label>
+
+            <input class="form-control"
+                   type="number"
+                   id="luongCoBan"
+                   name="luongCoBan"
+                   value="${empty nv.luongCoBan ? 0 : nv.luongCoBan}"
+                   min="0"
+                   step="1000"
+                   required>
+        </div>
+
+        <div class="form-group full">
+
+            <label class="form-label"
+                   for="passwordInput">
+
+                ${isEdit ? 'Mật khẩu mới' : 'Mật khẩu đăng nhập'}
+            </label>
+
+            <div style="position: relative;">
+
+                <input class="form-control"
+                       type="password"
+                       id="passwordInput"
+                       name="matKhau"
+                       placeholder="${isEdit
+                                    ? 'Để trống nếu giữ mật khẩu cũ'
+                                    : 'Mặc định 123456 nếu để trống'}"
+                       style="padding-right: 44px;">
+
+                <button type="button"
+                        class="btn btn-icon btn-outline"
+                        onclick="toggleModalPassword()"
+                        style="
+                        position:absolute;
+                        right:2px;
+                        top:2px;
+                        border:0;">
+
+                    <i class="fa-solid fa-eye"
+                       id="passwordToggleIcon"></i>
+                </button>
+
+            </div>
+
+            <span class="form-hint">
+
+                ${isEdit
+                    ? 'Chỉ quản lý được phép đổi mật khẩu nhân viên.'
+                    : 'Để trống sẽ sử dụng mật khẩu mặc định 123456.'}
+            </span>
+        </div>
+
+    </div>
+
+    <div class="form-actions">
+
+        <button type="button"
+                class="btn btn-outline"
+                onclick="closeModal()">
+
+            Hủy
+        </button>
+
+        <button type="submit"
+                class="btn btn-primary">
+
+            <i class="fa-solid fa-floppy-disk"></i>
+
+            ${isEdit ? 'Lưu thay đổi' : 'Thêm nhân viên'}
+        </button>
+
+    </div>
+
+</form>

@@ -4,8 +4,8 @@
 <%@ taglib prefix="c"
            uri="jakarta.tags.core" %>
 
-<%@ taglib prefix="fn"
-           uri="jakarta.tags.functions" %>
+<%@ taglib prefix="fmt"
+           uri="jakarta.tags.fmt" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -21,594 +21,496 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/css/nhanvien.css">
-
-    <style>
-        .status-form {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            margin-top: 6px;
-        }
-
-        .status-form select {
-            padding: 6px 8px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }
-
-        .status-form button {
-            border: 0;
-            border-radius: 6px;
-            padding: 7px 9px;
-            cursor: pointer;
-            background: #4a372c;
-            color: #fff;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 5px 9px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .status-working {
-            background: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .status-break {
-            background: #fff3cd;
-            color: #664d03;
-        }
-
-        .status-left {
-            background: #f8d7da;
-            color: #842029;
-        }
-
-        .notice {
-            margin: 0 0 14px;
-            padding: 10px 14px;
-            border-radius: 8px;
-            background: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .notice.error {
-            background: #f8d7da;
-            color: #842029;
-        }
-
-        .action-link {
-            display: inline-flex;
-            width: 34px;
-            height: 34px;
-            align-items: center;
-            justify-content: center;
-            border-radius: 7px;
-            text-decoration: none;
-            margin-right: 5px;
-            background: #f3f4f6;
-        }
-
-        .action-link:hover {
-            background: #e5e7eb;
-        }
-
-        .no-shift {
-            color: #dc3545;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .shift-time {
-            white-space: nowrap;
-        }
-    </style>
+          href="${pageContext.request.contextPath}/css/app.css">
 </head>
 
 <body>
 
-    <aside class="sidebar">
+    <jsp:include page="/views/components/sidebar.jsp">
+        <jsp:param name="active"
+                   value="employee"/>
+    </jsp:include>
 
-        <div class="logo">
-            <i class="fa-solid fa-mug-hot"></i>
+    <main class="app-main">
 
-            <span class="logo-text">
-                QUẢN LÝ QUÁN CAFE
-            </span>
+        <jsp:include page="/views/components/topbar.jsp">
+            <jsp:param name="title"
+                       value="Nhân viên"/>
 
-            <button id="toggleBtn"
-                    type="button">
+            <jsp:param name="subtitle"
+                       value="Quản lý thông tin, trạng thái và ca làm"/>
+        </jsp:include>
 
-                <i class="fa-solid fa-bars"></i>
-            </button>
-        </div>
+        <div class="app-content">
 
-        <ul class="menu">
+            <c:if test="${param.success == 'add'}">
 
-            <li onclick="location.href='${pageContext.request.contextPath}/views/homepage.jsp'">
-                <i class="fa-solid fa-house"></i>
-                <span>Trang chủ</span>
-            </li>
+                <div class="alert alert-success">
 
-            <li class="active"
-                onclick="location.href='${pageContext.request.contextPath}/nhanvien'">
+                    <i class="fa-solid fa-circle-check"></i>
 
-                <i class="fa-solid fa-user"></i>
-                <span>Nhân viên</span>
-            </li>
+                    Đã thêm nhân viên mới.
+                    Mã tài khoản:
+                    <strong>${param.maNVMoi}</strong>
+                </div>
 
-            <li onclick="location.href='${pageContext.request.contextPath}/hoadon'">
-                <i class="fa-solid fa-file-invoice-dollar"></i>
-                <span>Hóa đơn</span>
-            </li>
-
-            <li onclick="location.href='${pageContext.request.contextPath}/menu'">
-                <i class="fa-solid fa-mug-saucer"></i>
-                <span>Menu</span>
-            </li>
-
-            <li onclick="location.href='${pageContext.request.contextPath}/ban'">
-                <i class="fa-solid fa-chair"></i>
-                <span>Bàn</span>
-            </li>
-
-            <li onclick="location.href='${pageContext.request.contextPath}/KhoServlet'">
-                <i class="fa-solid fa-box"></i>
-                <span>Kho</span>
-            </li>
-
-            <li onclick="location.href='${pageContext.request.contextPath}/khachhang'">
-                <i class="fa-solid fa-users"></i>
-                <span>Khách hàng</span>
-            </li>
-
-            <c:if test="${sessionScope.chucVu == 'Quản lý'}">
-                <li onclick="location.href='${pageContext.request.contextPath}/ThongKeServlet'">
-                    <i class="fa-solid fa-chart-column"></i>
-                    <span>Thống kê</span>
-                </li>
             </c:if>
 
-        </ul>
+            <c:if test="${param.success == 'edit'}">
 
-        <a class="logout"
-           href="${pageContext.request.contextPath}/LogoutServlet">
-
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Đăng xuất</span>
-        </a>
-
-    </aside>
-
-    <div class="main">
-
-        <div class="header">
-
-            <h2>Quản lý nhân viên</h2>
-
-            <div class="user-profile">
-                <i class="fa-solid fa-user"></i>
-
-                <span>
-                    ${sessionScope.maNV}
-                    -
-                    ${sessionScope.tenNV}
-                </span>
-            </div>
-
-        </div>
-
-        <div class="content">
-
-            <c:if test="${not empty param.success}">
-                <div class="notice">
-
-                    <c:choose>
-
-                        <c:when test="${param.success == 'add'}">
-                            Đã tạo nhân viên thành công.
-                            Mã đăng nhập:
-
-                            <b>
-                                ${param.maNVMoi}
-                            </b>
-                        </c:when>
-
-                        <c:when test="${param.success == 'edit'}">
-                            Đã cập nhật thông tin nhân viên.
-                        </c:when>
-
-                        <c:when test="${param.success == 'shift'}">
-                            Đã phân ca làm việc.
-                        </c:when>
-
-                        <c:when test="${param.success == 'status'}">
-                            Đã thay đổi trạng thái nhân viên.
-                        </c:when>
-
-                    </c:choose>
+                <div class="alert alert-success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Cập nhật nhân viên thành công.
                 </div>
+
+            </c:if>
+
+            <c:if test="${param.success == 'shift'}">
+
+                <div class="alert alert-success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Phân ca làm thành công.
+                </div>
+
+            </c:if>
+
+            <c:if test="${param.success == 'status'}">
+
+                <div class="alert alert-success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Cập nhật trạng thái thành công.
+                </div>
+
             </c:if>
 
             <c:if test="${not empty param.error}">
-                <div class="notice error">
+
+                <div class="alert alert-danger">
+                    <i class="fa-solid fa-circle-exclamation"></i>
                     ${param.error}
                 </div>
+
             </c:if>
 
             <c:if test="${not empty errorMessage}">
-                <div class="notice error">
+
+                <div class="alert alert-danger">
+                    <i class="fa-solid fa-circle-exclamation"></i>
                     ${errorMessage}
                 </div>
+
             </c:if>
 
-            <div class="card">
+            <div class="page-header">
 
-                <div class="top">
+                <div>
+                    <h2>Danh sách nhân viên</h2>
 
-                    <form class="search-form"
-                          onsubmit="return false;">
+                    <p>
+                        Không xóa nhân viên, chỉ thay đổi trạng thái làm việc.
+                    </p>
+                </div>
 
-                        <input type="text"
-                               id="employeeSearch"
-                               placeholder="Nhập mã hoặc tên nhân viên...">
+                <c:if test="${sessionScope.chucVu == 'Quản lý'}">
 
-                        <button type="button">
-                            <i class="fa-solid fa-search"></i>
-                        </button>
-                    </form>
-
-                    <c:if test="${sessionScope.chucVu == 'Quản lý'}">
+                    <div class="page-actions">
 
                         <button type="button"
-                                class="btn-add"
+                                class="btn btn-primary"
                                 onclick="openModal(
                                     '${pageContext.request.contextPath}/nhanvien?action=loadForm',
-                                    'Thêm nhân viên mới'
+                                    'Thêm nhân viên'
                                 )">
 
                             <i class="fa-solid fa-plus"></i>
                             Thêm nhân viên
                         </button>
 
-                    </c:if>
+                    </div>
+
+                </c:if>
+
+            </div>
+
+            <div class="toolbar">
+
+                <div class="toolbar-left">
+
+                    <div class="search-box">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <input type="text"
+                               id="employeeSearch"
+                               placeholder="Tìm mã, họ tên, số điện thoại..."
+                               autocomplete="off">
+                    </div>
 
                 </div>
 
-                <table>
+                <div class="toolbar-right">
 
-                    <thead>
-                        <tr>
-                            <th>Mã NV</th>
-                            <th>Họ tên</th>
-                            <th>SĐT</th>
-                            <th>Vai trò</th>
-                            <th>Ca làm</th>
-                            <th>Thời gian</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
+                    <span class="badge badge-muted">
 
-                    <tbody id="employeeRows">
+                        Tổng:
+                        ${empty listNV ? 0 : listNV.size()}
+                        nhân viên
+                    </span>
 
-                        <c:choose>
+                </div>
 
-                            <c:when test="${not empty listNV}">
+            </div>
 
-                                <c:forEach var="nv"
-                                           items="${listNV}">
+            <section class="card">
 
-                                    <tr data-search="${fn:toLowerCase(nv.maNV)} ${fn:toLowerCase(nv.hoTen)} ${fn:toLowerCase(nv.sdt)}">
+                <div class="table-wrapper">
 
-                                        <td>
-                                            ${nv.maNV}
-                                        </td>
+                    <table class="data-table">
 
-                                        <td>
-                                            ${nv.hoTen}
-                                        </td>
+                        <thead>
+                            <tr>
+                                <th>Mã NV</th>
+                                <th>Nhân viên</th>
+                                <th>Liên hệ</th>
+                                <th>Chức vụ</th>
+                                <th>Lương cơ bản</th>
+                                <th>Ca làm</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
 
-                                        <td>
-                                            ${nv.sdt}
-                                        </td>
+                        <tbody id="employeeRows">
 
-                                        <td>
-                                            <c:choose>
+                            <c:choose>
 
-                                                <c:when test="${nv.chucVu == 'Quản lý'}">
-                                                    Quản lý
-                                                </c:when>
+                                <c:when test="${not empty listNV}">
 
-                                                <c:otherwise>
-                                                    Nhân viên
-                                                </c:otherwise>
+                                    <c:forEach var="nv"
+                                               items="${listNV}">
 
-                                            </c:choose>
-                                        </td>
+                                        <tr class="employee-row"
+                                            data-search="${nv.maNV}
+                                                         ${nv.hoTen}
+                                                         ${nv.sdt}
+                                                         ${nv.chucVu}
+                                                         ${nv.trangThai}">
 
-                                        <td>
-                                            <c:choose>
+                                            <td>
+                                                <strong>${nv.maNV}</strong>
+                                            </td>
 
-                                                <c:when test="${nv.caSang or nv.caChieu or nv.caToi}">
+                                            <td class="employee-name">
+
+                                                <strong>${nv.hoTen}</strong>
+
+                                                <span>
+
+                                                    ${empty nv.gioiTinh
+                                                        ? 'Chưa cập nhật giới tính'
+                                                        : nv.gioiTinh}
+
+                                                    <c:if test="${not empty nv.ngaySinh}">
+                                                        ·
+
+                                                        <fmt:formatDate
+                                                            value="${nv.ngaySinh}"
+                                                            pattern="dd/MM/yyyy"/>
+                                                    </c:if>
+
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                ${empty nv.sdt ? '—' : nv.sdt}
+                                            </td>
+
+                                            <td>
+
+                                                <span class="badge ${nv.chucVu == 'Quản lý'
+                                                    ? 'badge-purple'
+                                                    : 'badge-blue'}">
+
+                                                    ${nv.chucVu}
+                                                </span>
+                                            </td>
+
+                                            <td>
+
+                                                <fmt:formatNumber
+                                                    value="${nv.luongCoBan}"
+                                                    pattern="#,##0"/>
+
+                                                đ
+                                            </td>
+
+                                            <td>
+
+                                                <div class="shift-badges">
 
                                                     <c:if test="${nv.caSang}">
-                                                        Sáng
+                                                        <span class="badge badge-muted">
+                                                            Sáng
+                                                        </span>
                                                     </c:if>
 
                                                     <c:if test="${nv.caChieu}">
-                                                        Chiều
+                                                        <span class="badge badge-muted">
+                                                            Chiều
+                                                        </span>
                                                     </c:if>
 
                                                     <c:if test="${nv.caToi}">
-                                                        Tối
+                                                        <span class="badge badge-muted">
+                                                            Tối
+                                                        </span>
                                                     </c:if>
 
-                                                </c:when>
+                                                    <c:if test="${not nv.caSang
+                                                                  and not nv.caChieu
+                                                                  and not nv.caToi}">
 
-                                                <c:otherwise>
-                                                    <span class="no-shift">
-                                                        Chưa phân ca
-                                                    </span>
-                                                </c:otherwise>
+                                                        <span class="badge badge-warning">
+                                                            Chưa phân ca
+                                                        </span>
+                                                    </c:if>
 
-                                            </c:choose>
+                                                </div>
+
+                                                <c:if test="${not empty nv.gioBatDau
+                                                              and not empty nv.gioKetThuc}">
+
+                                                    <small>
+                                                        ${nv.gioBatDau}
+                                                        -
+                                                        ${nv.gioKetThuc}
+                                                    </small>
+                                                </c:if>
+
+                                            </td>
+
+                                            <td>
+
+                                                <c:choose>
+
+                                                    <c:when test="${sessionScope.chucVu == 'Quản lý'}">
+
+                                                        <form action="${pageContext.request.contextPath}/nhanvien"
+                                                              method="post">
+
+                                                            <input type="hidden"
+                                                                   name="action"
+                                                                   value="updateStatus">
+
+                                                            <input type="hidden"
+                                                                   name="maNV"
+                                                                   value="${nv.maNV}">
+
+                                                            <select class="status-select"
+                                                                    name="trangThai"
+                                                                    onchange="this.form.submit()">
+
+                                                                <option value="Đang làm"
+                                                                        ${nv.trangThai == 'Đang làm'
+                                                                            ? 'selected'
+                                                                            : ''}>
+
+                                                                    Đang làm
+                                                                </option>
+
+                                                                <option value="Tạm nghỉ"
+                                                                        ${nv.trangThai == 'Tạm nghỉ'
+                                                                            ? 'selected'
+                                                                            : ''}>
+
+                                                                    Tạm nghỉ
+                                                                </option>
+
+                                                                <option value="Nghỉ làm"
+                                                                        ${nv.trangThai == 'Nghỉ làm'
+                                                                            ? 'selected'
+                                                                            : ''}>
+
+                                                                    Nghỉ làm
+                                                                </option>
+
+                                                            </select>
+
+                                                        </form>
+
+                                                    </c:when>
+
+                                                    <c:otherwise>
+
+                                                        <span class="badge
+                                                              ${nv.trangThai == 'Đang làm'
+                                                                ? 'badge-success'
+                                                                : nv.trangThai == 'Tạm nghỉ'
+                                                                    ? 'badge-warning'
+                                                                    : 'badge-danger'}">
+
+                                                            ${nv.trangThai}
+                                                        </span>
+
+                                                    </c:otherwise>
+
+                                                </c:choose>
+
+                                            </td>
+
+                                            <td>
+
+                                                <c:choose>
+
+                                                    <c:when test="${sessionScope.chucVu == 'Quản lý'}">
+
+                                                        <div class="table-actions">
+
+                                                            <button type="button"
+                                                                    class="table-action"
+                                                                    title="Sửa nhân viên"
+                                                                    onclick="openModal(
+                                                                        '${pageContext.request.contextPath}/nhanvien?action=loadForm&maNV=${nv.maNV}',
+                                                                        'Cập nhật nhân viên'
+                                                                    )">
+
+                                                                <i class="fa-solid fa-pen"></i>
+                                                            </button>
+
+                                                            <button type="button"
+                                                                    class="table-action"
+                                                                    title="Phân ca"
+                                                                    onclick="openModal(
+                                                                        '${pageContext.request.contextPath}/nhanvien?action=loadCa&maNV=${nv.maNV}',
+                                                                        'Phân ca làm'
+                                                                    )">
+
+                                                                <i class="fa-regular fa-clock"></i>
+                                                            </button>
+
+                                                        </div>
+
+                                                    </c:when>
+
+                                                    <c:otherwise>
+                                                        —
+                                                    </c:otherwise>
+
+                                                </c:choose>
+
+                                            </td>
+
+                                        </tr>
+
+                                    </c:forEach>
+
+                                </c:when>
+
+                                <c:otherwise>
+
+                                    <tr>
+                                        <td colspan="8">
+
+                                            <div class="empty-state">
+
+                                                <i class="fa-solid fa-user-group"></i>
+
+                                                <strong>
+                                                    Chưa có nhân viên
+                                                </strong>
+                                            </div>
+
                                         </td>
-
-                                        <td class="shift-time">
-
-                                            <c:choose>
-
-                                                <c:when test="${not empty nv.gioBatDau and not empty nv.gioKetThuc}">
-
-                                                    ${fn:substring(nv.gioBatDau, 0, 5)}
-                                                    -
-                                                    ${fn:substring(nv.gioKetThuc, 0, 5)}
-
-                                                </c:when>
-
-                                                <c:otherwise>
-                                                    --:--
-                                                </c:otherwise>
-
-                                            </c:choose>
-                                        </td>
-
-                                        <td>
-
-                                            <span class="status-badge
-                                                  ${nv.trangThai == 'Đang làm'
-                                                    ? 'status-working'
-                                                    : (nv.trangThai == 'Tạm nghỉ'
-                                                        ? 'status-break'
-                                                        : 'status-left')}">
-
-                                                ${empty nv.trangThai
-                                                    ? 'Đang làm'
-                                                    : nv.trangThai}
-                                            </span>
-
-                                            <c:if test="${sessionScope.chucVu == 'Quản lý'}">
-
-                                                <form class="status-form"
-                                                      action="${pageContext.request.contextPath}/nhanvien"
-                                                      method="post">
-
-                                                    <input type="hidden"
-                                                           name="action"
-                                                           value="updateStatus">
-
-                                                    <input type="hidden"
-                                                           name="maNV"
-                                                           value="${nv.maNV}">
-
-                                                    <select name="trangThai">
-
-                                                        <option value="Đang làm"
-                                                                ${nv.trangThai == 'Đang làm'
-                                                                    ? 'selected'
-                                                                    : ''}>
-
-                                                            Đang làm
-                                                        </option>
-
-                                                        <option value="Tạm nghỉ"
-                                                                ${nv.trangThai == 'Tạm nghỉ'
-                                                                    ? 'selected'
-                                                                    : ''}>
-
-                                                            Tạm nghỉ
-                                                        </option>
-
-                                                        <option value="Nghỉ làm"
-                                                                ${nv.trangThai == 'Nghỉ làm'
-                                                                    ? 'selected'
-                                                                    : ''}>
-
-                                                            Nghỉ làm
-                                                        </option>
-
-                                                    </select>
-
-                                                    <button type="submit"
-                                                            title="Lưu trạng thái">
-
-                                                        <i class="fa-solid fa-check"></i>
-                                                    </button>
-
-                                                </form>
-
-                                            </c:if>
-
-                                        </td>
-
-                                        <td>
-
-                                            <c:if test="${sessionScope.chucVu == 'Quản lý'}">
-
-                                                <a class="action-link"
-                                                   href="javascript:void(0)"
-                                                   title="Sửa nhân viên"
-                                                   onclick="openModal(
-                                                       '${pageContext.request.contextPath}/nhanvien?action=loadForm&maNV=${nv.maNV}',
-                                                       'Sửa thông tin nhân viên'
-                                                   )">
-
-                                                    <i class="fa-solid fa-pen"
-                                                       style="color:#d39e00;"></i>
-                                                </a>
-
-                                                <a class="action-link"
-                                                   href="javascript:void(0)"
-                                                   title="Phân ca"
-                                                   onclick="openCaModal('${nv.maNV}')">
-
-                                                    <i class="fa-solid fa-clock"
-                                                       style="color:#0d6efd;"></i>
-                                                </a>
-
-                                            </c:if>
-
-                                            <c:if test="${sessionScope.chucVu != 'Quản lý'}">
-                                                Chỉ xem
-                                            </c:if>
-
-                                        </td>
-
                                     </tr>
 
-                                </c:forEach>
+                                </c:otherwise>
 
-                            </c:when>
+                            </c:choose>
 
-                            <c:otherwise>
-                                <tr>
-                                    <td colspan="8"
-                                        style="text-align:center;padding:30px;">
+                        </tbody>
 
-                                        Chưa có nhân viên nào.
-                                    </td>
-                                </tr>
-                            </c:otherwise>
+                    </table>
 
-                        </c:choose>
+                </div>
 
-                    </tbody>
-                </table>
+            </section>
+
+        </div>
+
+    </main>
+
+    <div class="modal-overlay"
+         id="myModal">
+
+        <div class="modal-dialog large">
+
+            <div class="modal-header">
+
+                <h3 id="modalTitle">
+                    Thông tin nhân viên
+                </h3>
+
+                <button type="button"
+                        class="modal-close"
+                        onclick="closeModal()">
+
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
 
             </div>
+
+            <div class="modal-body"
+                 id="modalBody"></div>
+
         </div>
-    </div>
 
-    <div id="myModal"
-         style="
-         display:none;
-         position:fixed;
-         inset:0;
-         background:rgba(0,0,0,.5);
-         z-index:9999;
-         justify-content:center;
-         align-items:center;">
-
-        <div style="
-             background:white;
-             padding:25px;
-             border-radius:12px;
-             width:500px;
-             max-width:calc(100% - 30px);
-             box-shadow:0 4px 15px rgba(0,0,0,.2);
-             position:relative;
-             max-height:90vh;
-             overflow-y:auto;">
-
-            <span onclick="closeModal()"
-                  style="
-                  position:absolute;
-                  right:20px;
-                  top:10px;
-                  font-size:28px;
-                  cursor:pointer;
-                  font-weight:bold;">
-
-                &times;
-            </span>
-
-            <h3 id="modalTitle"
-                style="margin-top:0;"></h3>
-
-            <hr>
-
-            <div id="modalBody"></div>
-        </div>
     </div>
 
     <script>
-        const contextPath =
-                "${pageContext.request.contextPath}";
+        const employeeModal =
+                document.getElementById("myModal");
 
         function openModal(url, title) {
-            document.getElementById(
-                    "modalTitle"
-            ).innerText = title;
+            document.getElementById("modalTitle")
+                    .textContent = title;
+
+            document.getElementById("modalBody")
+                    .innerHTML =
+                    '<div class="loading-state">Đang tải...</div>';
+
+            employeeModal.classList.add("show");
 
             fetch(url)
-                    .then(function (response) {
+                    .then(response => {
                         if (!response.ok) {
-                            throw new Error(
-                                    "Không tải được biểu mẫu."
-                            );
+                            throw new Error("Không tải được biểu mẫu.");
                         }
 
                         return response.text();
                     })
-                    .then(function (html) {
-                        document.getElementById(
-                                "modalBody"
-                        ).innerHTML = html;
-
-                        document.getElementById(
-                                "myModal"
-                        ).style.display = "flex";
+                    .then(html => {
+                        document.getElementById("modalBody")
+                                .innerHTML = html;
                     })
-                    .catch(function (error) {
-                        alert(error.message);
+                    .catch(error => {
+                        document.getElementById("modalBody")
+                                .innerHTML =
+                                '<div class="alert alert-danger">'
+                                + error.message
+                                + '</div>';
                     });
         }
 
-        function openCaModal(maNV) {
-            openModal(
-                    contextPath
-                    + "/nhanvien?action=loadCa&maNV="
-                    + encodeURIComponent(maNV),
-                    "Phân ca làm việc"
-            );
-        }
-
         function closeModal() {
-            document.getElementById(
-                    "myModal"
-            ).style.display = "none";
-
-            document.getElementById(
-                    "modalBody"
-            ).innerHTML = "";
+            employeeModal.classList.remove("show");
         }
 
-        function togglePasswordVisibility() {
+        function toggleModalPassword() {
             const input =
-                    document.getElementById(
-                            "passwordInput"
-                    );
+                    document.getElementById("passwordInput");
 
             const icon =
-                    document.getElementById(
-                            "togglePassword"
-                    );
+                    document.getElementById("passwordToggleIcon");
 
             if (!input || !icon) {
                 return;
@@ -619,50 +521,51 @@
                     ? "text"
                     : "password";
 
-            icon.classList.toggle(
-                    "fa-eye"
-            );
-
-            icon.classList.toggle(
-                    "fa-eye-slash"
-            );
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
         }
 
-        document.getElementById(
-                "employeeSearch"
-        )?.addEventListener(
-                "input",
-                function () {
-                    const keyword =
-                            this.value
-                                    .trim()
-                                    .toLowerCase();
-
-                    document.querySelectorAll(
-                            "#employeeRows tr[data-search]"
-                    ).forEach(function (row) {
-                        row.style.display =
-                                row.dataset.search
-                                        .includes(keyword)
-                                ? ""
-                                : "none";
-                    });
-                }
-        );
-
-        document.getElementById(
-                "myModal"
-        )?.addEventListener(
+        employeeModal.addEventListener(
                 "click",
                 function (event) {
-                    if (event.target === this) {
+                    if (event.target === employeeModal) {
                         closeModal();
                     }
                 }
         );
-    </script>
 
-    <script src="${pageContext.request.contextPath}/js/nhanvien.js"></script>
+        document.getElementById("employeeSearch")
+                .addEventListener(
+                        "input",
+                        function () {
+                            const keyword =
+                                    this.value
+                                            .toLowerCase()
+                                            .normalize("NFD")
+                                            .replace(
+                                                    /[\u0300-\u036f]/g,
+                                                    ""
+                                            );
+
+                            document.querySelectorAll(".employee-row")
+                                    .forEach(row => {
+                                        const text =
+                                                row.dataset.search
+                                                        .toLowerCase()
+                                                        .normalize("NFD")
+                                                        .replace(
+                                                                /[\u0300-\u036f]/g,
+                                                                ""
+                                                        );
+
+                                        row.style.display =
+                                                text.includes(keyword)
+                                                ? ""
+                                                : "none";
+                                    });
+                        }
+                );
+    </script>
 
 </body>
 </html>
