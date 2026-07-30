@@ -3,387 +3,554 @@ package dao;
 import model.NguyenLieu;
 import util.DBConnect;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class khoDAO {
 
-    public ArrayList<NguyenLieu>
-            getAllNguyenLieu() {
+    private static final Set<String> DON_VI_CHO_PHEP =
+            new LinkedHashSet<>(
+                    Arrays.asList(
+                            "g",
+                            "ml",
+                            "cái",
+                            "gói",
+                            "hộp",
+                            "chai",
+                            "quả"
+                    )
+            );
 
-        Map<String, NguyenLieu> data =
+    public List<NguyenLieu> getAll() {
+
+        Map<String, NguyenLieu> nguyenLieuMap =
                 new LinkedHashMap<>();
 
-        String sqlKho = """
-            SELECT MaNL,
-                   TenNL,
-                   SoLuong,
-                   DonVi
-            FROM Kho
-            ORDER BY MaNL
+        String sqlNguyenLieu = """
+            SELECT
+                MaNguyenLieu,
+                TenNguyenLieu,
+                SoLuongTon,
+                MucNhapCoDinh,
+                DonVi,
+                TrangThai
+            FROM NguyenLieu
+            ORDER BY MaNguyenLieu
             """;
 
-        String sqlCongThuc = """
-            SELECT ct.MaNL,
-                   m.TenMon,
-                   ct.SoLuongCan,
-                   k.DonVi
-            FROM CongThucMon ct
-            JOIN Menu m
-                ON m.MaMon = ct.MaMon
-            JOIN Kho k
-                ON k.MaNL = ct.MaNL
-            ORDER BY ct.MaNL,
-                     m.MaMon
+        String sqlSanPhamSuDung = """
+            SELECT
+                ct.MaNguyenLieu,
+                sp.TenSanPham
+            FROM CongThucSanPham ct
+            INNER JOIN SanPham sp
+                ON sp.MaSanPham = ct.MaSanPham
+            ORDER BY
+                ct.MaNguyenLieu,
+                sp.TenSanPham
             """;
 
         try (
-            Connection conn =
-                    DBConnect.getConnection();
-
-            PreparedStatement psKho =
-                    conn.prepareStatement(
-                            sqlKho
-                    );
-
-            ResultSet rsKho =
-                    psKho.executeQuery()
+            Connection connection = openConnection()
         ) {
-            while (rsKho.next()) {
-                NguyenLieu nl =
-                        mapRow(rsKho);
+            try (
+                PreparedStatement statement =
+                        connection.prepareStatement(
+                                sqlNguyenLieu
+                        );
 
-                data.put(
-                        nl.getMaNL(),
-                        nl
-                );
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                while (resultSet.next()) {
+
+                    NguyenLieu nguyenLieu =
+                            mapRow(resultSet);
+
+                    nguyenLieuMap.put(
+                            nguyenLieu.getMaNguyenLieu(),
+                            nguyenLieu
+                    );
+                }
             }
 
             try (
-                PreparedStatement psCongThuc =
-                        conn.prepareStatement(
-                                sqlCongThuc
+                PreparedStatement statement =
+                        connection.prepareStatement(
+                                sqlSanPhamSuDung
                         );
 
-                ResultSet rsCongThuc =
-                        psCongThuc.executeQuery()
+                ResultSet resultSet =
+                        statement.executeQuery()
             ) {
-                while (rsCongThuc.next()) {
-                    String maNL =
-                            rsCongThuc.getString(
-                                    "MaNL"
+                while (resultSet.next()) {
+
+                    String maNguyenLieu =
+                            resultSet.getString(
+                                    "MaNguyenLieu"
                             );
 
-                    NguyenLieu nl =
-                            data.get(maNL);
+                    NguyenLieu nguyenLieu =
+                            nguyenLieuMap.get(
+                                    maNguyenLieu
+                            );
 
-                    if (nl == null) {
+                    if (nguyenLieu == null) {
                         continue;
                     }
 
-                    String dongCongThuc =
-                            rsCongThuc.getString(
-                                    "TenMon"
-                            )
-                            + ": "
-                            + formatNumber(
-                                rsCongThuc
-                                    .getBigDecimal(
-                                        "SoLuongCan"
-                                    )
-                            )
-                            + " "
-                            + rsCongThuc.getString(
-                                    "DonVi"
-                            )
-                            + "/phần";
+                    String tenSanPham =
+                            resultSet.getString(
+                                    "TenSanPham"
+                            );
+
+                    String danhSachHienTai =
+                            nguyenLieu.getSanPhamSuDung();
 
                     if (
-                        nl.getCongThucSuDung()
-                            == null
-                        || nl.getCongThucSuDung()
-                            .isBlank()
+                        danhSachHienTai == null
+                        || danhSachHienTai.isBlank()
                     ) {
-                        nl.setCongThucSuDung(
-                                dongCongThuc
+                        nguyenLieu.setSanPhamSuDung(
+                                tenSanPham
                         );
 
                     } else {
-                        nl.setCongThucSuDung(
-                                nl.getCongThucSuDung()
-                                + " • "
-                                + dongCongThuc
+                        nguyenLieu.setSanPhamSuDung(
+                                danhSachHienTai
+                                + ", "
+                                + tenSanPham
                         );
                     }
                 }
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException exception) {
             throw new IllegalStateException(
-                    "Không tải được dữ liệu kho.",
-                    e
+                    "Không tải được danh sách nguyên liệu: "
+                    + exception.getMessage(),
+                    exception
             );
         }
 
         return new ArrayList<>(
-                data.values()
+                nguyenLieuMap.values()
         );
     }
 
-    public NguyenLieu getNguyenLieuById(
-            String maNL
+    public NguyenLieu findById(
+            String maNguyenLieu
     ) {
+        if (
+            maNguyenLieu == null
+            || maNguyenLieu.isBlank()
+        ) {
+            return null;
+        }
+
         String sql = """
-            SELECT MaNL,
-                   TenNL,
-                   SoLuong,
-                   DonVi
-            FROM Kho
-            WHERE MaNL = ?
+            SELECT
+                MaNguyenLieu,
+                TenNguyenLieu,
+                SoLuongTon,
+                MucNhapCoDinh,
+                DonVi,
+                TrangThai
+            FROM NguyenLieu
+            WHERE MaNguyenLieu = ?
             """;
 
         try (
-            Connection conn =
-                    DBConnect.getConnection();
+            Connection connection =
+                    openConnection();
 
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
         ) {
-            ps.setString(
+            statement.setString(
                     1,
-                    maNL
+                    maNguyenLieu.trim()
             );
 
             try (
-                ResultSet rs =
-                        ps.executeQuery()
+                ResultSet resultSet =
+                        statement.executeQuery()
             ) {
-                return rs.next()
-                        ? mapRow(rs)
-                        : null;
+                if (resultSet.next()) {
+                    return mapRow(resultSet);
+                }
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException exception) {
             throw new IllegalStateException(
-                    "Không tìm thấy nguyên liệu.",
-                    e
+                    "Không tìm được nguyên liệu: "
+                    + exception.getMessage(),
+                    exception
             );
         }
+
+        return null;
     }
 
-    public boolean insertNguyenLieu(
-            NguyenLieu nl
+    public void insert(
+            NguyenLieu nguyenLieu
     ) {
-        validateNguyenLieu(nl);
+        validate(nguyenLieu);
 
         String sql = """
-            INSERT INTO Kho(
-                MaNL,
-                TenNL,
-                SoLuong,
-                DonVi
+            INSERT INTO NguyenLieu (
+                MaNguyenLieu,
+                TenNguyenLieu,
+                SoLuongTon,
+                MucNhapCoDinh,
+                DonVi,
+                TrangThai
             )
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
             """;
 
         try (
-            Connection conn =
-                    DBConnect.getConnection();
+            Connection connection =
+                    openConnection();
 
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
         ) {
-            ps.setString(
+            statement.setString(
                     1,
-                    nl.getMaNL().trim()
+                    nguyenLieu
+                            .getMaNguyenLieu()
+                            .trim()
             );
 
-            ps.setString(
+            statement.setString(
                     2,
-                    nl.getTenNL().trim()
+                    nguyenLieu
+                            .getTenNguyenLieu()
+                            .trim()
             );
 
-            ps.setBigDecimal(
+            statement.setInt(
                     3,
-                    nl.getSoLuong()
+                    nguyenLieu.getSoLuongTon()
             );
 
-            ps.setString(
+            statement.setInt(
                     4,
-                    nl.getDonVi().trim()
+                    nguyenLieu.getMucNhapCoDinh()
             );
 
-            return ps.executeUpdate() == 1;
+            statement.setString(
+                    5,
+                    nguyenLieu.getDonVi()
+            );
 
-        } catch (SQLException e) {
+            statement.setBoolean(
+                    6,
+                    nguyenLieu.isTrangThai()
+            );
+
+            statement.executeUpdate();
+
+        } catch (SQLException exception) {
+
+            String message =
+                    exception.getMessage() == null
+                    ? ""
+                    : exception
+                            .getMessage()
+                            .toLowerCase();
+
             if (
-                e.getMessage() != null
-                && e.getMessage()
-                    .toLowerCase()
-                    .contains("duplicate")
+                message.contains("duplicate")
+                || message.contains("primary key")
+                || message.contains("unique")
             ) {
                 throw new IllegalStateException(
                         "Mã nguyên liệu đã tồn tại.",
-                        e
+                        exception
                 );
             }
 
             throw new IllegalStateException(
-                    "Không thêm được nguyên liệu.",
-                    e
+                    "Không thêm được nguyên liệu: "
+                    + exception.getMessage(),
+                    exception
             );
         }
     }
 
-    public boolean updateNguyenLieu(
-            NguyenLieu nl
+    public void update(
+            NguyenLieu nguyenLieu
     ) {
-        validateNguyenLieu(nl);
+        validate(nguyenLieu);
 
         String sql = """
-            UPDATE Kho
-            SET TenNL = ?,
-                SoLuong = ?,
-                DonVi = ?
-            WHERE MaNL = ?
+            UPDATE NguyenLieu
+            SET
+                TenNguyenLieu = ?,
+                MucNhapCoDinh = ?,
+                DonVi = ?,
+                TrangThai = ?
+            WHERE MaNguyenLieu = ?
             """;
 
         try (
-            Connection conn =
-                    DBConnect.getConnection();
+            Connection connection =
+                    openConnection();
 
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
         ) {
-            ps.setString(
+            statement.setString(
                     1,
-                    nl.getTenNL().trim()
+                    nguyenLieu
+                            .getTenNguyenLieu()
+                            .trim()
             );
 
-            ps.setBigDecimal(
+            statement.setInt(
                     2,
-                    nl.getSoLuong()
+                    nguyenLieu.getMucNhapCoDinh()
             );
 
-            ps.setString(
+            statement.setString(
                     3,
-                    nl.getDonVi().trim()
+                    nguyenLieu.getDonVi()
             );
 
-            ps.setString(
+            statement.setBoolean(
                     4,
-                    nl.getMaNL().trim()
+                    nguyenLieu.isTrangThai()
             );
 
-            return ps.executeUpdate() == 1;
+            statement.setString(
+                    5,
+                    nguyenLieu
+                            .getMaNguyenLieu()
+                            .trim()
+            );
 
-        } catch (SQLException e) {
+            int soDongCapNhat =
+                    statement.executeUpdate();
+
+            if (soDongCapNhat != 1) {
+                throw new IllegalStateException(
+                        "Không tìm thấy nguyên liệu cần sửa."
+                );
+            }
+
+        } catch (SQLException exception) {
             throw new IllegalStateException(
-                    "Không cập nhật được nguyên liệu.",
-                    e
+                    "Không cập nhật được nguyên liệu: "
+                    + exception.getMessage(),
+                    exception
             );
         }
     }
 
-    /*
-     * Không có hàm xóa nguyên liệu.
-     * Nguyên liệu chỉ được thêm hoặc cập nhật.
-     */
+    public void nhapKhoCoDinh(
+            String maNguyenLieu
+    ) {
+        if (
+            maNguyenLieu == null
+            || maNguyenLieu.isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    "Mã nguyên liệu không hợp lệ."
+            );
+        }
+
+        String sql = """
+            UPDATE NguyenLieu
+            SET SoLuongTon =
+                SoLuongTon + MucNhapCoDinh
+            WHERE MaNguyenLieu = ?
+              AND TrangThai = 1
+            """;
+
+        try (
+            Connection connection =
+                    openConnection();
+
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setString(
+                    1,
+                    maNguyenLieu.trim()
+            );
+
+            int soDongCapNhat =
+                    statement.executeUpdate();
+
+            if (soDongCapNhat != 1) {
+                throw new IllegalStateException(
+                        "Không nhập được kho. "
+                        + "Nguyên liệu không tồn tại "
+                        + "hoặc đã ngừng sử dụng."
+                );
+            }
+
+        } catch (SQLException exception) {
+            throw new IllegalStateException(
+                    "Không nhập được kho: "
+                    + exception.getMessage(),
+                    exception
+            );
+        }
+    }
+
+    public List<String> getDonViChoPhep() {
+        return new ArrayList<>(
+                DON_VI_CHO_PHEP
+        );
+    }
 
     private NguyenLieu mapRow(
-            ResultSet rs
+            ResultSet resultSet
     ) throws SQLException {
 
-        NguyenLieu nl =
+        NguyenLieu nguyenLieu =
                 new NguyenLieu();
 
-        nl.setMaNL(
-                rs.getString("MaNL")
+        nguyenLieu.setMaNguyenLieu(
+                resultSet.getString(
+                        "MaNguyenLieu"
+                )
         );
 
-        nl.setTenNL(
-                rs.getString("TenNL")
+        nguyenLieu.setTenNguyenLieu(
+                resultSet.getString(
+                        "TenNguyenLieu"
+                )
         );
 
-        nl.setSoLuong(
-                rs.getBigDecimal("SoLuong")
+        nguyenLieu.setSoLuongTon(
+                resultSet.getInt(
+                        "SoLuongTon"
+                )
         );
 
-        nl.setDonVi(
-                rs.getString("DonVi")
+        nguyenLieu.setMucNhapCoDinh(
+                resultSet.getInt(
+                        "MucNhapCoDinh"
+                )
         );
 
-        return nl;
+        nguyenLieu.setDonVi(
+                resultSet.getString(
+                        "DonVi"
+                )
+        );
+
+        nguyenLieu.setTrangThai(
+                resultSet.getBoolean(
+                        "TrangThai"
+                )
+        );
+
+        return nguyenLieu;
     }
 
-    private void validateNguyenLieu(
-            NguyenLieu nl
+    private void validate(
+            NguyenLieu nguyenLieu
     ) {
-        if (nl == null) {
+        if (nguyenLieu == null) {
             throw new IllegalArgumentException(
-                    "Thông tin nguyên liệu không hợp lệ."
+                    "Dữ liệu nguyên liệu không hợp lệ."
             );
         }
 
         if (
-            nl.getMaNL() == null
-            || nl.getMaNL().isBlank()
+            nguyenLieu.getMaNguyenLieu() == null
+            || nguyenLieu
+                    .getMaNguyenLieu()
+                    .isBlank()
         ) {
             throw new IllegalArgumentException(
-                    "Mã nguyên liệu là bắt buộc."
+                    "Mã nguyên liệu không được để trống."
             );
         }
 
         if (
-            nl.getTenNL() == null
-            || nl.getTenNL().isBlank()
+            nguyenLieu.getTenNguyenLieu() == null
+            || nguyenLieu
+                    .getTenNguyenLieu()
+                    .isBlank()
         ) {
             throw new IllegalArgumentException(
-                    "Tên nguyên liệu là bắt buộc."
+                    "Tên nguyên liệu không được để trống."
             );
         }
 
-        if (nl.getSoLuong() == null) {
+        if (nguyenLieu.getSoLuongTon() < 0) {
             throw new IllegalArgumentException(
-                    "Số lượng nguyên liệu là bắt buộc."
-            );
-        }
-
-        if (
-            nl.getSoLuong().compareTo(
-                    BigDecimal.ZERO
-            ) < 0
-        ) {
-            throw new IllegalArgumentException(
-                    "Số lượng nguyên liệu không được âm."
+                    "Số lượng tồn không được nhỏ hơn 0."
             );
         }
 
         if (
-            nl.getDonVi() == null
-            || nl.getDonVi().isBlank()
+            nguyenLieu.getMucNhapCoDinh() <= 0
         ) {
             throw new IllegalArgumentException(
-                    "Đơn vị tính là bắt buộc."
+                    "Mức nhập cố định phải lớn hơn 0."
             );
         }
+
+        String donVi =
+                nguyenLieu.getDonVi();
+
+        if (donVi == null) {
+            throw new IllegalArgumentException(
+                    "Vui lòng chọn đơn vị nguyên liệu."
+            );
+        }
+
+        donVi = donVi.trim();
+
+        if (
+            !DON_VI_CHO_PHEP.contains(
+                    donVi
+            )
+        ) {
+            throw new IllegalArgumentException(
+                    "Đơn vị phải là g, ml, cái, "
+                    + "gói, hộp, chai hoặc quả."
+            );
+        }
+
+        nguyenLieu.setDonVi(donVi);
     }
 
-    private String formatNumber(
-            BigDecimal value
-    ) {
-        if (value == null) {
-            return "0";
+    private Connection openConnection()
+            throws SQLException {
+
+        Connection connection =
+                DBConnect.getConnection();
+
+        if (connection == null) {
+            throw new SQLException(
+                    "DBConnect trả về kết nối null."
+            );
         }
 
-        return value
-                .stripTrailingZeros()
-                .toPlainString();
+        if (connection.isClosed()) {
+            throw new SQLException(
+                    "Kết nối SQL Server đã bị đóng."
+            );
+        }
+
+        return connection;
     }
 }

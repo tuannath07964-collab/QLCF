@@ -1,22 +1,21 @@
 package model;
 
+import java.math.BigDecimal;
+
 public class ChiTietHoaDon {
 
     private int maCT;
-    private String maHD;
-    private String maMon;
+    private int maHD;
+
+    private String maSanPham;
+    private String tenSanPham;
+
     private int soLuong;
-    private double donGia;
+
+    private BigDecimal donGia =
+            BigDecimal.ZERO;
 
     public ChiTietHoaDon() {
-    }
-
-    public ChiTietHoaDon(int maCT, String maHD, String maMon, int soLuong, double donGia) {
-        this.maCT = maCT;
-        this.maHD = maHD;
-        this.maMon = maMon;
-        this.soLuong = soLuong;
-        this.donGia = donGia;
     }
 
     public int getMaCT() {
@@ -27,20 +26,28 @@ public class ChiTietHoaDon {
         this.maCT = maCT;
     }
 
-    public String getMaHD() {
+    public int getMaHD() {
         return maHD;
     }
 
-    public void setMaHD(String maHD) {
+    public void setMaHD(int maHD) {
         this.maHD = maHD;
     }
 
-    public String getMaMon() {
-        return maMon;
+    public String getMaSanPham() {
+        return maSanPham;
     }
 
-    public void setMaMon(String maMon) {
-        this.maMon = maMon;
+    public void setMaSanPham(String maSanPham) {
+        this.maSanPham = maSanPham;
+    }
+
+    public String getTenSanPham() {
+        return tenSanPham;
+    }
+
+    public void setTenSanPham(String tenSanPham) {
+        this.tenSanPham = tenSanPham;
     }
 
     public int getSoLuong() {
@@ -51,11 +58,17 @@ public class ChiTietHoaDon {
         this.soLuong = soLuong;
     }
 
-    public double getDonGia() {
+    public BigDecimal getDonGia() {
         return donGia;
     }
 
-    public void setDonGia(double donGia) {
+    public void setDonGia(BigDecimal donGia) {
         this.donGia = donGia;
+    }
+
+    public BigDecimal getThanhTien() {
+        return donGia.multiply(
+                BigDecimal.valueOf(soLuong)
+        );
     }
 }

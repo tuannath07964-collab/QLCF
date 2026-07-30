@@ -13,11 +13,9 @@
         </h1>
 
         <c:if test="${not empty param.subtitle}">
-
             <p>
                 <c:out value="${param.subtitle}"/>
             </p>
-
         </c:if>
 
     </div>
@@ -35,8 +33,6 @@
             </strong>
 
             <span>
-                <c:out value="${sessionScope.maNV}"/>
-                ·
                 <c:out value="${sessionScope.chucVu}"/>
             </span>
 

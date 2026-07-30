@@ -8,13 +8,18 @@
 
     <div class="sidebar-brand">
         <i class="fa-solid fa-mug-hot"></i>
-        <span>QUẢN LÝ QUÁN CAFE</span>
+
+        <div>
+            <strong>QLCF</strong>
+            <span>Quản lý bán hàng</span>
+        </div>
     </div>
 
     <ul class="sidebar-menu">
 
         <li>
-            <a class="sidebar-link ${param.active == 'home' ? 'active' : ''}"
+            <a class="sidebar-link
+               ${param.active == 'home' ? 'active' : ''}"
                href="${pageContext.request.contextPath}/homepage">
 
                 <i class="fa-solid fa-house"></i>
@@ -23,52 +28,66 @@
         </li>
 
         <li>
-            <a class="sidebar-link ${param.active == 'employee' ? 'active' : ''}"
-               href="${pageContext.request.contextPath}/nhanvien">
-
-                <i class="fa-solid fa-user-tie"></i>
-                <span>Nhân viên</span>
-            </a>
-        </li>
-
-        <li>
-            <a class="sidebar-link ${param.active == 'invoice' ? 'active' : ''}"
+            <a class="sidebar-link
+               ${param.active == 'invoice' ? 'active' : ''}"
                href="${pageContext.request.contextPath}/hoadon">
 
                 <i class="fa-solid fa-file-invoice-dollar"></i>
-                <span>Hóa đơn</span>
+                <span>Hóa đơn bán hàng</span>
+            </a>
+        </li>
+
+        <li class="sidebar-section-title">
+            SẢN PHẨM
+        </li>
+
+        <li>
+            <a class="sidebar-link
+               ${param.active == 'productManage' ? 'active' : ''}"
+               href="${pageContext.request.contextPath}/san-pham/quan-ly">
+
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Quản lý sản phẩm</span>
             </a>
         </li>
 
         <li>
-            <a class="sidebar-link ${param.active == 'menu' ? 'active' : ''}"
-               href="${pageContext.request.contextPath}/menu">
+            <a class="sidebar-link
+               ${param.active == 'category' ? 'active' : ''}"
+               href="${pageContext.request.contextPath}/danh-muc-san-pham">
 
-                <i class="fa-solid fa-mug-saucer"></i>
-                <span>Menu</span>
+                <i class="fa-solid fa-layer-group"></i>
+                <span>Danh mục sản phẩm</span>
             </a>
         </li>
 
         <li>
-            <a class="sidebar-link ${param.active == 'table' ? 'active' : ''}"
-               href="${pageContext.request.contextPath}/ban">
+            <a class="sidebar-link
+               ${param.active == 'productList' ? 'active' : ''}"
+               href="${pageContext.request.contextPath}/san-pham/danh-sach">
 
-                <i class="fa-solid fa-chair"></i>
-                <span>Bàn</span>
+                <i class="fa-solid fa-list"></i>
+                <span>Danh sách sản phẩm</span>
             </a>
         </li>
 
+        <li class="sidebar-section-title">
+            QUẢN LÝ
+        </li>
+
         <li>
-            <a class="sidebar-link ${param.active == 'warehouse' ? 'active' : ''}"
+            <a class="sidebar-link
+               ${param.active == 'warehouse' ? 'active' : ''}"
                href="${pageContext.request.contextPath}/KhoServlet">
 
-                <i class="fa-solid fa-box"></i>
-                <span>Kho</span>
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span>Kho nguyên liệu</span>
             </a>
         </li>
 
         <li>
-            <a class="sidebar-link ${param.active == 'customer' ? 'active' : ''}"
+            <a class="sidebar-link
+               ${param.active == 'customer' ? 'active' : ''}"
                href="${pageContext.request.contextPath}/khachhang">
 
                 <i class="fa-solid fa-users"></i>
@@ -76,18 +95,15 @@
             </a>
         </li>
 
-        <c:if test="${sessionScope.chucVu == 'Quản lý'}">
+        <li>
+            <a class="sidebar-link
+               ${param.active == 'statistics' ? 'active' : ''}"
+               href="${pageContext.request.contextPath}/ThongKeServlet">
 
-            <li>
-                <a class="sidebar-link ${param.active == 'statistics' ? 'active' : ''}"
-                   href="${pageContext.request.contextPath}/ThongKeServlet">
-
-                    <i class="fa-solid fa-chart-column"></i>
-                    <span>Thống kê</span>
-                </a>
-            </li>
-
-        </c:if>
+                <i class="fa-solid fa-chart-column"></i>
+                <span>Thống kê</span>
+            </a>
+        </li>
 
     </ul>
 

@@ -4,493 +4,565 @@
 <%@ taglib prefix="c"
            uri="jakarta.tags.core" %>
 
-<%@ taglib prefix="fmt"
-           uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn"
+           uri="jakarta.tags.functions" %>
 
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
+    <head>
+        <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0">
 
-    <title>Quản lý kho</title>
+        <title>Kho nguyên liệu</title>
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-    <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/css/app.css">
-</head>
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/app.css?v=50">
 
-<body>
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/store.css?v=50">
+    </head>
 
-    <jsp:include page="/views/components/sidebar.jsp">
-        <jsp:param name="active"
-                   value="warehouse"/>
-    </jsp:include>
+    <body>
 
-    <main class="app-main">
-
-        <jsp:include page="/views/components/topbar.jsp">
-            <jsp:param name="title"
-                       value="Kho nguyên liệu"/>
-
-            <jsp:param name="subtitle"
-                       value="Theo dõi số lượng nguyên liệu hiện có"/>
+        <jsp:include page="/views/components/sidebar.jsp">
+            <jsp:param name="active"
+                       value="warehouse"/>
         </jsp:include>
 
-        <div class="app-content">
+        <main class="app-main">
 
-            <c:if test="${param.success == 'add'}">
+            <jsp:include page="/views/components/topbar.jsp">
+                <jsp:param name="title"
+                           value="Kho nguyên liệu"/>
 
-                <div class="alert alert-success">
+                <jsp:param name="subtitle"
+                           value="Toàn bộ nguyên liệu sử dụng chung đơn vị thống nhất"/>
+            </jsp:include>
 
-                    <i class="fa-solid fa-circle-check"></i>
-                    Thêm nguyên liệu thành công.
-                </div>
+            <div class="app-content">
 
-            </c:if>
+                <c:if test="${param.success == 'save'}">
 
-            <c:if test="${param.success == 'edit'}">
+                    <div class="alert alert-success">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Lưu nguyên liệu thành công.
+                    </div>
 
-                <div class="alert alert-success">
-
-                    <i class="fa-solid fa-circle-check"></i>
-                    Cập nhật nguyên liệu thành công.
-                </div>
-
-            </c:if>
-
-            <c:if test="${not empty errorMessage}">
-
-                <div class="alert alert-danger">
-
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    ${errorMessage}
-                </div>
-
-            </c:if>
-
-            <c:set var="tongNguyenLieu"
-                   value="0"/>
-
-            <c:set var="sapHet"
-                   value="0"/>
-
-            <c:set var="hetHang"
-                   value="0"/>
-
-            <c:forEach var="item"
-                       items="${dsKho}">
-
-                <c:set var="tongNguyenLieu"
-                       value="${tongNguyenLieu + 1}"/>
-
-                <c:if test="${item.sapHetHang}">
-                    <c:set var="sapHet"
-                           value="${sapHet + 1}"/>
                 </c:if>
 
-                <c:if test="${item.hetHang}">
-                    <c:set var="hetHang"
-                           value="${hetHang + 1}"/>
+                <c:if test="${param.success == 'restock'}">
+
+                    <div class="alert alert-success">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Nhập kho theo mức cố định thành công.
+                    </div>
+
                 </c:if>
-
-            </c:forEach>
-
-            <section class="summary-grid">
-
-                <div class="summary-card">
-
-                    <div class="summary-icon blue">
-                        <i class="fa-solid fa-boxes-stacked"></i>
-                    </div>
-
-                    <div class="summary-content">
-                        <span>Tổng nguyên liệu</span>
-                        <strong>${tongNguyenLieu}</strong>
-                    </div>
-
-                </div>
-
-                <div class="summary-card">
-
-                    <div class="summary-icon orange">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                    </div>
-
-                    <div class="summary-content">
-                        <span>Sắp hết</span>
-                        <strong>${sapHet}</strong>
-                    </div>
-
-                </div>
-
-                <div class="summary-card">
-
-                    <div class="summary-icon red">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                    </div>
-
-                    <div class="summary-content">
-                        <span>Hết hàng</span>
-                        <strong>${hetHang}</strong>
-                    </div>
-
-                </div>
-
-            </section>
-
-            <div class="page-header">
-
-                <div>
-                    <h2>Danh sách nguyên liệu</h2>
-
-                    <p>
-                        Kho không hỗ trợ xóa, chỉ thêm hoặc cập nhật số lượng.
-                    </p>
-                </div>
-
-                <div class="page-actions">
-
-                    <a class="btn btn-primary"
-                       href="${pageContext.request.contextPath}/KhoServlet?action=loadForm">
-
-                        <i class="fa-solid fa-plus"></i>
-                        Thêm nguyên liệu
-                    </a>
-
-                </div>
-
-            </div>
-
-            <div class="toolbar">
-
-                <div class="search-box">
-
-                    <i class="fa-solid fa-magnifying-glass"></i>
-
-                    <input type="text"
-                           id="inventorySearch"
-                           placeholder="Tìm mã hoặc tên nguyên liệu..."
-                           autocomplete="off">
-                </div>
-
-            </div>
-
-            <section class="card">
-
-                <div class="table-wrapper">
-
-                    <table class="data-table">
-
-                        <thead>
-                            <tr>
-                                <th>Mã NL</th>
-                                <th>Nguyên liệu</th>
-                                <th>Số lượng</th>
-                                <th>Đơn vị</th>
-                                <th>Trạng thái</th>
-                                <th>Công thức sử dụng</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            <c:choose>
-
-                                <c:when test="${not empty dsKho}">
-
-                                    <c:forEach var="item"
-                                               items="${dsKho}">
-
-                                        <tr class="inventory-row"
-                                            data-search="${item.maNL}
-                                                         ${item.tenNL}
-                                                         ${item.donVi}
-                                                         ${item.trangThaiKho}">
-
-                                            <td>
-                                                <strong>${item.maNL}</strong>
-                                            </td>
-
-                                            <td class="inventory-name">
-
-                                                <strong>${item.tenNL}</strong>
-
-                                                <span>
-                                                    Nguyên liệu kho
-                                                </span>
-                                            </td>
-
-                                            <td>
-
-                                                <span class="stock-number
-                                                      ${item.hetHang
-                                                        ? 'empty'
-                                                        : item.sapHetHang
-                                                            ? 'low'
-                                                            : ''}">
-
-                                                    <fmt:formatNumber
-                                                        value="${item.soLuong}"
-                                                        pattern="#,##0.##"/>
-                                                </span>
-
-                                            </td>
-
-                                            <td>${item.donVi}</td>
-
-                                            <td>
-
-                                                <span class="badge
-                                                      ${item.hetHang
-                                                        ? 'badge-danger'
-                                                        : item.sapHetHang
-                                                            ? 'badge-warning'
-                                                            : 'badge-success'}">
-
-                                                    ${item.trangThaiKho}
-                                                </span>
-                                            </td>
-
-                                            <td>
-                                                ${empty item.congThucSuDung
-                                                    ? 'Chưa được sử dụng trong công thức'
-                                                    : item.congThucSuDung}
-                                            </td>
-
-                                            <td>
-
-                                                <a class="table-action"
-                                                   href="${pageContext.request.contextPath}/KhoServlet?action=loadForm&maNL=${item.maNL}"
-                                                   title="Cập nhật">
-
-                                                    <i class="fa-solid fa-pen"></i>
-                                                </a>
-                                            </td>
-
-                                        </tr>
-
-                                    </c:forEach>
-
-                                </c:when>
-
-                                <c:otherwise>
-
-                                    <tr>
-                                        <td colspan="7">
-
-                                            <div class="empty-state">
-
-                                                <i class="fa-solid fa-box-open"></i>
-
-                                                <strong>
-                                                    Chưa có nguyên liệu
-                                                </strong>
-                                            </div>
-
-                                        </td>
-                                    </tr>
-
-                                </c:otherwise>
-
-                            </c:choose>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </section>
-
-        </div>
-
-    </main>
-
-    <div class="modal-overlay ${showModal ? 'show' : ''}"
-         id="inventoryModal">
-
-        <div class="modal-dialog">
-
-            <div class="modal-header">
-
-                <h3>
-                    ${mode == 'edit'
-                        ? 'Cập nhật nguyên liệu'
-                        : 'Thêm nguyên liệu'}
-                </h3>
-
-                <a class="modal-close"
-                   href="${pageContext.request.contextPath}/KhoServlet">
-
-                    <i class="fa-solid fa-xmark"></i>
-                </a>
-
-            </div>
-
-            <div class="modal-body">
 
                 <c:if test="${not empty errorMessage}">
 
                     <div class="alert alert-danger">
-
                         <i class="fa-solid fa-circle-exclamation"></i>
-                        ${errorMessage}
+                        <c:out value="${errorMessage}"/>
                     </div>
 
                 </c:if>
 
-                <form action="${pageContext.request.contextPath}/KhoServlet"
-                      method="post">
+                <c:set var="soLuongSapHet"
+                       value="0"/>
 
-                    <input type="hidden"
-                           name="action"
-                           value="${mode == 'edit' ? 'edit' : 'add'}">
+                <c:set var="soLuongHet"
+                       value="0"/>
 
-                    <div class="form-grid">
+                <c:forEach var="nguyenLieu"
+                           items="${nguyenLieuList}">
 
-                        <div class="form-group">
+                    <c:if test="${nguyenLieu.sapHet}">
+                        <c:set var="soLuongSapHet"
+                               value="${soLuongSapHet + 1}"/>
+                    </c:if>
 
-                            <label class="form-label">
-                                Mã nguyên liệu
-                            </label>
+                    <c:if test="${nguyenLieu.hetHang}">
+                        <c:set var="soLuongHet"
+                               value="${soLuongHet + 1}"/>
+                    </c:if>
 
-                            <c:choose>
+                </c:forEach>
 
-                                <c:when test="${mode == 'edit'}">
+                <section class="summary-grid">
 
-                                    <input type="hidden"
-                                           name="maNL"
-                                           value="${nl.maNL}">
+                    <article class="summary-card">
 
-                                    <input class="form-control"
-                                           type="text"
-                                           value="${nl.maNL}"
-                                           readonly>
-                                </c:when>
-
-                                <c:otherwise>
-
-                                    <input class="form-control"
-                                           type="text"
-                                           name="maNL"
-                                           maxlength="20"
-                                           required>
-                                </c:otherwise>
-
-                            </c:choose>
-
+                        <div class="summary-icon blue">
+                            <i class="fa-solid fa-boxes-stacked"></i>
                         </div>
 
-                        <div class="form-group">
-
-                            <label class="form-label">
-                                Tên nguyên liệu
-                            </label>
-
-                            <input class="form-control"
-                                   type="text"
-                                   name="tenNL"
-                                   value="${nl.tenNL}"
-                                   maxlength="100"
-                                   required>
+                        <div class="summary-content">
+                            <span>Tổng nguyên liệu</span>
+                            <strong>${fn:length(nguyenLieuList)}</strong>
                         </div>
 
-                        <div class="form-group">
+                    </article>
 
-                            <label class="form-label">
-                                Số lượng
-                            </label>
+                    <article class="summary-card">
 
-                            <input class="form-control"
-                                   type="number"
-                                   name="soLuong"
-                                   value="${empty nl.soLuong ? 0 : nl.soLuong}"
-                                   min="0"
-                                   step="0.01"
-                                   required>
+                        <div class="summary-icon orange">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
 
-                        <div class="form-group">
-
-                            <label class="form-label">
-                                Đơn vị
-                            </label>
-
-                            <input class="form-control"
-                                   type="text"
-                                   name="donVi"
-                                   value="${nl.donVi}"
-                                   maxlength="30"
-                                   placeholder="kg, hộp, chai..."
-                                   required>
+                        <div class="summary-content">
+                            <span>Sắp hết</span>
+                            <strong>${soLuongSapHet}</strong>
                         </div>
 
+                    </article>
+
+                    <article class="summary-card">
+
+                        <div class="summary-icon red">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </div>
+
+                        <div class="summary-content">
+                            <span>Hết hàng</span>
+                            <strong>${soLuongHet}</strong>
+                        </div>
+
+                    </article>
+
+                </section>
+
+                <div class="page-header">
+
+                    <div>
+                        <h2>Danh sách nguyên liệu</h2>
+
+                        <p>
+                            Nhấn nhập kho để cộng đúng mức nhập
+                            đã được cấu hình cho nguyên liệu.
+                        </p>
                     </div>
 
-                    <div class="form-actions">
+                    <div class="page-actions">
 
-                        <a class="btn btn-outline"
-                           href="${pageContext.request.contextPath}/KhoServlet">
+                        <a class="btn btn-primary"
+                           href="${pageContext.request.contextPath}/KhoServlet?action=form">
 
-                            Hủy
+                            <i class="fa-solid fa-plus"></i>
+                            Thêm nguyên liệu
                         </a>
 
-                        <button type="submit"
-                                class="btn btn-primary">
+                    </div>
 
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            Lưu nguyên liệu
-                        </button>
+                </div>
+
+                <div class="toolbar">
+
+                    <div class="search-box">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <input type="text"
+                               id="warehouseSearch"
+                               placeholder="Tìm mã hoặc tên nguyên liệu..."
+                               autocomplete="off">
+                    </div>
+
+                </div>
+
+                <section class="card">
+
+                    <div class="table-wrapper">
+
+                        <table class="data-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Mã NL</th>
+                                    <th>Nguyên liệu</th>
+                                    <th>Tồn kho</th>
+                                    <th>Mức nhập cố định</th>
+                                    <th>Trạng thái</th>
+                                    <th>Sản phẩm sử dụng</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <c:choose>
+
+                                    <c:when test="${not empty nguyenLieuList}">
+
+                                        <c:forEach var="nguyenLieu"
+                                                   items="${nguyenLieuList}">
+
+                                            <tr class="warehouse-row"
+                                                data-search="${nguyenLieu.maNguyenLieu}
+                                                ${nguyenLieu.tenNguyenLieu}
+                                                ${nguyenLieu.sanPhamSuDung}">
+
+                                                <td>
+                                                    <strong>
+                                                        ${nguyenLieu.maNguyenLieu}
+                                                    </strong>
+                                                </td>
+
+                                                <td>
+                                                    <strong>
+                                                        <c:out value="${nguyenLieu.tenNguyenLieu}"/>
+                                                    </strong>
+                                                </td>
+
+                                                <td>
+
+                                                    <span class="stock-value
+                                                          ${nguyenLieu.hetHang
+                                                            ? 'empty'
+                                                            : nguyenLieu.sapHet
+                                                            ? 'low'
+                                                            : ''}">
+
+                                                        ${nguyenLieu.soLuongTon}
+                                                        ${nguyenLieu.donVi}
+                                                    </span>
+
+                                                </td>
+
+                                                <td>
+                                                    +${nguyenLieu.mucNhapCoDinh}
+                                                    ${nguyenLieu.donVi}
+                                                </td>
+
+                                                <td>
+
+                                                    <span class="badge
+                                                          ${nguyenLieu.hetHang
+                                                            ? 'badge-danger'
+                                                            : nguyenLieu.sapHet
+                                                            ? 'badge-warning'
+                                                            : nguyenLieu.trangThai
+                                                            ? 'badge-success'
+                                                            : 'badge-muted'}">
+
+                                                        ${nguyenLieu.trangThaiKho}
+                                                    </span>
+
+                                                </td>
+
+                                                <td class="recipe-text">
+
+                                                    <c:choose>
+
+                                                        <c:when test="${not empty nguyenLieu.sanPhamSuDung}">
+                                                            <c:out value="${nguyenLieu.sanPhamSuDung}"/>
+                                                        </c:when>
+
+                                                        <c:otherwise>
+                                                            Chưa có sản phẩm sử dụng
+                                                        </c:otherwise>
+
+                                                    </c:choose>
+
+                                                </td>
+
+                                                <td>
+
+                                                    <div class="table-actions">
+
+                                                        <form action="${pageContext.request.contextPath}/KhoServlet"
+                                                              method="post">
+
+                                                            <input type="hidden"
+                                                                   name="action"
+                                                                   value="restock">
+
+                                                            <input type="hidden"
+                                                                   name="id"
+                                                                   value="${nguyenLieu.maNguyenLieu}">
+
+                                                            <button class="table-action stock-action"
+                                                                    type="submit"
+                                                                    title="Nhập kho">
+
+                                                                <i class="fa-solid fa-box-open"></i>
+                                                            </button>
+
+                                                        </form>
+
+                                                        <a class="table-action"
+                                                           href="${pageContext.request.contextPath}/KhoServlet?action=form&id=${nguyenLieu.maNguyenLieu}"
+                                                           title="Cập nhật">
+
+                                                            <i class="fa-solid fa-pen"></i>
+                                                        </a>
+
+                                                    </div>
+
+                                                </td>
+
+                                            </tr>
+
+                                        </c:forEach>
+
+                                    </c:when>
+
+                                    <c:otherwise>
+
+                                        <tr>
+                                            <td colspan="7">
+
+                                                <div class="empty-state">
+
+                                                    <i class="fa-solid fa-box-open"></i>
+
+                                                    <strong>
+                                                        Chưa có nguyên liệu
+                                                    </strong>
+                                                </div>
+
+                                            </td>
+                                        </tr>
+
+                                    </c:otherwise>
+
+                                </c:choose>
+
+                            </tbody>
+
+                        </table>
 
                     </div>
 
-                </form>
+                </section>
+
+            </div>
+
+        </main>
+
+        <div class="modal-overlay
+             ${showKhoModal ? 'show' : ''}">
+
+            <div class="modal-dialog">
+
+                <div class="modal-header">
+
+                    <h3>
+                        ${empty nguyenLieuEdit
+                          ? 'Thêm nguyên liệu'
+                          : 'Cập nhật nguyên liệu'}
+                    </h3>
+
+                    <a class="modal-close"
+                       href="${pageContext.request.contextPath}/KhoServlet">
+
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <form action="${pageContext.request.contextPath}/KhoServlet"
+                          method="post">
+
+                        <input type="hidden"
+                               name="mode"
+                               value="${empty nguyenLieuEdit ? 'add' : 'edit'}">
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Mã nguyên liệu
+                                </label>
+
+                                <input class="form-control"
+                                       type="text"
+                                       name="maNguyenLieu"
+                                       value="${nguyenLieuEdit.maNguyenLieu}"
+                                       maxlength="20"
+                                       placeholder="Ví dụ: NL31"
+                                       ${not empty nguyenLieuEdit
+                                         ? 'readonly'
+                                         : ''}
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Tên nguyên liệu
+                                </label>
+
+                                <input class="form-control"
+                                       type="text"
+                                       name="tenNguyenLieu"
+                                       value="${nguyenLieuEdit.tenNguyenLieu}"
+                                       maxlength="100"
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Tồn kho ban đầu
+                                </label>
+
+                                <input class="form-control"
+                                       type="number"
+                                       name="soLuongTon"
+                                       value="${empty nguyenLieuEdit
+                                                ? 0
+                                                : nguyenLieuEdit.soLuongTon}"
+                                       min="0"
+                                       step="1"
+                                       ${not empty nguyenLieuEdit
+                                         ? 'readonly'
+                                         : ''}
+                                       required>
+
+                                <span class="form-hint">
+                                    Sau khi tạo, tồn kho chỉ thay đổi bằng
+                                    nhập kho hoặc thanh toán hóa đơn.
+                                </span>
+                            </div>
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Mức nhập cố định
+                                </label>
+
+                                <input class="form-control"
+                                       type="number"
+                                       name="mucNhapCoDinh"
+                                       value="${empty nguyenLieuEdit
+                                                ? 100
+                                                : nguyenLieuEdit.mucNhapCoDinh}"
+                                       min="1"
+                                       step="1"
+                                       required>
+
+                                <span class="form-hint">
+                                    Mỗi lần nhập sẽ cộng đúng số lượng này.
+                                </span>
+                            </div>
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Đơn vị
+                                </label>
+
+                                <select class="form-control"
+                                        name="donVi"
+                                        required>
+
+                                    <c:forEach var="donVi"
+                                               items="${donViList}">
+
+                                        <option value="${donVi}"
+                                                ${empty nguyenLieuEdit
+                                                  ? donVi == 'g' ? 'selected' : ''
+                                                  : nguyenLieuEdit.donVi == donVi
+                                                  ? 'selected'
+                                                  : ''}>
+
+                                            ${donVi}
+                                        </option>
+
+                                    </c:forEach>
+
+                                </select>
+
+                                <span class="form-hint">
+                                    Công thức sản phẩm sẽ trừ kho theo đơn vị này.
+                                </span>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label class="checkbox-item">
+
+                                    <input type="checkbox"
+                                           name="trangThai"
+                                           ${empty nguyenLieuEdit
+                                             or nguyenLieuEdit.trangThai
+                                             ? 'checked'
+                                             : ''}>
+
+                                    Đang sử dụng
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-actions">
+
+                            <a class="btn btn-outline"
+                               href="${pageContext.request.contextPath}/KhoServlet">
+
+                                Hủy
+                            </a>
+
+                            <button class="btn btn-primary"
+                                    type="submit">
+
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                Lưu nguyên liệu
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
 
             </div>
 
         </div>
 
-    </div>
+        <script>
+            const warehouseSearch =
+                    document.getElementById("warehouseSearch");
 
-    <script>
-        document.getElementById("inventorySearch")
-                .addEventListener(
-                        "input",
-                        function () {
-                            const keyword =
-                                    this.value
-                                            .toLowerCase()
-                                            .normalize("NFD")
-                                            .replace(
-                                                    /[\u0300-\u036f]/g,
-                                                    ""
-                                            );
+            function normalizeText(value) {
+                return (value || "")
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "");
+            }
 
-                            document.querySelectorAll(".inventory-row")
-                                    .forEach(row => {
-                                        const text =
-                                                row.dataset.search
-                                                        .toLowerCase()
-                                                        .normalize("NFD")
-                                                        .replace(
-                                                                /[\u0300-\u036f]/g,
-                                                                ""
-                                                        );
+            warehouseSearch.addEventListener(
+                    "input",
+                    function () {
+                        const keyword =
+                                normalizeText(this.value);
 
-                                        row.style.display =
-                                                text.includes(keyword)
-                                                ? ""
-                                                : "none";
-                                    });
-                        }
-                );
-    </script>
+                        document.querySelectorAll(".warehouse-row")
+                                .forEach(function (row) {
+                                    const text =
+                                            normalizeText(
+                                                    row.dataset.search
+                                                    );
 
-</body>
+                                    row.style.display =
+                                            text.includes(keyword)
+                                            ? ""
+                                            : "none";
+                                });
+                    }
+            );
+        </script>
+
+    </body>
 </html>

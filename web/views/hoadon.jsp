@@ -15,13 +15,16 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Quản lý hóa đơn</title>
+    <title>Hóa đơn bán hàng</title>
 
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/css/app.css">
+          href="${pageContext.request.contextPath}/css/app.css?v=50">
+
+    <link rel="stylesheet"
+          href="${pageContext.request.contextPath}/css/store.css?v=50">
 </head>
 
 <body>
@@ -35,10 +38,10 @@
 
         <jsp:include page="/views/components/topbar.jsp">
             <jsp:param name="title"
-                       value="Hóa đơn"/>
+                       value="Hóa đơn bán hàng"/>
 
             <jsp:param name="subtitle"
-                       value="Theo dõi đơn đang phục vụ, đã thanh toán và đã hủy"/>
+                       value="Tạo đơn, thanh toán hoặc hủy hóa đơn"/>
         </jsp:include>
 
         <div class="app-content">
@@ -46,7 +49,6 @@
             <c:if test="${param.success == 'paid'}">
 
                 <div class="alert alert-success">
-
                     <i class="fa-solid fa-circle-check"></i>
                     Thanh toán hóa đơn thành công.
                 </div>
@@ -56,23 +58,17 @@
             <c:if test="${param.success == 'cancel'}">
 
                 <div class="alert alert-success">
-
                     <i class="fa-solid fa-circle-check"></i>
-                    Hóa đơn đã được hủy.
+                    Hủy hóa đơn thành công.
                 </div>
 
             </c:if>
 
-            <c:if test="${not empty param.error
-                          or not empty errorMessage}">
+            <c:if test="${not empty errorMessage}">
 
                 <div class="alert alert-danger">
-
                     <i class="fa-solid fa-circle-exclamation"></i>
-
-                    ${not empty errorMessage
-                        ? errorMessage
-                        : param.error}
+                    <c:out value="${errorMessage}"/>
                 </div>
 
             </c:if>
@@ -83,64 +79,61 @@
                     <h2>Danh sách hóa đơn</h2>
 
                     <p>
-                        Mở hóa đơn để thêm món, thanh toán hoặc hủy đơn.
+                        Mỗi hóa đơn là một đơn bán hàng tại quầy,
+                        không còn phụ thuộc vào bàn.
                     </p>
                 </div>
 
                 <div class="page-actions">
 
-                    <a class="btn btn-blue"
-                       href="${pageContext.request.contextPath}/hoadon?action=takeaway">
+                    <a class="btn btn-primary"
+                       href="${pageContext.request.contextPath}/hoadon?action=create">
 
-                        <i class="fa-solid fa-bag-shopping"></i>
-                        Bán cho khách mang về
+                        <i class="fa-solid fa-plus"></i>
+                        Tạo hóa đơn
                     </a>
 
                 </div>
 
             </div>
 
-            <div class="toolbar">
+            <div class="toolbar invoice-toolbar">
 
-                <div class="toolbar-left">
+                <div class="search-box">
 
-                    <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
 
-                        <i class="fa-solid fa-magnifying-glass"></i>
-
-                        <input type="text"
-                               id="invoiceSearch"
-                               placeholder="Tìm hóa đơn, bàn, khách hàng..."
-                               autocomplete="off">
-                    </div>
-
+                    <input type="text"
+                           id="invoiceSearch"
+                           placeholder="Tìm mã hóa đơn, khách hàng..."
+                           autocomplete="off">
                 </div>
 
-                <div class="toolbar-right">
+                <div class="invoice-filter-group">
 
-                    <button type="button"
-                            class="filter-button active"
+                    <button class="filter-button active"
+                            type="button"
                             data-status="all">
 
                         Tất cả
                     </button>
 
-                    <button type="button"
-                            class="filter-button"
-                            data-status="Đang phục vụ">
+                    <button class="filter-button"
+                            type="button"
+                            data-status="Chờ thanh toán">
 
-                        Đang phục vụ
+                        Chờ thanh toán
                     </button>
 
-                    <button type="button"
-                            class="filter-button"
+                    <button class="filter-button"
+                            type="button"
                             data-status="Đã thanh toán">
 
                         Đã thanh toán
                     </button>
 
-                    <button type="button"
-                            class="filter-button"
+                    <button class="filter-button"
+                            type="button"
                             data-status="Đã hủy">
 
                         Đã hủy
@@ -150,206 +143,138 @@
 
             </div>
 
-            <c:choose>
+            <section class="card">
 
-                <c:when test="${not empty listHoaDon}">
+                <div class="table-wrapper">
 
-                    <section class="invoice-list-grid">
+                    <table class="data-table">
 
-                        <c:forEach var="hd"
-                                   items="${listHoaDon}">
+                        <thead>
+                            <tr>
+                                <th>Mã hóa đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Người tạo</th>
+                                <th>Ngày tạo</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th></th>
+                            </tr>
+                        </thead>
 
-                            <fmt:formatNumber
-                                var="maHDFormatted"
-                                value="${hd.maHD}"
-                                pattern="000000"/>
+                        <tbody>
 
-                            <c:set var="cardClass"
-                                   value=""/>
+                            <c:choose>
 
-                            <c:set var="statusClass"
-                                   value="badge-blue"/>
+                                <c:when test="${not empty hoaDonList}">
 
-                            <c:if test="${hd.trangThai == 'Đã thanh toán'}">
+                                    <c:forEach var="hoaDon"
+                                               items="${hoaDonList}">
 
-                                <c:set var="cardClass"
-                                       value="paid"/>
+                                        <tr class="invoice-row"
+                                            data-status="${hoaDon.trangThai}"
+                                            data-search="${hoaDon.maHienThi}
+                                                         ${hoaDon.tenKhachHang}
+                                                         ${hoaDon.tenTaiKhoan}">
 
-                                <c:set var="statusClass"
-                                       value="badge-success"/>
-                            </c:if>
+                                            <td>
+                                                <strong>
+                                                    ${hoaDon.maHienThi}
+                                                </strong>
+                                            </td>
 
-                            <c:if test="${hd.trangThai == 'Đã hủy'}">
+                                            <td>
+                                                <c:out value="${hoaDon.tenKhachHang}"/>
+                                            </td>
 
-                                <c:set var="cardClass"
-                                       value="cancelled"/>
+                                            <td>
+                                                <c:out value="${hoaDon.tenTaiKhoan}"/>
+                                            </td>
 
-                                <c:set var="statusClass"
-                                       value="badge-danger"/>
-                            </c:if>
+                                            <td>
+                                                <c:out value="${hoaDon.ngayTao}"/>
+                                            </td>
 
-                            <article class="invoice-card ${cardClass}"
-                                     data-status="${hd.trangThai}"
-                                     data-search="HD${maHDFormatted}
-                                                  ${hd.maHD}
-                                                  ${hd.maBan}
-                                                  ${hd.maNV}
-                                                  ${hd.maKH}
-                                                  ${hd.tenKhachHang}
-                                                  ${hd.hinhThuc}">
+                                            <td>
+                                                <strong>
+                                                    <fmt:formatNumber
+                                                        value="${hoaDon.tongTien}"
+                                                        pattern="#,##0"/>
 
-                                <div class="invoice-card-header">
+                                                    đ
+                                                </strong>
+                                            </td>
 
-                                    <span class="invoice-code">
-                                        HD${maHDFormatted}
-                                    </span>
+                                            <td>
 
-                                    <span class="badge ${statusClass}">
+                                                <span class="badge
+                                                      ${hoaDon.trangThai
+                                                        == 'Đã thanh toán'
+                                                        ? 'badge-success'
+                                                        : hoaDon.trangThai
+                                                          == 'Đã hủy'
+                                                            ? 'badge-danger'
+                                                            : 'badge-warning'}">
 
-                                        ${empty hd.trangThai
-                                            ? 'Đang phục vụ'
-                                            : hd.trangThai}
-                                    </span>
+                                                    ${hoaDon.trangThai}
+                                                </span>
 
-                                </div>
+                                            </td>
 
-                                <div class="invoice-card-body">
+                                            <td>
 
-                                    <div class="invoice-line">
+                                                <a class="table-action"
+                                                   href="${pageContext.request.contextPath}/hoadon?action=edit&id=${hoaDon.maHD}"
+                                                   title="Mở hóa đơn">
 
-                                        <i class="fa-solid fa-bag-shopping"></i>
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
 
-                                        Hình thức:
+                                            </td>
 
-                                        <strong>
-                                            ${empty hd.hinhThuc
-                                                ? 'Tại bàn'
-                                                : hd.hinhThuc}
-                                        </strong>
-                                    </div>
+                                        </tr>
 
-                                    <div class="invoice-line">
+                                    </c:forEach>
 
-                                        <i class="fa-solid fa-chair"></i>
+                                </c:when>
 
-                                        Bàn:
+                                <c:otherwise>
 
-                                        <strong>
-                                            ${empty hd.maBan
-                                                ? 'Không dùng bàn'
-                                                : hd.maBan}
-                                        </strong>
-                                    </div>
+                                    <tr>
+                                        <td colspan="7">
 
-                                    <div class="invoice-line">
+                                            <div class="empty-state">
 
-                                        <i class="fa-solid fa-user-tie"></i>
+                                                <i class="fa-regular fa-file-lines"></i>
 
-                                        Nhân viên:
+                                                <strong>
+                                                    Chưa có hóa đơn
+                                                </strong>
+                                            </div>
 
-                                        <strong>
-                                            ${empty hd.maNV ? '—' : hd.maNV}
-                                        </strong>
-                                    </div>
+                                        </td>
+                                    </tr>
 
-                                    <div class="invoice-line">
+                                </c:otherwise>
 
-                                        <i class="fa-solid fa-user-group"></i>
+                            </c:choose>
 
-                                        Khách:
+                        </tbody>
 
-                                        <strong>
-                                            ${empty hd.tenKhachHang
-                                                ? 'Khách lẻ'
-                                                : hd.tenKhachHang}
-                                        </strong>
-                                    </div>
+                    </table>
 
-                                    <div class="invoice-line">
+                </div>
 
-                                        <i class="fa-regular fa-calendar"></i>
+                <div class="empty-state hidden"
+                     id="invoiceEmptySearch">
 
-                                        ${empty hd.ngayTao
-                                            ? 'Chưa có ngày tạo'
-                                            : hd.ngayTao}
-                                    </div>
+                    <i class="fa-solid fa-magnifying-glass"></i>
 
-                                    <div class="invoice-total">
+                    <strong>
+                        Không tìm thấy hóa đơn phù hợp
+                    </strong>
+                </div>
 
-                                        <fmt:formatNumber
-                                            value="${empty hd.tongTien
-                                                ? 0
-                                                : hd.tongTien}"
-                                            pattern="#,##0"/>
-
-                                        đ
-                                    </div>
-
-                                    <c:if test="${hd.trangThai == 'Đã hủy'
-                                                  and not empty hd.lyDoHuy}">
-
-                                        <div class="invoice-cancel-reason">
-
-                                            <strong>Lý do hủy:</strong>
-                                            ${hd.lyDoHuy}
-                                        </div>
-
-                                    </c:if>
-
-                                </div>
-
-                                <div class="invoice-card-footer">
-
-                                    <a class="btn btn-outline"
-                                       href="${pageContext.request.contextPath}/hoadon?action=edit&maHD=${hd.maHD}"
-                                       style="width:100%;">
-
-                                        <i class="fa-solid fa-eye"></i>
-                                        Xem hóa đơn
-                                    </a>
-
-                                </div>
-
-                            </article>
-
-                        </c:forEach>
-
-                    </section>
-
-                    <div class="empty-state hidden"
-                         id="noInvoiceResult">
-
-                        <i class="fa-solid fa-magnifying-glass"></i>
-
-                        <strong>
-                            Không tìm thấy hóa đơn phù hợp
-                        </strong>
-                    </div>
-
-                </c:when>
-
-                <c:otherwise>
-
-                    <section class="card">
-
-                        <div class="empty-state">
-
-                            <i class="fa-regular fa-file-lines"></i>
-
-                            <strong>
-                                Chưa có hóa đơn
-                            </strong>
-
-                            <span>
-                                Nhận bàn hoặc tạo đơn mang về để bắt đầu.
-                            </span>
-                        </div>
-
-                    </section>
-
-                </c:otherwise>
-
-            </c:choose>
+            </section>
 
         </div>
 
@@ -359,53 +284,46 @@
         const invoiceSearch =
                 document.getElementById("invoiceSearch");
 
-        const invoiceCards =
-                document.querySelectorAll(".invoice-card");
+        const invoiceRows =
+                document.querySelectorAll(".invoice-row");
 
         const filterButtons =
                 document.querySelectorAll(".filter-button");
 
-        const noInvoiceResult =
-                document.getElementById("noInvoiceResult");
+        const invoiceEmptySearch =
+                document.getElementById("invoiceEmptySearch");
 
-        let selectedInvoiceStatus = "all";
+        let currentStatus =
+                "all";
 
-        function normalizeInvoiceText(value) {
+        function normalizeText(value) {
             return (value || "")
                     .toLowerCase()
                     .normalize("NFD")
-                    .replace(
-                            /[\u0300-\u036f]/g,
-                            ""
-                    );
+                    .replace(/[\u0300-\u036f]/g, "");
         }
 
-        function filterInvoices() {
+        function filterInvoiceRows() {
             const keyword =
-                    normalizeInvoiceText(
-                            invoiceSearch
-                                ? invoiceSearch.value
-                                : ""
-                    );
+                    normalizeText(invoiceSearch.value);
 
-            let visibleCount = 0;
+            let visibleCount =
+                    0;
 
-            invoiceCards.forEach(card => {
-                const matchedKeyword =
-                        normalizeInvoiceText(
-                                card.dataset.search
+            invoiceRows.forEach(function (row) {
+                const matchesKeyword =
+                        normalizeText(
+                                row.dataset.search
                         ).includes(keyword);
 
-                const matchedStatus =
-                        selectedInvoiceStatus === "all"
-                        || card.dataset.status
-                            === selectedInvoiceStatus;
+                const matchesStatus =
+                        currentStatus === "all"
+                        || row.dataset.status === currentStatus;
 
                 const visible =
-                        matchedKeyword
-                        && matchedStatus;
+                        matchesKeyword && matchesStatus;
 
-                card.style.display =
+                row.style.display =
                         visible ? "" : "none";
 
                 if (visible) {
@@ -413,35 +331,35 @@
                 }
             });
 
-            if (noInvoiceResult) {
-                noInvoiceResult.classList.toggle(
+            if (invoiceEmptySearch) {
+                invoiceEmptySearch.classList.toggle(
                         "hidden",
                         visibleCount > 0
                 );
             }
         }
 
-        if (invoiceSearch) {
-            invoiceSearch.addEventListener(
-                    "input",
-                    filterInvoices
-            );
-        }
+        invoiceSearch.addEventListener(
+                "input",
+                filterInvoiceRows
+        );
 
-        filterButtons.forEach(button => {
+        filterButtons.forEach(function (button) {
             button.addEventListener(
                     "click",
                     function () {
-                        filterButtons.forEach(item => {
-                            item.classList.remove("active");
-                        });
+                        filterButtons.forEach(
+                                function (item) {
+                                    item.classList.remove("active");
+                                }
+                        );
 
-                        this.classList.add("active");
+                        button.classList.add("active");
 
-                        selectedInvoiceStatus =
-                                this.dataset.status;
+                        currentStatus =
+                                button.dataset.status;
 
-                        filterInvoices();
+                        filterInvoiceRows();
                     }
             );
         });

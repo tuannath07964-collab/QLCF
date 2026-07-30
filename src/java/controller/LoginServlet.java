@@ -1,33 +1,34 @@
 package controller;
 
-import dao.NhanVienDAO;
-import model.NhanVien;
+import dao.TaiKhoanDAO;
+import model.TaiKhoan;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
 
 @WebServlet(
-        name = "LoginServlet",
         urlPatterns = {
             "/LoginServlet",
             "/login"
         }
 )
-public class LoginServlet extends HttpServlet {
+public class LoginServlet
+        extends HttpServlet {
 
-    private NhanVienDAO dao;
+    private TaiKhoanDAO dao;
 
     @Override
-    public void init() throws ServletException {
-        dao = new NhanVienDAO();
+    public void init()
+            throws ServletException {
+
+        dao = new TaiKhoanDAO();
     }
 
     @Override
@@ -38,7 +39,10 @@ public class LoginServlet extends HttpServlet {
 
         request.getRequestDispatcher(
                 "/views/loginform.jsp"
-        ).forward(request, response);
+        ).forward(
+                request,
+                response
+        );
     }
 
     @Override
@@ -47,74 +51,45 @@ public class LoginServlet extends HttpServlet {
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding(
+                "UTF-8"
+        );
 
-        String maNV =
-                request.getParameter("maNV");
+        String maTaiKhoan =
+                request.getParameter(
+                        "maNV"
+                );
 
         String matKhau =
-                request.getParameter("matKhau");
+                request.getParameter(
+                        "matKhau"
+                );
 
         try {
-            NhanVien nv =
+            TaiKhoan taiKhoan =
                     dao.checkLogin(
-                            maNV,
+                            maTaiKhoan,
                             matKhau
                     );
 
-            if (nv == null) {
-                hienThiLoi(
+            if (taiKhoan == null) {
+                showError(
                         request,
                         response,
-                        "Sai mã nhân viên hoặc mật khẩu!"
+                        "Sai mã tài khoản hoặc mật khẩu."
                 );
+
                 return;
             }
 
-            if (!nv.isDangLam()) {
-                hienThiLoi(
+            if (!taiKhoan.isTrangThai()) {
+                showError(
                         request,
                         response,
-                        "Tài khoản đang ở trạng thái \""
-                        + nv.getTrangThai()
-                        + "\", không thể đăng nhập."
+                        "Tài khoản đã bị khóa."
                 );
+
                 return;
-            }
-
-            /*
-             * Quản lý được đăng nhập bất kỳ thời điểm nào.
-             * Nhân viên bắt buộc phải có ca và đăng nhập
-             * trong đúng giờ làm.
-             */
-            if (!nv.isQuanLy()) {
-
-                if (!nv.isCoCaLam()) {
-                    hienThiLoi(
-                            request,
-                            response,
-                            "Bạn chưa được phân ca nên "
-                            + "chưa thể đăng nhập."
-                    );
-                    return;
-                }
-
-                if (!dangTrongGioLam(nv)) {
-                    hienThiLoi(
-                            request,
-                            response,
-                            "Chưa đến giờ làm. Ca của bạn: "
-                            + rutGonGio(
-                                nv.getGioBatDau()
-                            )
-                            + " - "
-                            + rutGonGio(
-                                nv.getGioKetThuc()
-                            )
-                    );
-                    return;
-                }
             }
 
             HttpSession session =
@@ -122,38 +97,33 @@ public class LoginServlet extends HttpServlet {
 
             session.setAttribute(
                     "acc",
-                    nv
+                    taiKhoan
             );
 
             session.setAttribute(
                     "maNV",
-                    nv.getMaNV()
+                    taiKhoan.getMaTaiKhoan()
             );
 
             session.setAttribute(
                     "tenNV",
-                    nv.getHoTen()
+                    taiKhoan.getHoTen()
             );
 
             session.setAttribute(
                     "chucVu",
-                    nv.getChucVu()
-            );
-
-            session.setAttribute(
-                    "trangThaiNV",
-                    nv.getTrangThai()
+                    taiKhoan.getVaiTro()
             );
 
             response.sendRedirect(
                     request.getContextPath()
-                    + "/views/homepage.jsp"
+                    + "/homepage"
             );
 
         } catch (Exception e) {
             e.printStackTrace();
 
-            hienThiLoi(
+            showError(
                     request,
                     response,
                     "Không thể đăng nhập: "
@@ -162,62 +132,7 @@ public class LoginServlet extends HttpServlet {
         }
     }
 
-    private boolean dangTrongGioLam(
-            NhanVien nv
-    ) {
-        try {
-            LocalTime batDau =
-                    LocalTime.parse(
-                            nv.getGioBatDau()
-                    );
-
-            LocalTime ketThuc =
-                    LocalTime.parse(
-                            nv.getGioKetThuc()
-                    );
-
-            LocalTime hienTai =
-                    LocalTime.now();
-
-            if (batDau.equals(ketThuc)) {
-                return false;
-            }
-
-            /*
-             * Ca trong cùng một ngày,
-             * ví dụ 08:00 - 17:00.
-             */
-            if (ketThuc.isAfter(batDau)) {
-                return !hienTai.isBefore(batDau)
-                        && !hienTai.isAfter(ketThuc);
-            }
-
-            /*
-             * Ca qua nửa đêm,
-             * ví dụ 22:00 - 06:00.
-             */
-            return !hienTai.isBefore(batDau)
-                    || !hienTai.isAfter(ketThuc);
-
-        } catch (DateTimeParseException e) {
-            return false;
-        }
-    }
-
-    private String rutGonGio(
-            String value
-    ) {
-        if (
-            value == null
-            || value.length() < 5
-        ) {
-            return "--:--";
-        }
-
-        return value.substring(0, 5);
-    }
-
-    private void hienThiLoi(
+    private void showError(
             HttpServletRequest request,
             HttpServletResponse response,
             String message
@@ -230,6 +145,9 @@ public class LoginServlet extends HttpServlet {
 
         request.getRequestDispatcher(
                 "/views/loginform.jsp"
-        ).forward(request, response);
+        ).forward(
+                request,
+                response
+        );
     }
 }

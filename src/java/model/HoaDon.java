@@ -1,68 +1,58 @@
 package model;
 
+import java.math.BigDecimal;
+
 public class HoaDon {
 
-    private String maHD;
-    private String maBan;
-    private String maNV;
+    private int maHD;
+    private String maTaiKhoan;
+    private String tenTaiKhoan;
+
     private String maKH;
     private String tenKhachHang;
-    private String ngayTao;
 
-    private double tamTinh;
-    private double thueVAT;
-    private double tongTien;
+    private String ngayTao;
+    private String ngayThanhToan;
+
+    private BigDecimal tamTinh = BigDecimal.ZERO;
+    private BigDecimal thueVAT = BigDecimal.ZERO;
+    private BigDecimal tongTien = BigDecimal.ZERO;
+
     private int diemCong;
 
     private String trangThai;
-    private String danhSachMon;
     private String phuongThucThanhToan;
-    private String ngayThanhToan;
-    private String hinhThuc;
     private String lyDoHuy;
 
     public HoaDon() {
     }
 
-    public String getMaHD() {
+    public int getMaHD() {
         return maHD;
     }
 
-    public void setMaHD(String maHD) {
+    public void setMaHD(int maHD) {
         this.maHD = maHD;
     }
 
     public String getMaHienThi() {
-        if (maHD == null || maHD.isBlank()) {
-            return "Tự động khi lưu";
-        }
-
-        try {
-            return String.format(
-                    "HD%06d",
-                    Integer.parseInt(maHD)
-            );
-        } catch (NumberFormatException e) {
-            return maHD.startsWith("HD")
-                    ? maHD
-                    : "HD" + maHD;
-        }
+        return String.format("HD%06d", maHD);
     }
 
-    public String getMaBan() {
-        return maBan;
+    public String getMaTaiKhoan() {
+        return maTaiKhoan;
     }
 
-    public void setMaBan(String maBan) {
-        this.maBan = maBan;
+    public void setMaTaiKhoan(String maTaiKhoan) {
+        this.maTaiKhoan = maTaiKhoan;
     }
 
-    public String getMaNV() {
-        return maNV;
+    public String getTenTaiKhoan() {
+        return tenTaiKhoan;
     }
 
-    public void setMaNV(String maNV) {
-        this.maNV = maNV;
+    public void setTenTaiKhoan(String tenTaiKhoan) {
+        this.tenTaiKhoan = tenTaiKhoan;
     }
 
     public String getMaKH() {
@@ -89,27 +79,35 @@ public class HoaDon {
         this.ngayTao = ngayTao;
     }
 
-    public double getTamTinh() {
+    public String getNgayThanhToan() {
+        return ngayThanhToan;
+    }
+
+    public void setNgayThanhToan(String ngayThanhToan) {
+        this.ngayThanhToan = ngayThanhToan;
+    }
+
+    public BigDecimal getTamTinh() {
         return tamTinh;
     }
 
-    public void setTamTinh(double tamTinh) {
+    public void setTamTinh(BigDecimal tamTinh) {
         this.tamTinh = tamTinh;
     }
 
-    public double getThueVAT() {
+    public BigDecimal getThueVAT() {
         return thueVAT;
     }
 
-    public void setThueVAT(double thueVAT) {
+    public void setThueVAT(BigDecimal thueVAT) {
         this.thueVAT = thueVAT;
     }
 
-    public double getTongTien() {
+    public BigDecimal getTongTien() {
         return tongTien;
     }
 
-    public void setTongTien(double tongTien) {
+    public void setTongTien(BigDecimal tongTien) {
         this.tongTien = tongTien;
     }
 
@@ -129,14 +127,6 @@ public class HoaDon {
         this.trangThai = trangThai;
     }
 
-    public String getDanhSachMon() {
-        return danhSachMon;
-    }
-
-    public void setDanhSachMon(String danhSachMon) {
-        this.danhSachMon = danhSachMon;
-    }
-
     public String getPhuongThucThanhToan() {
         return phuongThucThanhToan;
     }
@@ -148,22 +138,6 @@ public class HoaDon {
                 phuongThucThanhToan;
     }
 
-    public String getNgayThanhToan() {
-        return ngayThanhToan;
-    }
-
-    public void setNgayThanhToan(String ngayThanhToan) {
-        this.ngayThanhToan = ngayThanhToan;
-    }
-
-    public String getHinhThuc() {
-        return hinhThuc;
-    }
-
-    public void setHinhThuc(String hinhThuc) {
-        this.hinhThuc = hinhThuc;
-    }
-
     public String getLyDoHuy() {
         return lyDoHuy;
     }
@@ -172,7 +146,8 @@ public class HoaDon {
         this.lyDoHuy = lyDoHuy;
     }
 
-    public boolean isMangVe() {
-        return "Mang về".equalsIgnoreCase(hinhThuc);
+    public boolean isDaKetThuc() {
+        return "Đã thanh toán".equalsIgnoreCase(trangThai)
+                || "Đã hủy".equalsIgnoreCase(trangThai);
     }
 }

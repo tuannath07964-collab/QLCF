@@ -1,69 +1,124 @@
 package dao;
 
+import model.ChiTietHoaDon;
 import model.HoaDon;
 import util.DBConnect;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Types;
+
+import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class HoaDonDAO {
 
-    private static final BigDecimal VAT_RATE =
-            new BigDecimal("0.08");
+    private static final BigDecimal VAT_RATE
+            = new BigDecimal("0.08");
 
-    private static final BigDecimal MONEY_PER_POINT =
-            new BigDecimal("10000");
+    private static final BigDecimal MONEY_PER_POINT
+            = new BigDecimal("10000");
 
-    private static final String SELECT_INVOICE = """
-        SELECT h.MaHD,
-               h.MaBan,
-               h.MaNV,
-               h.MaKH,
-               COALESCE(
-                   h.TenKhachHang,
-                   kh.HoTen
-               ) AS TenKhachHang,
-               h.NgayTao,
-               h.TamTinh,
-               h.ThueVAT,
-               h.TongTien,
-               h.DiemCong,
-               h.TrangThai,
-               h.DanhSachMon,
-               h.PhuongThucThanhToan,
-               h.NgayThanhToan,
-               h.HinhThuc,
-               h.LyDoHuy
-        FROM HoaDon h
-        LEFT JOIN KhachHang kh
-            ON kh.MaKH = h.MaKH
-        """;
+    private static final DateTimeFormatter DATE_FORMAT
+            = DateTimeFormatter.ofPattern(
+                    "dd/MM/yyyy HH:mm"
+            );
 
-    public ArrayList<HoaDon> getAll() {
-        ArrayList<HoaDon> list =
-                new ArrayList<>();
-
-        String sql =
-                SELECT_INVOICE
-                + " ORDER BY h.MaHD DESC";
+    public int taoHoaDon(
+            String maTaiKhoan
+    ) {
+        String sql = """
+            INSERT INTO HoaDon(
+                MaTaiKhoan,
+                TrangThai
+            )
+            VALUES (
+                ?,
+                N'Chờ thanh toán'
+            )
+            """;
 
         try (
-            Connection conn =
-                    DBConnect.getConnection();
+                Connection conn
+                = DBConnect.getConnection(); PreparedStatement ps
+                = conn.prepareStatement(
+                        sql,
+                        Statement.RETURN_GENERATED_KEYS
+                )) {
+            ps.setString(
+                    1,
+                    maTaiKhoan
+            );
 
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
+            ps.executeUpdate();
 
-            ResultSet rs =
-                    ps.executeQuery()
-        ) {
+            try (
+                    ResultSet keys
+                    = ps.getGeneratedKeys()) {
+                if (!keys.next()) {
+                    throw new IllegalStateException(
+                            "Không tạo được mã hóa đơn."
+                    );
+                }
+
+                return keys.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Không tạo được hóa đơn.",
+                    e
+            );
+        }
+    }
+
+    public List<HoaDon> getAll() {
+
+        List<HoaDon> list
+                = new ArrayList<>();
+
+        String sql = """
+            SELECT h.MaHD,
+                   h.MaTaiKhoan,
+                   tk.HoTen AS TenTaiKhoan,
+                   h.MaKH,
+                   COALESCE(
+                       NULLIF(h.TenKhachHang, N''),
+                       kh.HoTen,
+                       N'Khách lẻ'
+                   ) AS TenKhachHang,
+                   h.NgayTao,
+                   h.NgayThanhToan,
+                   h.TamTinh,
+                   h.ThueVAT,
+                   h.TongTien,
+                   h.DiemCong,
+                   h.TrangThai,
+                   h.PhuongThucThanhToan,
+                   h.LyDoHuy
+            FROM HoaDon h
+            JOIN TaiKhoan tk
+                ON tk.MaTaiKhoan =
+                   h.MaTaiKhoan
+            LEFT JOIN KhachHang kh
+                ON kh.MaKH = h.MaKH
+            ORDER BY h.MaHD DESC
+            """;
+
+        try (
+                Connection conn
+                = DBConnect.getConnection(); PreparedStatement ps
+                = conn.prepareStatement(sql); ResultSet rs
+                = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
@@ -79,28 +134,48 @@ public class HoaDonDAO {
     }
 
     public HoaDon findById(
-            String maHD
+            int maHD
     ) {
-        String sql =
-                SELECT_INVOICE
-                + " WHERE h.MaHD = ?";
+        String sql = """
+            SELECT h.MaHD,
+                   h.MaTaiKhoan,
+                   tk.HoTen AS TenTaiKhoan,
+                   h.MaKH,
+                   COALESCE(
+                       NULLIF(h.TenKhachHang, N''),
+                       kh.HoTen,
+                       N'Khách lẻ'
+                   ) AS TenKhachHang,
+                   h.NgayTao,
+                   h.NgayThanhToan,
+                   h.TamTinh,
+                   h.ThueVAT,
+                   h.TongTien,
+                   h.DiemCong,
+                   h.TrangThai,
+                   h.PhuongThucThanhToan,
+                   h.LyDoHuy
+            FROM HoaDon h
+            JOIN TaiKhoan tk
+                ON tk.MaTaiKhoan =
+                   h.MaTaiKhoan
+            LEFT JOIN KhachHang kh
+                ON kh.MaKH = h.MaKH
+            WHERE h.MaHD = ?
+            """;
 
         try (
-            Connection conn =
-                    DBConnect.getConnection();
-
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
-        ) {
+                Connection conn
+                = DBConnect.getConnection(); PreparedStatement ps
+                = conn.prepareStatement(sql)) {
             ps.setInt(
                     1,
-                    Integer.parseInt(maHD)
+                    maHD
             );
 
             try (
-                ResultSet rs =
-                        ps.executeQuery()
-            ) {
+                    ResultSet rs
+                    = ps.executeQuery()) {
                 return rs.next()
                         ? mapRow(rs)
                         : null;
@@ -114,165 +189,104 @@ public class HoaDonDAO {
         }
     }
 
-    public Integer getMaHoaDonDangPhucVuTheoBan(
-            int maBan
-    ) {
+    public List<ChiTietHoaDon>
+            getChiTiet(
+                    int maHD
+            ) {
+
+        List<ChiTietHoaDon> list
+                = new ArrayList<>();
+
         String sql = """
-            SELECT TOP 1 MaHD
-            FROM HoaDon
-            WHERE MaBan = ?
-              AND HinhThuc = N'Tại bàn'
-              AND TrangThai = N'Đang phục vụ'
-            ORDER BY MaHD DESC
+            SELECT ct.MaCT,
+                   ct.MaHD,
+                   ct.MaSanPham,
+                   sp.TenSanPham,
+                   ct.SoLuong,
+                   ct.DonGia
+            FROM ChiTietHoaDon ct
+            JOIN SanPham sp
+                ON sp.MaSanPham =
+                   ct.MaSanPham
+            WHERE ct.MaHD = ?
+            ORDER BY ct.MaCT
             """;
 
         try (
-            Connection conn =
-                    DBConnect.getConnection();
-
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
-        ) {
-            ps.setInt(1, maBan);
+                Connection conn
+                = DBConnect.getConnection(); PreparedStatement ps
+                = conn.prepareStatement(sql)) {
+            ps.setInt(
+                    1,
+                    maHD
+            );
 
             try (
-                ResultSet rs =
-                        ps.executeQuery()
-            ) {
-                return rs.next()
-                        ? rs.getInt("MaHD")
-                        : null;
+                    ResultSet rs
+                    = ps.executeQuery()) {
+                while (rs.next()) {
+                    ChiTietHoaDon item
+                            = new ChiTietHoaDon();
+
+                    item.setMaCT(
+                            rs.getInt(
+                                    "MaCT"
+                            )
+                    );
+
+                    item.setMaHD(
+                            rs.getInt(
+                                    "MaHD"
+                            )
+                    );
+
+                    item.setMaSanPham(
+                            rs.getString(
+                                    "MaSanPham"
+                            )
+                    );
+
+                    item.setTenSanPham(
+                            rs.getString(
+                                    "TenSanPham"
+                            )
+                    );
+
+                    item.setSoLuong(
+                            rs.getInt(
+                                    "SoLuong"
+                            )
+                    );
+
+                    item.setDonGia(
+                            rs.getBigDecimal(
+                                    "DonGia"
+                            )
+                    );
+
+                    list.add(item);
+                }
             }
 
         } catch (SQLException e) {
             throw new IllegalStateException(
-                    "Không tìm được hóa đơn của bàn.",
+                    "Không tải được chi tiết hóa đơn.",
                     e
             );
         }
+
+        return list;
     }
 
-    public int taoHoacLayHoaDonDangPhucVu(
-            String maNV,
-            int maBan
-    ) throws SQLException {
-
+    public void luuHoaDon(
+            int maHD,
+            String maKH,
+            String tenKhachHang,
+            List<ChiTietHoaDon> items
+    ) {
         try (
-            Connection conn =
-                    DBConnect.getConnection()
-        ) {
-            conn.setAutoCommit(false);
-
-            try {
-                kiemTraBanTonTai(
-                        conn,
-                        maBan
-                );
-
-                Integer maHD =
-                        timHoaDonDangPhucVu(
-                                conn,
-                                maBan
-                        );
-
-                if (maHD == null) {
-                    maHD = taoHoaDonMoi(
-                            conn,
-                            maNV,
-                            maBan,
-                            "Tại bàn"
-                    );
-                }
-
-                ganHoaDonChoBan(
-                        conn,
-                        maBan,
-                        maHD
-                );
-
-                conn.commit();
-                return maHD;
-
-            } catch (SQLException e) {
-                conn.rollback();
-                throw e;
-
-            } finally {
-                conn.setAutoCommit(true);
-            }
-        }
-    }
-
-    public int taoHoaDonMangVe(
-            String maNV
-    ) throws SQLException {
-
-        try (
-            Connection conn =
-                    DBConnect.getConnection()
-        ) {
-            return taoHoaDonMoi(
-                    conn,
-                    maNV,
-                    null,
-                    "Mang về"
-            );
-        }
-    }
-
-    public void luuDonHang(
-            HoaDon hoaDon,
-            String[] maMons,
-            String[] soLuongs
-    ) throws SQLException {
-
-        if (hoaDon.getMaHD() == null) {
-            throw new SQLException(
-                    "Thiếu mã hóa đơn."
-            );
-        }
-
-        if (
-            maMons == null
-            || soLuongs == null
-            || maMons.length == 0
-            || maMons.length
-                != soLuongs.length
-        ) {
-            throw new SQLException(
-                    "Vui lòng chọn ít nhất một món."
-            );
-        }
-
-        int maHD =
-                Integer.parseInt(
-                        hoaDon.getMaHD()
-                );
-
-        Integer maBan =
-                parseNullableInt(
-                        hoaDon.getMaBan()
-                );
-
-        String hinhThuc =
-                chuanHoaHinhThuc(
-                        hoaDon.getHinhThuc(),
-                        maBan
-                );
-
-        if (
-            "Tại bàn".equals(hinhThuc)
-            && maBan == null
-        ) {
-            throw new SQLException(
-                    "Hóa đơn tại bàn phải có bàn phục vụ."
-            );
-        }
-
-        try (
-            Connection conn =
-                    DBConnect.getConnection()
-        ) {
+                Connection conn
+                = DBConnect.getConnection()) {
             conn.setAutoCommit(false);
 
             try {
@@ -281,377 +295,208 @@ public class HoaDonDAO {
                         maHD
                 );
 
-                if (maBan != null) {
-                    kiemTraBanTonTai(
-                            conn,
-                            maBan
-                    );
-                }
+                thayChiTiet(
+                        conn,
+                        maHD,
+                        items
+                );
 
-                try (
-                    PreparedStatement ps =
-                        conn.prepareStatement(
-                            """
-                            DELETE FROM ChiTietHoaDon
-                            WHERE MaHD = ?
-                            """
-                        )
-                ) {
-                    ps.setInt(1, maHD);
-                    ps.executeUpdate();
-                }
-
-                String priceSql = """
-                    SELECT Gia
-                    FROM Menu
-                    WHERE MaMon = ?
-                    """;
-
-                String detailSql = """
-                    INSERT INTO ChiTietHoaDon(
-                        MaHD,
-                        MaMon,
-                        SoLuong,
-                        DonGia
-                    )
-                    VALUES (?, ?, ?, ?)
-                    """;
-
-                BigDecimal tamTinh =
-                        BigDecimal.ZERO;
-
-                try (
-                    PreparedStatement pricePs =
-                            conn.prepareStatement(
-                                    priceSql
-                            );
-
-                    PreparedStatement detailPs =
-                            conn.prepareStatement(
-                                    detailSql
-                            )
-                ) {
-                    for (
-                        int i = 0;
-                        i < maMons.length;
-                        i++
-                    ) {
-                        String maMon =
-                                maMons[i] == null
-                                ? ""
-                                : maMons[i].trim();
-
-                        int soLuong;
-
-                        try {
-                            soLuong =
-                                    Integer.parseInt(
-                                            soLuongs[i]
-                                    );
-
-                        } catch (
-                            NumberFormatException e
-                        ) {
-                            throw new SQLException(
-                                    "Số lượng món không hợp lệ."
-                            );
-                        }
-
-                        if (
-                            maMon.isBlank()
-                            || soLuong <= 0
-                        ) {
-                            throw new SQLException(
-                                    "Món hoặc số lượng không hợp lệ."
-                            );
-                        }
-
-                        pricePs.setString(
-                                1,
-                                maMon
-                        );
-
-                        BigDecimal donGia;
-
-                        try (
-                            ResultSet rs =
-                                    pricePs.executeQuery()
-                        ) {
-                            if (!rs.next()) {
-                                throw new SQLException(
-                                        "Không tìm thấy món "
-                                        + maMon
-                                        + "."
-                                );
-                            }
-
-                            donGia =
-                                    rs.getBigDecimal(
-                                            "Gia"
-                                    );
-                        }
-
-                        detailPs.setInt(
-                                1,
+                BigDecimal tamTinh
+                        = layTamTinh(
+                                conn,
                                 maHD
                         );
 
-                        detailPs.setString(
-                                2,
-                                maMon
-                        );
+                BigDecimal thue
+                        = tinhVAT(tamTinh);
 
-                        detailPs.setInt(
-                                3,
-                                soLuong
-                        );
+                BigDecimal tong
+                        = tamTinh.add(thue);
 
-                        detailPs.setBigDecimal(
-                                4,
-                                donGia
-                        );
-
-                        detailPs.addBatch();
-
-                        tamTinh =
-                                tamTinh.add(
-                                    donGia.multiply(
-                                        BigDecimal.valueOf(
-                                                soLuong
-                                        )
-                                    )
-                                );
-                    }
-
-                    detailPs.executeBatch();
-                }
-
-                BigDecimal thueVAT =
-                        tinhVAT(tamTinh);
-
-                BigDecimal tongTien =
-                        tamTinh.add(thueVAT);
-
-                String updateSql = """
+                String sql = """
                     UPDATE HoaDon
-                    SET MaBan = ?,
-                        MaKH = ?,
-                        DanhSachMon = ?,
+                    SET MaKH = ?,
+                        TenKhachHang = ?,
                         TamTinh = ?,
                         ThueVAT = ?,
-                        TongTien = ?,
-                        HinhThuc = ?,
-                        TrangThai = N'Đang phục vụ'
+                        TongTien = ?
                     WHERE MaHD = ?
                     """;
 
                 try (
-                    PreparedStatement ps =
-                            conn.prepareStatement(
-                                    updateSql
-                            )
-                ) {
-                    setNullableInt(
+                        PreparedStatement ps
+                        = conn.prepareStatement(sql)) {
+                    setNullableString(
                             ps,
                             1,
-                            maBan
+                            maKH
                     );
 
                     setNullableString(
                             ps,
                             2,
-                            hoaDon.getMaKH()
-                    );
-
-                    setNullableString(
-                            ps,
-                            3,
-                            hoaDon.getDanhSachMon()
+                            tenKhachHang
                     );
 
                     ps.setBigDecimal(
-                            4,
+                            3,
                             tamTinh
                     );
 
                     ps.setBigDecimal(
-                            5,
-                            thueVAT
+                            4,
+                            thue
                     );
 
                     ps.setBigDecimal(
-                            6,
-                            tongTien
-                    );
-
-                    ps.setString(
-                            7,
-                            hinhThuc
+                            5,
+                            tong
                     );
 
                     ps.setInt(
-                            8,
+                            6,
                             maHD
                     );
 
-                    if (ps.executeUpdate() != 1) {
-                        throw new SQLException(
-                                "Không lưu được hóa đơn."
-                        );
-                    }
-                }
-
-                if (
-                    maBan != null
-                    && "Tại bàn".equals(
-                            hinhThuc
-                    )
-                ) {
-                    ganHoaDonChoBan(
-                            conn,
-                            maBan,
-                            maHD
-                    );
+                    ps.executeUpdate();
                 }
 
                 conn.commit();
 
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 conn.rollback();
-                throw e;
+
+                throw new IllegalStateException(
+                        e.getMessage(),
+                        e
+                );
 
             } finally {
                 conn.setAutoCommit(true);
             }
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Không lưu được hóa đơn.",
+                    e
+            );
         }
     }
 
     public void thanhToanHoaDon(
             int maHD,
             String maKH,
-            String tenKhachMoi,
+            String tenKhachHang,
             boolean luuKhachMoi,
-            String phuongThucThanhToan
-    ) throws SQLException {
-
+            List<ChiTietHoaDon> items
+    ) {
         try (
-            Connection conn =
-                    DBConnect.getConnection()
-        ) {
+                Connection conn
+                = DBConnect.getConnection()) {
             conn.setAutoCommit(false);
 
             try {
-                InvoiceLock invoice =
-                        khoaHoaDon(
-                                conn,
-                                maHD
+                kiemTraHoaDonChuaKetThuc(
+                        conn,
+                        maHD
+                );
+
+                thayChiTiet(
+                        conn,
+                        maHD,
+                        items
+                );
+
+                kiemTraSanPhamCoCongThuc(
+                        conn,
+                        maHD
+                );
+
+                kiemTraDuTonKho(
+                        conn,
+                        maHD
+                );
+
+                String maKhachThanhToan
+                        = trimToNull(maKH);
+
+                String tenKhachHienThi
+                        = trimToNull(
+                                tenKhachHang
                         );
 
-                kiemTraHoaDonCoMon(
-                        conn,
-                        maHD
-                );
-
-                kiemTraTatCaMonDaCoCongThuc(
-                        conn,
-                        maHD
-                );
-
-                kiemTraDuNguyenLieu(
-                        conn,
-                        maHD
-                );
-
-                String maKhachThanhToan =
-                        trimToNull(maKH);
-
-                String tenKhachHienThi =
-                        null;
-
                 if (maKhachThanhToan != null) {
-                    tenKhachHienThi =
-                            layTenKhachHang(
+                    tenKhachHienThi
+                            = layTenKhachHang(
                                     conn,
                                     maKhachThanhToan
                             );
 
-                } else if (luuKhachMoi) {
-                    String tenMoi =
-                            trimToNull(
-                                    tenKhachMoi
-                            );
-
-                    if (tenMoi == null) {
-                        throw new SQLException(
-                                "Vui lòng nhập họ tên khách hàng cần lưu."
-                        );
-                    }
-
-                    maKhachThanhToan =
-                            taoKhachHangNhanh(
+                } else if (luuKhachMoi
+                        && tenKhachHienThi != null) {
+                    maKhachThanhToan
+                            = taoKhachHangNhanh(
                                     conn,
-                                    tenMoi
+                                    tenKhachHienThi
                             );
-
-                    tenKhachHienThi =
-                            tenMoi;
                 }
 
-                BigDecimal tamTinh =
-                        layTamTinh(
+                if (tenKhachHienThi == null) {
+                    tenKhachHienThi
+                            = "Khách lẻ";
+                }
+
+                BigDecimal tamTinh
+                        = layTamTinh(
                                 conn,
                                 maHD
                         );
 
-                BigDecimal thueVAT =
-                        tinhVAT(tamTinh);
+                BigDecimal thue
+                        = tinhVAT(tamTinh);
 
-                BigDecimal tongTien =
-                        tamTinh.add(thueVAT);
+                BigDecimal tong
+                        = tamTinh.add(thue);
 
-                int diemCong =
-                        maKhachThanhToan == null
-                        ? 0
-                        : tongTien.divide(
-                                MONEY_PER_POINT,
-                                0,
-                                RoundingMode.DOWN
-                        ).intValue();
+                int diemCong
+                        = maKhachThanhToan == null
+                                ? 0
+                                : tong.divide(
+                                        MONEY_PER_POINT,
+                                        0,
+                                        RoundingMode.DOWN
+                                ).intValue();
 
-                truKho(
+                truTonKho(
                         conn,
                         maHD
                 );
 
-                String updateHoaDon = """
-                    UPDATE HoaDon
-                    SET MaKH = ?,
-                        TenKhachHang = ?,
-                        TamTinh = ?,
-                        ThueVAT = ?,
-                        TongTien = ?,
-                        DiemCong = ?,
-                        TrangThai = N'Đã thanh toán',
-                        PhuongThucThanhToan = ?,
-                        NgayThanhToan = GETDATE(),
-                        LyDoHuy = NULL
-                    WHERE MaHD = ?
-                    """;
+                String sql = """
+    UPDATE HoaDon
+    SET MaKH = ?,
+        TenKhachHang = ?,
+        TamTinh = ?,
+        ThueVAT = ?,
+        TongTien = ?,
+        DiemCong = ?,
+        TrangThai = N'Đã thanh toán',
+        PhuongThucThanhToan = N'Tiền mặt',
+        NgayThanhToan = SYSDATETIME(),
+        LyDoHuy = NULL
+    WHERE MaHD = ?
+    """;
 
                 try (
-                    PreparedStatement ps =
-                            conn.prepareStatement(
-                                    updateHoaDon
-                            )
-                ) {
+                        PreparedStatement ps
+                        = conn.prepareStatement(sql)) {
                     setNullableString(
                             ps,
                             1,
                             maKhachThanhToan
                     );
 
-                    setNullableString(
-                            ps,
+                    ps.setString(
                             2,
                             tenKhachHienThi
                     );
@@ -663,12 +508,12 @@ public class HoaDonDAO {
 
                     ps.setBigDecimal(
                             4,
-                            thueVAT
+                            thue
                     );
 
                     ps.setBigDecimal(
                             5,
-                            tongTien
+                            tong
                     );
 
                     ps.setInt(
@@ -676,422 +521,230 @@ public class HoaDonDAO {
                             diemCong
                     );
 
-                    ps.setString(
-                            7,
-                            phuongThucThanhToan
-                    );
-
                     ps.setInt(
-                            8,
+                            7,
                             maHD
                     );
 
                     ps.executeUpdate();
                 }
 
-                if (diemCong > 0) {
+                if (diemCong > 0
+                        && maKhachThanhToan != null) {
                     try (
-                        PreparedStatement ps =
-                            conn.prepareStatement(
-                                """
+                            PreparedStatement ps
+                            = conn.prepareStatement(
+                                    """
                                 UPDATE KhachHang
                                 SET DiemTichLuy =
                                     DiemTichLuy + ?
                                 WHERE MaKH = ?
                                 """
-                            )
-                    ) {
-                        ps.setInt(
-                                1,
-                                diemCong
-                        );
+                            )) {
+                                ps.setInt(
+                                        1,
+                                        diemCong
+                                );
 
-                        ps.setString(
-                                2,
-                                maKhachThanhToan
-                        );
+                                ps.setString(
+                                        2,
+                                        maKhachThanhToan
+                                );
 
-                        if (
-                            ps.executeUpdate() != 1
-                        ) {
-                            throw new SQLException(
-                                    "Không cộng được điểm khách hàng."
-                            );
-                        }
-                    }
-                }
-
-                if (
-                    invoice.maBan != null
-                    && "Tại bàn".equals(
-                            invoice.hinhThuc
-                    )
-                ) {
-                    giaiPhongBan(
-                            conn,
-                            invoice.maBan
-                    );
+                                ps.executeUpdate();
+                            }
                 }
 
                 conn.commit();
 
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 conn.rollback();
-                throw e;
+
+                throw new IllegalStateException(
+                        e.getMessage(),
+                        e
+                );
 
             } finally {
                 conn.setAutoCommit(true);
             }
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Không thanh toán được hóa đơn.",
+                    e
+            );
         }
     }
 
     public void huyHoaDon(
             int maHD,
             String lyDo
-    ) throws SQLException {
+    ) {
+        String reason
+                = trimToNull(lyDo);
+
+        if (reason == null) {
+            throw new IllegalArgumentException(
+                    "Vui lòng nhập lý do hủy."
+            );
+        }
+
+        String sql = """
+            UPDATE HoaDon
+            SET TrangThai = N'Đã hủy',
+                LyDoHuy = ?,
+                PhuongThucThanhToan = NULL,
+                NgayThanhToan = NULL,
+                DiemCong = 0
+            WHERE MaHD = ?
+              AND TrangThai =
+                  N'Chờ thanh toán'
+            """;
 
         try (
-            Connection conn =
-                    DBConnect.getConnection()
-        ) {
-            conn.setAutoCommit(false);
+                Connection conn
+                = DBConnect.getConnection(); PreparedStatement ps
+                = conn.prepareStatement(sql)) {
+            ps.setString(
+                    1,
+                    reason
+            );
 
-            try {
-                InvoiceLock invoice =
-                        khoaHoaDon(
-                                conn,
-                                maHD
-                        );
+            ps.setInt(
+                    2,
+                    maHD
+            );
 
-                try (
-                    PreparedStatement ps =
-                        conn.prepareStatement(
-                            """
-                            UPDATE HoaDon
-                            SET TrangThai = N'Đã hủy',
-                                LyDoHuy = ?,
-                                DiemCong = 0,
-                                PhuongThucThanhToan = NULL,
-                                NgayThanhToan = NULL
-                            WHERE MaHD = ?
-                            """
-                        )
-                ) {
-                    setNullableString(
-                            ps,
-                            1,
-                            lyDo
-                    );
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException(
+                        "Hóa đơn đã kết thúc "
+                        + "hoặc không tồn tại."
+                );
+            }
 
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Không hủy được hóa đơn.",
+                    e
+            );
+        }
+    }
+
+    private void thayChiTiet(
+            Connection conn,
+            int maHD,
+            List<ChiTietHoaDon> items
+    ) throws SQLException {
+
+        if (items == null
+                || items.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Hóa đơn phải có ít nhất một sản phẩm."
+            );
+        }
+
+        try (
+                PreparedStatement ps
+                = conn.prepareStatement(
+                        """
+                    DELETE FROM ChiTietHoaDon
+                    WHERE MaHD = ?
+                    """
+                )) {
                     ps.setInt(
-                            2,
+                            1,
                             maHD
                     );
 
                     ps.executeUpdate();
                 }
 
-                if (
-                    invoice.maBan != null
-                    && "Tại bàn".equals(
-                            invoice.hinhThuc
-                    )
-                ) {
-                    giaiPhongBan(
-                            conn,
-                            invoice.maBan
-                    );
-                }
-
-                conn.commit();
-
-            } catch (SQLException e) {
-                conn.rollback();
-                throw e;
-
-            } finally {
-                conn.setAutoCommit(true);
-            }
-        }
-    }
-
-    private Integer timHoaDonDangPhucVu(
-            Connection conn,
-            int maBan
-    ) throws SQLException {
-
-        String sql = """
-            SELECT TOP 1 MaHD
-            FROM HoaDon
-                WITH (UPDLOCK, HOLDLOCK)
-            WHERE MaBan = ?
-              AND HinhThuc = N'Tại bàn'
-              AND TrangThai = N'Đang phục vụ'
-            ORDER BY MaHD DESC
+                String productSql = """
+            SELECT GiaBan
+            FROM SanPham
+            WHERE MaSanPham = ?
             """;
 
-        try (
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
-        ) {
-            ps.setInt(
-                    1,
-                    maBan
-            );
-
-            try (
-                ResultSet rs =
-                        ps.executeQuery()
-            ) {
-                return rs.next()
-                        ? rs.getInt("MaHD")
-                        : null;
-            }
-        }
-    }
-
-    private int taoHoaDonMoi(
-            Connection conn,
-            String maNV,
-            Integer maBan,
-            String hinhThuc
-    ) throws SQLException {
-
-        String sql = """
-            INSERT INTO HoaDon(
-                MaNV,
-                MaBan,
-                NgayTao,
-                TamTinh,
-                ThueVAT,
-                TongTien,
-                DiemCong,
-                TrangThai,
-                HinhThuc
+                String insertSql = """
+            INSERT INTO ChiTietHoaDon(
+                MaHD,
+                MaSanPham,
+                SoLuong,
+                DonGia
             )
-            VALUES (
-                ?,
-                ?,
-                GETDATE(),
-                0,
-                0,
-                0,
-                0,
-                N'Đang phục vụ',
-                ?
-            )
+            VALUES (?, ?, ?, ?)
             """;
 
-        try (
-            PreparedStatement ps =
-                    conn.prepareStatement(
-                            sql,
-                            Statement
-                                .RETURN_GENERATED_KEYS
-                    )
-        ) {
-            ps.setString(
-                    1,
-                    maNV
-            );
+                try (
+                        PreparedStatement productPs
+                        = conn.prepareStatement(
+                                productSql
+                        ); PreparedStatement insertPs
+                        = conn.prepareStatement(
+                                insertSql
+                        )) {
+                            for (ChiTietHoaDon item
+                                    : items) {
+                                if (item.getMaSanPham() == null
+                                        || item.getMaSanPham()
+                                                .isBlank()
+                                        || item.getSoLuong() <= 0) {
+                                    throw new IllegalArgumentException(
+                                            "Sản phẩm hoặc số lượng "
+                                            + "không hợp lệ."
+                                    );
+                                }
 
-            setNullableInt(
-                    ps,
-                    2,
-                    maBan
-            );
+                                productPs.setString(
+                                        1,
+                                        item.getMaSanPham()
+                                );
 
-            ps.setString(
-                    3,
-                    hinhThuc
-            );
+                                BigDecimal donGia;
 
-            ps.executeUpdate();
+                                try (
+                                        ResultSet rs
+                                        = productPs.executeQuery()) {
+                                    if (!rs.next()) {
+                                        throw new IllegalArgumentException(
+                                                "Không tìm thấy sản phẩm "
+                                                + item.getMaSanPham()
+                                                + "."
+                                        );
+                                    }
 
-            try (
-                ResultSet keys =
-                        ps.getGeneratedKeys()
-            ) {
-                if (!keys.next()) {
-                    throw new SQLException(
-                            "Không tự tạo được mã hóa đơn."
-                    );
-                }
+                                    donGia
+                                            = rs.getBigDecimal(
+                                                    "GiaBan"
+                                            );
+                                }
 
-                return keys.getInt(1);
-            }
-        }
-    }
+                                insertPs.setInt(
+                                        1,
+                                        maHD
+                                );
 
-    private void ganHoaDonChoBan(
-            Connection conn,
-            int maBan,
-            int maHD
-    ) throws SQLException {
+                                insertPs.setString(
+                                        2,
+                                        item.getMaSanPham()
+                                );
 
-        String sql = """
-            UPDATE BanAn
-            SET TrangThai = 1,
-                MaDonHang = ?
-            WHERE MaBan = ?
-            """;
+                                insertPs.setInt(
+                                        3,
+                                        item.getSoLuong()
+                                );
 
-        try (
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
-        ) {
-            ps.setString(
-                    1,
-                    String.format(
-                            "HD%06d",
-                            maHD
-                    )
-            );
+                                insertPs.setBigDecimal(
+                                        4,
+                                        donGia
+                                );
 
-            ps.setInt(
-                    2,
-                    maBan
-            );
+                                insertPs.addBatch();
+                            }
 
-            if (ps.executeUpdate() != 1) {
-                throw new SQLException(
-                        "Không cập nhật được trạng thái bàn."
-                );
-            }
-        }
-    }
-
-    private void giaiPhongBan(
-            Connection conn,
-            int maBan
-    ) throws SQLException {
-
-        try (
-            PreparedStatement ps =
-                conn.prepareStatement(
-                    """
-                    UPDATE BanAn
-                    SET TrangThai = 0,
-                        MaDonHang = NULL
-                    WHERE MaBan = ?
-                    """
-                )
-        ) {
-            ps.setInt(
-                    1,
-                    maBan
-            );
-
-            ps.executeUpdate();
-        }
-    }
-
-    private void kiemTraBanTonTai(
-            Connection conn,
-            int maBan
-    ) throws SQLException {
-
-        try (
-            PreparedStatement ps =
-                conn.prepareStatement(
-                    """
-                    SELECT MaBan
-                    FROM BanAn
-                    WHERE MaBan = ?
-                    """
-                )
-        ) {
-            ps.setInt(
-                    1,
-                    maBan
-            );
-
-            try (
-                ResultSet rs =
-                        ps.executeQuery()
-            ) {
-                if (!rs.next()) {
-                    throw new SQLException(
-                            "Bàn không tồn tại."
-                    );
-                }
-            }
-        }
-    }
-
-    private InvoiceLock khoaHoaDon(
-            Connection conn,
-            int maHD
-    ) throws SQLException {
-
-        String sql = """
-            SELECT MaBan,
-                   HinhThuc,
-                   TrangThai
-            FROM HoaDon
-                WITH (UPDLOCK, HOLDLOCK)
-            WHERE MaHD = ?
-            """;
-
-        try (
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
-        ) {
-            ps.setInt(
-                    1,
-                    maHD
-            );
-
-            try (
-                ResultSet rs =
-                        ps.executeQuery()
-            ) {
-                if (!rs.next()) {
-                    throw new SQLException(
-                            "Không tìm thấy hóa đơn."
-                    );
-                }
-
-                String trangThai =
-                        rs.getString(
-                                "TrangThai"
-                        );
-
-                if (
-                    "Đã thanh toán"
-                        .equalsIgnoreCase(
-                                trangThai
-                        )
-                ) {
-                    throw new SQLException(
-                            "Hóa đơn đã thanh toán."
-                    );
-                }
-
-                if (
-                    "Đã hủy"
-                        .equalsIgnoreCase(
-                                trangThai
-                        )
-                ) {
-                    throw new SQLException(
-                            "Hóa đơn đã hủy."
-                    );
-                }
-
-                Integer maBan =
-                        (Integer) rs.getObject(
-                                "MaBan"
-                        );
-
-                return new InvoiceLock(
-                        maBan,
-                        rs.getString(
-                                "HinhThuc"
-                        )
-                );
-            }
-        }
+                            insertPs.executeBatch();
+                        }
     }
 
     private void kiemTraHoaDonChuaKetThuc(
@@ -1099,85 +752,191 @@ public class HoaDonDAO {
             int maHD
     ) throws SQLException {
 
-        khoaHoaDon(
-                conn,
-                maHD
-        );
-    }
-
-    private void kiemTraHoaDonCoMon(
-            Connection conn,
-            int maHD
-    ) throws SQLException {
+        String sql = """
+            SELECT TrangThai
+            FROM HoaDon
+                WITH (UPDLOCK, HOLDLOCK)
+            WHERE MaHD = ?
+            """;
 
         try (
-            PreparedStatement ps =
-                conn.prepareStatement(
-                    """
-                    SELECT TOP 1 MaCT
-                    FROM ChiTietHoaDon
-                    WHERE MaHD = ?
-                    """
-                )
-        ) {
+                PreparedStatement ps
+                = conn.prepareStatement(sql)) {
             ps.setInt(
                     1,
                     maHD
             );
 
             try (
-                ResultSet rs =
-                        ps.executeQuery()
-            ) {
+                    ResultSet rs
+                    = ps.executeQuery()) {
                 if (!rs.next()) {
-                    throw new SQLException(
-                            "Hóa đơn chưa có món."
+                    throw new IllegalArgumentException(
+                            "Không tìm thấy hóa đơn."
+                    );
+                }
+
+                if (!"Chờ thanh toán"
+                        .equalsIgnoreCase(
+                                rs.getString(
+                                        "TrangThai"
+                                )
+                        )) {
+                    throw new IllegalArgumentException(
+                            "Hóa đơn đã kết thúc."
                     );
                 }
             }
         }
     }
 
-    private void kiemTraTatCaMonDaCoCongThuc(
+    private void kiemTraSanPhamCoCongThuc(
             Connection conn,
             int maHD
     ) throws SQLException {
 
         String sql = """
-            SELECT TOP 1 m.TenMon
+            SELECT TOP 1
+                   sp.TenSanPham
             FROM ChiTietHoaDon ct
-            JOIN Menu m
-                ON m.MaMon = ct.MaMon
+            JOIN SanPham sp
+                ON sp.MaSanPham =
+                   ct.MaSanPham
             WHERE ct.MaHD = ?
               AND NOT EXISTS (
                   SELECT 1
-                  FROM CongThucMon ctm
-                  WHERE ctm.MaMon = ct.MaMon
+                  FROM CongThucSanPham c
+                  WHERE c.MaSanPham =
+                        ct.MaSanPham
               )
             """;
 
         try (
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
-        ) {
+                PreparedStatement ps
+                = conn.prepareStatement(sql)) {
             ps.setInt(
                     1,
                     maHD
             );
 
             try (
-                ResultSet rs =
-                        ps.executeQuery()
-            ) {
+                    ResultSet rs
+                    = ps.executeQuery()) {
                 if (rs.next()) {
-                    throw new SQLException(
-                            "Món chưa có công thức nguyên liệu: "
+                    throw new IllegalArgumentException(
+                            "Sản phẩm chưa có công thức: "
                             + rs.getString(
-                                    "TenMon"
+                                    "TenSanPham"
                             )
                     );
                 }
             }
+        }
+    }
+
+    private void kiemTraDuTonKho(
+            Connection conn,
+            int maHD
+    ) throws SQLException {
+
+        String sql = """
+            WITH CanDung AS (
+                SELECT ct.MaNguyenLieu,
+                       SUM(
+                           ct.SoLuongCan
+                           * hd.SoLuong
+                       ) AS SoLuongCan
+                FROM ChiTietHoaDon hd
+                JOIN CongThucSanPham ct
+                    ON ct.MaSanPham =
+                       hd.MaSanPham
+                WHERE hd.MaHD = ?
+                GROUP BY ct.MaNguyenLieu
+            )
+            SELECT TOP 1
+                   nl.TenNguyenLieu,
+                   nl.SoLuongTon,
+                   cd.SoLuongCan
+            FROM CanDung cd
+            JOIN NguyenLieu nl
+                ON nl.MaNguyenLieu =
+                   cd.MaNguyenLieu
+            WHERE nl.TrangThai = 0
+               OR nl.SoLuongTon
+                  < cd.SoLuongCan
+            ORDER BY nl.TenNguyenLieu
+            """;
+
+        try (
+                PreparedStatement ps
+                = conn.prepareStatement(sql)) {
+            ps.setInt(
+                    1,
+                    maHD
+            );
+
+            try (
+                    ResultSet rs
+                    = ps.executeQuery()) {
+                if (rs.next()) {
+                    throw new IllegalArgumentException(
+                            "Không đủ nguyên liệu: "
+                            + rs.getString(
+                                    "TenNguyenLieu"
+                            )
+                            + ". Tồn "
+                            + rs.getInt(
+                                    "SoLuongTon"
+                            )
+                            + ", cần "
+                            + rs.getInt(
+                                    "SoLuongCan"
+                            )
+                            + " đơn vị."
+                    );
+                }
+            }
+        }
+    }
+
+    private void truTonKho(
+            Connection conn,
+            int maHD
+    ) throws SQLException {
+
+        String sql = """
+            WITH CanDung AS (
+                SELECT ct.MaNguyenLieu,
+                       SUM(
+                           ct.SoLuongCan
+                           * hd.SoLuong
+                       ) AS SoLuongCan
+                FROM ChiTietHoaDon hd
+                JOIN CongThucSanPham ct
+                    ON ct.MaSanPham =
+                       hd.MaSanPham
+                WHERE hd.MaHD = ?
+                GROUP BY ct.MaNguyenLieu
+            )
+            UPDATE nl
+            SET nl.SoLuongTon =
+                nl.SoLuongTon
+                - cd.SoLuongCan
+            FROM NguyenLieu nl
+            JOIN CanDung cd
+                ON cd.MaNguyenLieu =
+                   nl.MaNguyenLieu
+            """;
+
+        try (
+                PreparedStatement ps
+                = conn.prepareStatement(sql)) {
+            ps.setInt(
+                    1,
+                    maHD
+            );
+
+            ps.executeUpdate();
         }
     }
 
@@ -1189,7 +948,9 @@ public class HoaDonDAO {
         String sql = """
             SELECT CAST(
                 ISNULL(
-                    SUM(SoLuong * DonGia),
+                    SUM(
+                        SoLuong * DonGia
+                    ),
                     0
                 )
                 AS DECIMAL(18,0)
@@ -1199,18 +960,16 @@ public class HoaDonDAO {
             """;
 
         try (
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
-        ) {
+                PreparedStatement ps
+                = conn.prepareStatement(sql)) {
             ps.setInt(
                     1,
                     maHD
             );
 
             try (
-                ResultSet rs =
-                        ps.executeQuery()
-            ) {
+                    ResultSet rs
+                    = ps.executeQuery()) {
                 rs.next();
 
                 return rs.getBigDecimal(
@@ -1220,106 +979,15 @@ public class HoaDonDAO {
         }
     }
 
-    private void kiemTraDuNguyenLieu(
-            Connection conn,
-            int maHD
-    ) throws SQLException {
-
-        String sql = """
-            WITH CanDung AS (
-                SELECT ctm.MaNL,
-                       SUM(
-                           ctm.SoLuongCan
-                           * cthd.SoLuong
-                       ) AS SoLuongCan
-                FROM ChiTietHoaDon cthd
-                JOIN CongThucMon ctm
-                    ON ctm.MaMon = cthd.MaMon
-                WHERE cthd.MaHD = ?
-                GROUP BY ctm.MaNL
-            )
-            SELECT TOP 1
-                   k.TenNL,
-                   k.SoLuong,
-                   cd.SoLuongCan,
-                   k.DonVi
-            FROM CanDung cd
-            LEFT JOIN Kho k
-                ON k.MaNL = cd.MaNL
-            WHERE k.MaNL IS NULL
-               OR k.SoLuong < cd.SoLuongCan
-            """;
-
-        try (
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
-        ) {
-            ps.setInt(
-                    1,
-                    maHD
-            );
-
-            try (
-                ResultSet rs =
-                        ps.executeQuery()
-            ) {
-                if (rs.next()) {
-                    String ten =
-                            rs.getString(
-                                    "TenNL"
-                            );
-
-                    throw new SQLException(
-                            "Không đủ nguyên liệu: "
-                            + (
-                                ten == null
-                                ? "nguyên liệu không tồn tại trong kho"
-                                : ten
-                            )
-                            + "."
-                    );
-                }
-            }
-        }
-    }
-
-    private void truKho(
-            Connection conn,
-            int maHD
-    ) throws SQLException {
-
-        String sql = """
-            WITH CanDung AS (
-                SELECT ctm.MaNL,
-                       SUM(
-                           ctm.SoLuongCan
-                           * cthd.SoLuong
-                       ) AS SoLuongCan
-                FROM ChiTietHoaDon cthd
-                JOIN CongThucMon ctm
-                    ON ctm.MaMon = cthd.MaMon
-                WHERE cthd.MaHD = ?
-                GROUP BY ctm.MaNL
-            )
-            UPDATE k
-            SET k.SoLuong =
-                k.SoLuong - cd.SoLuongCan
-            FROM Kho k
-            JOIN CanDung cd
-                ON cd.MaNL = k.MaNL
-            """;
-
-        try (
-            PreparedStatement ps =
-                    conn.prepareStatement(sql)
-        ) {
-            ps.setInt(
-                    1,
-                    maHD
-            );
-
-            ps.executeUpdate();
-        }
+    private BigDecimal tinhVAT(
+            BigDecimal tamTinh
+    ) {
+        return tamTinh
+                .multiply(VAT_RATE)
+                .setScale(
+                        0,
+                        RoundingMode.HALF_UP
+                );
     }
 
     private String layTenKhachHang(
@@ -1327,28 +995,26 @@ public class HoaDonDAO {
             String maKH
     ) throws SQLException {
 
+        String sql = """
+            SELECT HoTen
+            FROM KhachHang
+            WHERE MaKH = ?
+            """;
+
         try (
-            PreparedStatement ps =
-                conn.prepareStatement(
-                    """
-                    SELECT HoTen
-                    FROM KhachHang
-                    WHERE MaKH = ?
-                    """
-                )
-        ) {
+                PreparedStatement ps
+                = conn.prepareStatement(sql)) {
             ps.setString(
                     1,
                     maKH
             );
 
             try (
-                ResultSet rs =
-                        ps.executeQuery()
-            ) {
+                    ResultSet rs
+                    = ps.executeQuery()) {
                 if (!rs.next()) {
-                    throw new SQLException(
-                            "Không tìm thấy khách hàng đã chọn."
+                    throw new IllegalArgumentException(
+                            "Không tìm thấy khách hàng."
                     );
                 }
 
@@ -1364,42 +1030,36 @@ public class HoaDonDAO {
             String hoTen
     ) throws SQLException {
 
-        String maKH;
+        int sequenceValue;
 
         try (
-            PreparedStatement ps =
-                conn.prepareStatement(
+                PreparedStatement ps
+                = conn.prepareStatement(
+                        """
+                    SELECT NEXT VALUE FOR
+                           dbo.Seq_KhachHang
+                           AS GiaTri
                     """
-                    SELECT N'KH'
-                        + RIGHT(
-                            N'000'
-                            + CAST(
-                                NEXT VALUE FOR
-                                dbo.Seq_KhachHang
-                                AS NVARCHAR(10)
-                            ),
-                            3
-                        )
-                    """
-                );
+                ); ResultSet rs
+                = ps.executeQuery()) {
+                    rs.next();
 
-            ResultSet rs =
-                    ps.executeQuery()
-        ) {
-            if (!rs.next()) {
-                throw new SQLException(
-                        "Không tự tạo được mã khách hàng."
-                );
-            }
+                    sequenceValue
+                            = rs.getInt(
+                                    "GiaTri"
+                            );
+                }
 
-            maKH =
-                    rs.getString(1);
-        }
+                String maKH
+                        = String.format(
+                                "KH%03d",
+                                sequenceValue
+                        );
 
-        try (
-            PreparedStatement ps =
-                conn.prepareStatement(
-                    """
+                try (
+                        PreparedStatement ps
+                        = conn.prepareStatement(
+                                """
                     INSERT INTO KhachHang(
                         MaKH,
                         HoTen,
@@ -1408,61 +1068,170 @@ public class HoaDonDAO {
                     )
                     VALUES (?, ?, NULL, 0)
                     """
+                        )) {
+                            ps.setString(
+                                    1,
+                                    maKH
+                            );
+
+                            ps.setString(
+                                    2,
+                                    hoTen
+                            );
+
+                            ps.executeUpdate();
+                        }
+
+                        return maKH;
+    }
+
+    private HoaDon mapRow(
+            ResultSet rs
+    ) throws SQLException {
+
+        HoaDon hoaDon
+                = new HoaDon();
+
+        hoaDon.setMaHD(
+                rs.getInt(
+                        "MaHD"
                 )
-        ) {
-            ps.setString(
-                    1,
-                    maKH
-            );
+        );
 
-            ps.setString(
-                    2,
-                    hoTen
-            );
+        hoaDon.setMaTaiKhoan(
+                rs.getString(
+                        "MaTaiKhoan"
+                )
+        );
 
-            ps.executeUpdate();
+        hoaDon.setTenTaiKhoan(
+                rs.getString(
+                        "TenTaiKhoan"
+                )
+        );
+
+        hoaDon.setMaKH(
+                rs.getString(
+                        "MaKH"
+                )
+        );
+
+        hoaDon.setTenKhachHang(
+                rs.getString(
+                        "TenKhachHang"
+                )
+        );
+
+        hoaDon.setNgayTao(
+                formatTimestamp(
+                        rs.getTimestamp(
+                                "NgayTao"
+                        )
+                )
+        );
+
+        hoaDon.setNgayThanhToan(
+                formatTimestamp(
+                        rs.getTimestamp(
+                                "NgayThanhToan"
+                        )
+                )
+        );
+
+        hoaDon.setTamTinh(
+                getMoney(
+                        rs,
+                        "TamTinh"
+                )
+        );
+
+        hoaDon.setThueVAT(
+                getMoney(
+                        rs,
+                        "ThueVAT"
+                )
+        );
+
+        hoaDon.setTongTien(
+                getMoney(
+                        rs,
+                        "TongTien"
+                )
+        );
+
+        hoaDon.setDiemCong(
+                rs.getInt(
+                        "DiemCong"
+                )
+        );
+
+        hoaDon.setTrangThai(
+                rs.getString(
+                        "TrangThai"
+                )
+        );
+
+        hoaDon.setPhuongThucThanhToan(
+                rs.getString(
+                        "PhuongThucThanhToan"
+                )
+        );
+
+        hoaDon.setLyDoHuy(
+                rs.getString(
+                        "LyDoHuy"
+                )
+        );
+
+        return hoaDon;
+    }
+
+    private BigDecimal getMoney(
+            ResultSet rs,
+            String column
+    ) throws SQLException {
+
+        BigDecimal value
+                = rs.getBigDecimal(column);
+
+        return value == null
+                ? BigDecimal.ZERO
+                : value;
+    }
+
+    private String formatTimestamp(
+            Timestamp value
+    ) {
+        if (value == null) {
+            return "";
         }
 
-        return maKH;
+        return value
+                .toLocalDateTime()
+                .format(DATE_FORMAT);
     }
 
-    private BigDecimal tinhVAT(
-            BigDecimal tamTinh
-    ) {
-        return tamTinh
-                .multiply(VAT_RATE)
-                .setScale(
-                        0,
-                        RoundingMode.HALF_UP
-                );
-    }
-
-    private String chuanHoaHinhThuc(
-            String hinhThuc,
-            Integer maBan
-    ) {
-        if (
-            "Mang về".equalsIgnoreCase(
-                    hinhThuc
-            )
-        ) {
-            return "Mang về";
-        }
-
-        return maBan == null
-                ? "Mang về"
-                : "Tại bàn";
-    }
-
-    private Integer parseNullableInt(
+    private void setNullableString(
+            PreparedStatement ps,
+            int index,
             String value
-    ) {
-        String text =
-                trimToNull(value);
+    ) throws SQLException {
 
-        return text == null
-                ? null
-                : Integer.valueOf(text);
+        String cleaned
+                = trimToNull(value);
+
+        if (cleaned == null) {
+            ps.setNull(
+                    index,
+                    Types.NVARCHAR
+            );
+
+        } else {
+            ps.setString(
+                    index,
+                    cleaned
+            );
+        }
     }
 
     private String trimToNull(
@@ -1472,142 +1241,5 @@ public class HoaDonDAO {
                 || value.isBlank()
                 ? null
                 : value.trim();
-    }
-
-    private void setNullableString(
-            PreparedStatement ps,
-            int index,
-            String value
-    ) throws SQLException {
-
-        String text =
-                trimToNull(value);
-
-        if (text == null) {
-            ps.setNull(
-                    index,
-                    Types.NVARCHAR
-            );
-        } else {
-            ps.setString(
-                    index,
-                    text
-            );
-        }
-    }
-
-    private void setNullableInt(
-            PreparedStatement ps,
-            int index,
-            Integer value
-    ) throws SQLException {
-
-        if (value == null) {
-            ps.setNull(
-                    index,
-                    Types.INTEGER
-            );
-        } else {
-            ps.setInt(
-                    index,
-                    value
-            );
-        }
-    }
-
-    private HoaDon mapRow(
-            ResultSet rs
-    ) throws SQLException {
-
-        HoaDon hd =
-                new HoaDon();
-
-        hd.setMaHD(
-                rs.getString("MaHD")
-        );
-
-        hd.setMaBan(
-                rs.getString("MaBan")
-        );
-
-        hd.setMaNV(
-                rs.getString("MaNV")
-        );
-
-        hd.setMaKH(
-                rs.getString("MaKH")
-        );
-
-        hd.setTenKhachHang(
-                rs.getString(
-                        "TenKhachHang"
-                )
-        );
-
-        hd.setNgayTao(
-                rs.getString("NgayTao")
-        );
-
-        hd.setTamTinh(
-                rs.getDouble("TamTinh")
-        );
-
-        hd.setThueVAT(
-                rs.getDouble("ThueVAT")
-        );
-
-        hd.setTongTien(
-                rs.getDouble("TongTien")
-        );
-
-        hd.setDiemCong(
-                rs.getInt("DiemCong")
-        );
-
-        hd.setTrangThai(
-                rs.getString("TrangThai")
-        );
-
-        hd.setDanhSachMon(
-                rs.getString(
-                        "DanhSachMon"
-                )
-        );
-
-        hd.setPhuongThucThanhToan(
-                rs.getString(
-                        "PhuongThucThanhToan"
-                )
-        );
-
-        hd.setNgayThanhToan(
-                rs.getString(
-                        "NgayThanhToan"
-                )
-        );
-
-        hd.setHinhThuc(
-                rs.getString("HinhThuc")
-        );
-
-        hd.setLyDoHuy(
-                rs.getString("LyDoHuy")
-        );
-
-        return hd;
-    }
-
-    private static final class InvoiceLock {
-
-        private final Integer maBan;
-        private final String hinhThuc;
-
-        private InvoiceLock(
-                Integer maBan,
-                String hinhThuc
-        ) {
-            this.maBan = maBan;
-            this.hinhThuc = hinhThuc;
-        }
     }
 }

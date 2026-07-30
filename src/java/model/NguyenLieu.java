@@ -1,52 +1,48 @@
 package model;
 
-import java.math.BigDecimal;
-
 public class NguyenLieu {
 
-    private String maNL;
-    private String tenNL;
-    private BigDecimal soLuong;
+    private String maNguyenLieu;
+    private String tenNguyenLieu;
+    private int soLuongTon;
+    private int mucNhapCoDinh;
     private String donVi;
-    private String congThucSuDung;
+    private boolean trangThai;
+    private String sanPhamSuDung;
 
     public NguyenLieu() {
     }
 
-    public NguyenLieu(
-            String maNL,
-            String tenNL,
-            BigDecimal soLuong,
-            String donVi
-    ) {
-        this.maNL = maNL;
-        this.tenNL = tenNL;
-        this.soLuong = soLuong;
-        this.donVi = donVi;
+    public String getMaNguyenLieu() {
+        return maNguyenLieu;
     }
 
-    public String getMaNL() {
-        return maNL;
+    public void setMaNguyenLieu(String maNguyenLieu) {
+        this.maNguyenLieu = maNguyenLieu;
     }
 
-    public void setMaNL(String maNL) {
-        this.maNL = maNL;
+    public String getTenNguyenLieu() {
+        return tenNguyenLieu;
     }
 
-    public String getTenNL() {
-        return tenNL;
+    public void setTenNguyenLieu(String tenNguyenLieu) {
+        this.tenNguyenLieu = tenNguyenLieu;
     }
 
-    public void setTenNL(String tenNL) {
-        this.tenNL = tenNL;
+    public int getSoLuongTon() {
+        return soLuongTon;
     }
 
-    public BigDecimal getSoLuong() {
-        return soLuong;
+    public void setSoLuongTon(int soLuongTon) {
+        this.soLuongTon = soLuongTon;
     }
 
-    public void setSoLuong(BigDecimal soLuong) {
-        this.soLuong = soLuong;
+    public int getMucNhapCoDinh() {
+        return mucNhapCoDinh;
+    }
+
+    public void setMucNhapCoDinh(int mucNhapCoDinh) {
+        this.mucNhapCoDinh = mucNhapCoDinh;
     }
 
     public String getDonVi() {
@@ -57,40 +53,41 @@ public class NguyenLieu {
         this.donVi = donVi;
     }
 
-    public String getCongThucSuDung() {
-        return congThucSuDung;
+    public boolean isTrangThai() {
+        return trangThai;
     }
 
-    public void setCongThucSuDung(
-            String congThucSuDung
-    ) {
-        this.congThucSuDung =
-                congThucSuDung;
+    public void setTrangThai(boolean trangThai) {
+        this.trangThai = trangThai;
+    }
+
+    public String getSanPhamSuDung() {
+        return sanPhamSuDung;
+    }
+
+    public void setSanPhamSuDung(String sanPhamSuDung) {
+        this.sanPhamSuDung = sanPhamSuDung;
     }
 
     public boolean isHetHang() {
-        return soLuong == null
-                || soLuong.compareTo(
-                        BigDecimal.ZERO
-                ) <= 0;
+        return soLuongTon <= 0;
     }
 
-    public boolean isSapHetHang() {
-        return soLuong != null
-                && soLuong.compareTo(
-                        BigDecimal.ZERO
-                ) > 0
-                && soLuong.compareTo(
-                        new BigDecimal("10")
-                ) <= 0;
+    public boolean isSapHet() {
+        return soLuongTon > 0
+                && soLuongTon <= mucNhapCoDinh;
     }
 
     public String getTrangThaiKho() {
+        if (!trangThai) {
+            return "Ngừng sử dụng";
+        }
+
         if (isHetHang()) {
             return "Hết hàng";
         }
 
-        if (isSapHetHang()) {
+        if (isSapHet()) {
             return "Sắp hết";
         }
 

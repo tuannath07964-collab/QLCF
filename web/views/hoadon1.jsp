@@ -7,649 +7,498 @@
 <%@ taglib prefix="fmt"
            uri="jakarta.tags.fmt" %>
 
-<c:set var="daThanhToan"
-       value="${hoadon.trangThai == 'Đã thanh toán'}"/>
-
-<c:set var="daHuy"
-       value="${hoadon.trangThai == 'Đã hủy'}"/>
-
-<c:set var="daKetThuc"
-       value="${daThanhToan or daHuy}"/>
-
-<c:set var="laMangVe"
-       value="${hoadon.hinhThuc == 'Mang về'}"/>
-
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
+    <head>
+        <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0">
 
-    <title>Chi tiết hóa đơn</title>
+        <title>Chi tiết hóa đơn</title>
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-    <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/css/app.css">
-</head>
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/app.css?v=50">
 
-<body>
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/store.css?v=50">
+    </head>
 
-    <jsp:include page="/views/components/sidebar.jsp">
-        <jsp:param name="active"
-                   value="invoice"/>
-    </jsp:include>
+    <body>
 
-    <main class="app-main">
-
-        <jsp:include page="/views/components/topbar.jsp">
-            <jsp:param name="title"
-                       value="Chi tiết hóa đơn"/>
-
-            <jsp:param name="subtitle"
-                       value="Chọn món, lưu đơn hoặc thực hiện thanh toán"/>
+        <jsp:include page="/views/components/sidebar.jsp">
+            <jsp:param name="active"
+                       value="invoice"/>
         </jsp:include>
 
-        <form class="app-content"
-              id="invoiceForm"
-              action="${pageContext.request.contextPath}/hoadon"
-              method="post">
+        <main class="app-main">
 
-            <input type="hidden"
-                   id="formAction"
-                   name="action"
-                   value="update">
+            <jsp:include page="/views/components/topbar.jsp">
+                <jsp:param name="title"
+                           value="Chi tiết hóa đơn"/>
 
-            <input type="hidden"
-                   name="maHD"
-                   value="${hoadon.maHD}">
+                <jsp:param name="subtitle"
+                           value="Chọn sản phẩm và thực hiện thanh toán"/>
+            </jsp:include>
 
-            <input type="hidden"
-                   name="maNV"
-                   value="${empty hoadon.maNV
-                            ? sessionScope.maNV
-                            : hoadon.maNV}">
+            <div class="app-content">
 
-            <input type="hidden"
-                   name="ngayTao"
-                   value="${hoadon.ngayTao}">
+                <c:if test="${param.success == 'save'}">
 
-            <input type="hidden"
-                   name="trangThai"
-                   value="${empty hoadon.trangThai
-                            ? 'Đang phục vụ'
-                            : hoadon.trangThai}">
+                    <div class="alert alert-success">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Lưu hóa đơn thành công.
+                    </div>
 
-            <input type="hidden"
-                   name="hinhThuc"
-                   value="${empty hoadon.hinhThuc
-                            ? 'Tại bàn'
-                            : hoadon.hinhThuc}">
+                </c:if>
 
-            <input type="hidden"
-                   name="maBan"
-                   value="${hoadon.maBan}">
+                <c:if test="${not empty errorMessage}">
 
-            <input type="hidden"
-                   id="inputTongTien"
-                   name="tongTien"
-                   value="${empty hoadon.tongTien
-                            ? 0
-                            : hoadon.tongTien}">
+                    <div class="alert alert-danger">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <c:out value="${errorMessage}"/>
+                    </div>
 
-            <input type="hidden"
-                   id="inputDanhSachMon"
-                   name="danhSachMon">
+                </c:if>
 
-            <div id="cartFields"></div>
+                <div class="page-header">
 
-            <textarea id="oldCartData"
-                      hidden><c:out value="${hoadon.danhSachMon}"/></textarea>
+                    <div>
 
-            <c:if test="${param.success == 'save'}">
+                        <a class="section-link"
+                           href="${pageContext.request.contextPath}/hoadon">
 
-                <div class="alert alert-success">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            Quay lại danh sách
+                        </a>
 
-                    <i class="fa-solid fa-circle-check"></i>
-                    Lưu hóa đơn thành công.
-                </div>
+                        <h2 class="invoice-detail-title">
+                            ${hoaDon.maHienThi}
+                        </h2>
 
-            </c:if>
+                        <p>
+                            Tạo bởi:
+                            <c:out value="${hoaDon.tenTaiKhoan}"/>
+                            ·
+                            ${hoaDon.ngayTao}
+                        </p>
 
-            <c:if test="${not empty errorMessage}">
+                    </div>
 
-                <div class="alert alert-danger">
-
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    ${errorMessage}
-                </div>
-
-            </c:if>
-
-            <div class="page-header">
-
-                <div>
-
-                    <a class="section-link"
-                       href="${pageContext.request.contextPath}/hoadon">
-
-                        <i class="fa-solid fa-arrow-left"></i>
-                        Quay lại danh sách
-                    </a>
-
-                    <h2 style="margin-top:8px;">
-                        ${empty hoadon.maHD
-                            ? 'Hóa đơn mới'
-                            : hoadon.maHienThi}
-                    </h2>
-
-                    <p>
-                        ${laMangVe
-                            ? 'Đơn bán cho khách mang về'
-                            : 'Đơn phục vụ tại bàn'}
-                    </p>
-
-                </div>
-
-                <span class="badge
-                      ${daThanhToan
-                        ? 'badge-success'
-                        : daHuy
+                    <span class="badge invoice-detail-status
+                          ${hoaDon.trangThai == 'Đã thanh toán'
+                            ? 'badge-success'
+                            : hoaDon.trangThai == 'Đã hủy'
                             ? 'badge-danger'
-                            : 'badge-blue'}">
+                            : 'badge-warning'}">
 
-                    ${empty hoadon.trangThai
-                        ? 'Đang phục vụ'
-                        : hoadon.trangThai}
-                </span>
+                        ${hoaDon.trangThai}
+                    </span>
 
-            </div>
-
-            <section class="invoice-info-grid">
-
-                <div class="invoice-info-box">
-
-                    <span>Hình thức bán</span>
-
-                    <strong>
-                        ${laMangVe ? 'Mang về' : 'Tại bàn'}
-                    </strong>
                 </div>
 
-                <div class="invoice-info-box">
+                <form id="invoiceForm"
+                      action="${pageContext.request.contextPath}/hoadon"
+                      method="post">
 
-                    <span>Bàn phục vụ</span>
+                    <input type="hidden"
+                           name="maHD"
+                           value="${hoaDon.maHD}">
 
-                    <strong id="metaTable">
-                        ${laMangVe
-                            ? 'Không dùng bàn'
-                            : empty hoadon.maBan
-                                ? 'Chưa chọn'
-                                : hoadon.maBan}
-                    </strong>
-                </div>
+                    <section class="invoice-editor-layout">
 
-                <div class="invoice-info-box">
+                        <article class="card product-picker-panel">
 
-                    <span>Nhân viên lập đơn</span>
+                            <div class="card-header">
 
-                    <strong>
-                        ${empty hoadon.maNV
-                            ? sessionScope.maNV
-                            : hoadon.maNV}
-                    </strong>
-                </div>
+                                <div>
+                                    <h3>Chọn sản phẩm</h3>
+                                    <p>Nhấn vào sản phẩm để thêm vào hóa đơn</p>
+                                </div>
 
-            </section>
+                                <div class="search-box product-picker-search">
 
-            <section class="invoice-editor">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
 
-                <div class="catalog-card">
+                                    <input type="text"
+                                           id="productPickerSearch"
+                                           placeholder="Tìm sản phẩm..."
+                                           autocomplete="off"
+                                           ${hoaDon.daKetThuc
+                                             ? 'disabled'
+                                             : ''}>
+                                </div>
 
-                    <div class="catalog-header">
+                            </div>
 
-                        <h3>
-                            <i class="fa-solid fa-mug-saucer"></i>
-                            Chọn món
-                        </h3>
-                    </div>
+                            <div class="card-body">
 
-                    <div class="category-tabs">
+                                <div class="product-picker-grid">
 
-                        <button type="button"
-                                class="tab active"
-                                data-cat="all">
+                                    <c:forEach var="sanPham"
+                                               items="${sanPhamList}">
 
-                            Tất cả
-                        </button>
+                                        <button class="product-pick
+                                                ${sanPham.coTheBan
+                                                  ? ''
+                                                  : 'disabled'}"
+                                                type="button"
+                                                data-code="${sanPham.maSanPham}"
+                                                data-name="${sanPham.tenSanPham}"
+                                                data-price="${sanPham.giaBan}"
+                                                data-search="${sanPham.maSanPham}
+                                                ${sanPham.tenSanPham}
+                                                ${sanPham.tenDanhMuc}"
+                                                ${not sanPham.coTheBan
+                                                  or hoaDon.daKetThuc
+                                                  ? 'disabled'
+                                                  : ''}>
 
-                        <button type="button"
-                                class="tab"
-                                data-cat="coffee">
-
-                            Cà phê
-                        </button>
-
-                        <button type="button"
-                                class="tab"
-                                data-cat="tea">
-
-                            Trà
-                        </button>
-
-                        <button type="button"
-                                class="tab"
-                                data-cat="juice">
-
-                            Nước ép
-                        </button>
-
-                        <button type="button"
-                                class="tab"
-                                data-cat="snack">
-
-                            Bánh / Ăn vặt
-                        </button>
-
-                    </div>
-
-                    <c:choose>
-
-                        <c:when test="${not empty menuList}">
-
-                            <div class="invoice-menu-grid">
-
-                                <c:forEach var="mon"
-                                           items="${menuList}">
-
-                                    <button type="button"
-                                            class="menu-item
-                                                   ${not mon.trangThai
-                                                     or daKetThuc
-                                                        ? 'disabled'
-                                                        : ''}"
-                                            data-category="${mon.loaiMon}"
-                                            data-disabled="${not mon.trangThai
-                                                             or daKetThuc}"
-                                            data-ma-mon="${mon.maMon}"
-                                            data-ten-mon="${mon.tenMon}"
-                                            data-gia="${mon.gia}"
-                                            onclick="handleMenuItemClick(this)">
-
-                                        <span class="menu-item-icon">
-                                            <i class="fa-solid fa-mug-saucer"></i>
-                                        </span>
-
-                                        <span class="menu-item-info">
-
-                                            <strong>
-                                                ${mon.tenMon}
-                                            </strong>
-
-                                            <span>
-
-                                                <fmt:formatNumber
-                                                    value="${mon.gia}"
-                                                    pattern="#,##0"/>
-
-                                                đ
+                                            <span class="product-pick-icon">
+                                                <i class="fa-solid fa-mug-saucer"></i>
                                             </span>
 
-                                        </span>
+                                            <span class="product-pick-content">
 
-                                    </button>
+                                                <small>
+                                                    <c:out value="${sanPham.tenDanhMuc}"/>
+                                                </small>
 
-                                </c:forEach>
+                                                <strong>
+                                                    <c:out value="${sanPham.tenSanPham}"/>
+                                                </strong>
 
-                            </div>
+                                                <span>
+                                                    <fmt:formatNumber
+                                                        value="${sanPham.giaBan}"
+                                                        pattern="#,##0"/>
 
-                        </c:when>
+                                                    đ
+                                                </span>
 
-                        <c:otherwise>
+                                                <em>
+                                                    ${sanPham.coTheBan
+                                                      ? sanPham.soLuongCoTheBan
+                                                      : 0}
+                                                    phần
+                                                </em>
 
-                            <div class="empty-state">
+                                            </span>
 
-                                <i class="fa-solid fa-mug-saucer"></i>
-
-                                <strong>
-                                    Không có món để bán
-                                </strong>
-                            </div>
-
-                        </c:otherwise>
-
-                    </c:choose>
-
-                </div>
-
-                <div class="receipt-card">
-
-                    <div class="receipt-header">
-
-                        <h3>
-                            <i class="fa-solid fa-receipt"></i>
-                            Hóa đơn
-                        </h3>
-                    </div>
-
-                    <div class="receipt-body">
-
-                        <div class="receipt-customer">
-
-                            <div class="form-group">
-
-                                <label class="form-label"
-                                       for="customerSel">
-
-                                    Khách hàng đã lưu
-                                </label>
-
-                                <select class="form-control"
-                                        id="customerSel"
-                                        name="maKH"
-                                        ${daKetThuc ? 'disabled' : ''}>
-
-                                    <option value="">
-                                        Khách lẻ
-                                    </option>
-
-                                    <c:forEach var="kh"
-                                               items="${khachHangList}">
-
-                                        <option value="${kh.maKH}"
-                                                ${hoadon.maKH == kh.maKH
-                                                    ? 'selected'
-                                                    : ''}>
-
-                                            ${kh.maKH}
-                                            -
-                                            ${kh.hoTen}
-                                            (${kh.diemTichLuy} điểm)
-                                        </option>
+                                        </button>
 
                                     </c:forEach>
 
-                                </select>
+                                </div>
 
-                                <c:if test="${daKetThuc
-                                              and not empty hoadon.maKH}">
+                            </div>
 
-                                    <input type="hidden"
-                                           name="maKH"
-                                           value="${hoadon.maKH}">
+                        </article>
+
+                        <article class="card invoice-cart-panel">
+
+                            <div class="card-header">
+
+                                <div>
+                                    <h3>Thông tin hóa đơn</h3>
+                                    <p>${hoaDon.maHienThi}</p>
+                                </div>
+
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="form-group">
+
+                                    <label class="form-label">
+                                        Khách hàng đã lưu
+                                    </label>
+
+                                    <select class="form-control"
+                                            id="customerSelect"
+                                            name="maKH"
+                                            ${hoaDon.daKetThuc
+                                              ? 'disabled'
+                                              : ''}>
+
+                                        <option value="">
+                                            Khách lẻ
+                                        </option>
+
+                                        <c:forEach var="khachHang"
+                                                   items="${khachHangList}">
+
+                                            <option value="${khachHang.maKH}"
+                                                    ${hoaDon.maKH
+                                                      == khachHang.maKH
+                                                      ? 'selected'
+                                                      : ''}>
+
+                                                ${khachHang.maKH}
+                                                -
+                                                ${khachHang.hoTen}
+                                            </option>
+
+                                        </c:forEach>
+
+                                    </select>
+
+                                    <c:if test="${hoaDon.daKetThuc
+                                                  and not empty hoaDon.maKH}">
+
+                                          <input type="hidden"
+                                                 name="maKH"
+                                                 value="${hoaDon.maKH}">
+                                    </c:if>
+
+                                </div>
+
+                                <c:if test="${not hoaDon.daKetThuc}">
+
+                                    <div class="form-group">
+
+                                        <label class="form-label">
+                                            Tên khách hàng mới
+                                        </label>
+
+                                        <input class="form-control"
+                                               type="text"
+                                               id="newCustomerName"
+                                               name="tenKhachHang"
+                                               value="${empty hoaDon.maKH
+                                                        ? hoaDon.tenKhachHang
+                                                        : ''}"
+                                               maxlength="100"
+                                               placeholder="Để trống nếu là khách lẻ">
+                                    </div>
+
+                                    <label class="checkbox-item invoice-customer-save">
+
+                                        <input type="checkbox"
+                                               id="saveCustomerCheckbox"
+                                               name="luuKhachMoi">
+
+                                        Lưu khách hàng mới để tích điểm
+                                    </label>
+
+                                </c:if>
+
+                                <div class="invoice-cart-table-wrapper">
+
+                                    <table class="invoice-cart-table">
+
+                                        <thead>
+                                            <tr>
+                                                <th>Sản phẩm</th>
+                                                <th>SL</th>
+                                                <th>Thành tiền</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="cartTableBody">
+
+                                            <c:forEach var="chiTiet"
+                                                       items="${chiTietList}">
+
+                                                <tr class="cart-row"
+                                                    data-code="${chiTiet.maSanPham}"
+                                                    data-name="${chiTiet.tenSanPham}"
+                                                    data-price="${chiTiet.donGia}">
+
+                                                    <td>
+
+                                                        <strong>
+                                                            <c:out value="${chiTiet.tenSanPham}"/>
+                                                        </strong>
+
+                                                        <small>
+                                                            <fmt:formatNumber
+                                                                value="${chiTiet.donGia}"
+                                                                pattern="#,##0"/>
+
+                                                            đ
+                                                        </small>
+
+                                                        <input type="hidden"
+                                                               name="maSanPham"
+                                                               value="${chiTiet.maSanPham}">
+                                                    </td>
+
+                                                    <td>
+
+                                                        <input class="cart-quantity"
+                                                               type="number"
+                                                               name="soLuong"
+                                                               value="${chiTiet.soLuong}"
+                                                               min="1"
+                                                               step="1"
+                                                               ${hoaDon.daKetThuc
+                                                                 ? 'readonly'
+                                                                 : ''}>
+                                                    </td>
+
+                                                    <td class="cart-line-total">
+                                                        0đ
+                                                    </td>
+
+                                                    <td>
+
+                                                        <button class="cart-remove"
+                                                                type="button"
+                                                                ${hoaDon.daKetThuc
+                                                                  ? 'disabled'
+                                                                  : ''}>
+
+                                                            <i class="fa-solid fa-xmark"></i>
+                                                        </button>
+                                                    </td>
+
+                                                </tr>
+
+                                            </c:forEach>
+
+                                        </tbody>
+
+                                    </table>
+
+                                    <div class="empty-cart
+                                         ${empty chiTietList
+                                           ? ''
+                                           : 'hidden'}"
+                                         id="emptyCart">
+
+                                        <i class="fa-solid fa-basket-shopping"></i>
+
+                                        <span>Chưa có sản phẩm</span>
+                                    </div>
+
+                                </div>
+
+                                <div class="invoice-total-box">
+
+                                    <div>
+                                        <span>Tạm tính</span>
+                                        <strong id="subTotalValue">0đ</strong>
+                                    </div>
+
+                                    <div>
+                                        <span>VAT 8%</span>
+                                        <strong id="vatValue">0đ</strong>
+                                    </div>
+
+                                    <div class="grand-total-row">
+                                        <span>Tổng thanh toán</span>
+                                        <strong id="grandTotalValue">0đ</strong>
+                                    </div>
+
+                                </div>
+
+                                <c:if test="${not hoaDon.daKetThuc}">
+
+                                    <div class="payment-default-notice">
+
+                                        <i class="fa-solid fa-money-bill-wave"></i>
+
+                                        <div>
+                                            <strong>Thanh toán tại quầy</strong>
+
+                                            <span>
+                                                Hệ thống sẽ ghi nhận hóa đơn đã thanh toán.
+                                            </span>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="invoice-form-actions">
+
+                                        <button class="btn btn-primary"
+                                                type="submit"
+                                                name="action"
+                                                value="save">
+
+                                            <i class="fa-solid fa-floppy-disk"></i>
+                                            Lưu hóa đơn
+                                        </button>
+
+                                        <button class="btn btn-success"
+                                                type="submit"
+                                                name="action"
+                                                value="pay">
+
+                                            <i class="fa-solid fa-money-check-dollar"></i>
+                                            Thanh toán
+                                        </button>
+
+                                        <button class="btn btn-danger"
+                                                type="button"
+                                                id="cancelInvoiceButton">
+
+                                            <i class="fa-solid fa-ban"></i>
+                                            Hủy hóa đơn
+                                        </button>
+
+                                    </div>
+
+                                </c:if>
+
+                                <c:if test="${hoaDon.daKetThuc}">
+
+                                    <div class="readonly-notice">
+
+                                        <i class="fa-solid fa-lock"></i>
+
+                                        Hóa đơn đã kết thúc.
+                                        Không thể thay đổi dữ liệu.
+                                    </div>
+
+                                    <c:if test="${hoaDon.trangThai == 'Đã hủy'}">
+
+                                        <div class="invoice-cancel-reason">
+
+                                            <strong>Lý do hủy:</strong>
+
+                                            <c:out value="${hoaDon.lyDoHuy}"/>
+                                        </div>
+
+                                    </c:if>
+
                                 </c:if>
 
                             </div>
 
-                            <c:if test="${not daKetThuc}">
+                        </article>
 
-                                <label class="checkbox-item">
+                    </section>
 
-                                    <input type="checkbox"
-                                           id="saveNewCustomer"
-                                           name="luuKhachMoi">
+                </form>
 
-                                    Lưu khách hàng mới khi thanh toán
-                                </label>
+            </div>
 
-                                <input class="form-control"
-                                       type="text"
-                                       id="newCustomerName"
-                                       name="tenKhachMoi"
-                                       maxlength="100"
-                                       placeholder="Nhập họ tên khách hàng"
-                                       disabled>
+        </main>
 
-                            </c:if>
+        <form id="cancelInvoiceForm"
+              action="${pageContext.request.contextPath}/hoadon"
+              method="post"
+              class="hidden">
 
-                        </div>
+            <input type="hidden"
+                   name="action"
+                   value="cancel">
 
-                        <div class="receipt-items"
-                             id="receiptItems">
+            <input type="hidden"
+                   name="maHD"
+                   value="${hoaDon.maHD}">
 
-                            <div class="empty-hint">
-                                Chưa có món nào được chọn
-                            </div>
-                        </div>
-
-                        <div class="receipt-total-list">
-
-                            <div class="receipt-total-row">
-
-                                <span>Tạm tính</span>
-                                <strong id="subTotal">0đ</strong>
-                            </div>
-
-                            <div class="receipt-total-row">
-
-                                <span>VAT 8%</span>
-                                <strong id="vatAmt">0đ</strong>
-                            </div>
-
-                            <div class="receipt-total-row">
-
-                                <span>Điểm dự kiến</span>
-                                <strong id="pointPreview">0 điểm</strong>
-                            </div>
-
-                            <div class="receipt-total-row total">
-
-                                <span>Tổng thanh toán</span>
-                                <strong id="grandTotal">0đ</strong>
-                            </div>
-
-                        </div>
-
-                        <c:if test="${not daKetThuc}">
-
-                            <div class="payment-options">
-
-                                <label class="payment-option">
-
-                                    <input type="radio"
-                                           name="pay"
-                                           value="cash"
-                                           checked>
-
-                                    <span>
-                                        <i class="fa-solid fa-money-bill-wave"></i>
-                                        Tiền mặt
-                                    </span>
-                                </label>
-
-                                <label class="payment-option">
-
-                                    <input type="radio"
-                                           name="pay"
-                                           value="other">
-
-                                    <span>
-                                        <i class="fa-solid fa-credit-card"></i>
-                                        Hình thức khác
-                                    </span>
-                                </label>
-
-                            </div>
-
-                            <div class="invoice-actions">
-
-                                <button type="submit"
-                                        class="btn btn-success"
-                                        onclick="return prepareInvoiceSubmit('pay')">
-
-                                    <i class="fa-solid fa-money-check-dollar"></i>
-                                    Thanh toán
-                                </button>
-
-                                <button type="submit"
-                                        class="btn btn-primary"
-                                        onclick="return prepareInvoiceSubmit('update')">
-
-                                    <i class="fa-solid fa-floppy-disk"></i>
-                                    Lưu hóa đơn
-                                </button>
-
-                                <button type="button"
-                                        class="btn btn-danger"
-                                        onclick="cancelInvoice()">
-
-                                    <i class="fa-solid fa-ban"></i>
-                                    Hủy đơn
-                                </button>
-
-                            </div>
-
-                        </c:if>
-
-                        <c:if test="${daKetThuc}">
-
-                            <div class="readonly-notice">
-
-                                <i class="fa-solid fa-lock"></i>
-
-                                Hóa đơn đã kết thúc và chỉ có thể xem.
-                            </div>
-
-                        </c:if>
-
-                    </div>
-
-                </div>
-
-            </section>
-
+            <input type="hidden"
+                   name="lyDoHuy"
+                   id="cancelReasonInput">
         </form>
 
-    </main>
+        <script src="${pageContext.request.contextPath}/js/hoadon.js?v=50"></script>
 
-    <form id="cancelInvoiceForm"
-          action="${pageContext.request.contextPath}/hoadon"
-          method="post"
-          class="hidden">
-
-        <input type="hidden"
-               name="action"
-               value="cancel">
-
-        <input type="hidden"
-               name="maHD"
-               value="${hoadon.maHD}">
-
-        <input type="hidden"
-               name="lyDoHuy"
-               id="cancelReasonInput">
-
-    </form>
-
-    <script src="${pageContext.request.contextPath}/js/hoadon.js"></script>
-
-    <script>
-        function handleMenuItemClick(element) {
-            if (!element
-                    || element.dataset.disabled === "true") {
-
-                return;
-            }
-
-            addToReceipt(
-                    element.dataset.maMon,
-                    element.dataset.tenMon,
-                    Number(element.dataset.gia)
-            );
-        }
-
-        function toggleNewCustomerForm() {
-            const checkbox =
-                    document.getElementById("saveNewCustomer");
-
-            const nameInput =
-                    document.getElementById("newCustomerName");
-
-            const customerSelect =
-                    document.getElementById("customerSel");
-
-            if (!checkbox || !nameInput) {
-                return;
-            }
-
-            nameInput.disabled =
-                    !checkbox.checked;
-
-            nameInput.required =
-                    checkbox.checked;
-
-            if (checkbox.checked) {
-                if (customerSelect) {
-                    customerSelect.value = "";
-                }
-
-                nameInput.focus();
-            } else {
-                nameInput.value = "";
-            }
-
-            if (typeof renderCart === "function") {
-                renderCart();
-            }
-        }
-
-        function cancelInvoice() {
-            const reason =
-                    prompt("Nhập lý do hủy hóa đơn:");
-
-            if (reason === null) {
-                return;
-            }
-
-            if (!reason.trim()) {
-                alert("Vui lòng nhập lý do hủy hóa đơn.");
-                return;
-            }
-
-            if (!confirm("Xác nhận hủy hóa đơn này?")) {
-                return;
-            }
-
-            document.getElementById("cancelReasonInput")
-                    .value = reason.trim();
-
-            document.getElementById("cancelInvoiceForm")
-                    .submit();
-        }
-
-        document.addEventListener(
-                "DOMContentLoaded",
-                function () {
-                    const checkbox =
-                            document.getElementById("saveNewCustomer");
-
-                    if (checkbox) {
-                        checkbox.addEventListener(
-                                "change",
-                                toggleNewCustomerForm
-                        );
-                    }
-
-                    const customerSelect =
-                            document.getElementById("customerSel");
-
-                    if (customerSelect) {
-                        customerSelect.addEventListener(
-                                "change",
-                                function () {
-                                    if (this.value && checkbox) {
-                                        checkbox.checked = false;
-                                        toggleNewCustomerForm();
-                                    }
-                                }
-                        );
-                    }
-                }
-        );
-    </script>
-
-</body>
+    </body>
 </html>

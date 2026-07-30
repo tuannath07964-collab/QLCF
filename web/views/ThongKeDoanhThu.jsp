@@ -15,13 +15,16 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Thống kê doanh thu</title>
+    <title>Thống kê bán hàng</title>
 
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/css/app.css">
+          href="${pageContext.request.contextPath}/css/app.css?v=61">
+
+    <link rel="stylesheet"
+          href="${pageContext.request.contextPath}/css/store.css?v=61">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -37,10 +40,10 @@
 
         <jsp:include page="/views/components/topbar.jsp">
             <jsp:param name="title"
-                       value="Thống kê doanh thu"/>
+                       value="Thống kê bán hàng"/>
 
             <jsp:param name="subtitle"
-                       value="Báo cáo dành riêng cho tài khoản quản lý"/>
+                       value="Theo dõi doanh thu và sản phẩm bán chạy"/>
         </jsp:include>
 
         <div class="app-content">
@@ -50,7 +53,8 @@
                 <div class="alert alert-danger">
 
                     <i class="fa-solid fa-circle-exclamation"></i>
-                    ${errorMessage}
+
+                    <c:out value="${errorMessage}"/>
                 </div>
 
             </c:if>
@@ -58,7 +62,7 @@
             <div class="page-header">
 
                 <div>
-                    <h2>Báo cáo doanh thu</h2>
+                    <h2>Báo cáo bán hàng</h2>
 
                     <p>
                         Chỉ tính các hóa đơn đã thanh toán.
@@ -67,73 +71,69 @@
 
             </div>
 
-            <form class="toolbar"
+            <form class="toolbar statistics-filter"
                   action="${pageContext.request.contextPath}/ThongKeServlet"
                   method="get">
 
                 <div class="toolbar-left">
 
-                    <div class="form-group">
+                    <div class="form-group statistics-date">
 
-                        <label class="form-label"
-                               for="tuNgay">
-
+                        <label class="form-label">
                             Từ ngày
                         </label>
 
                         <input class="form-control"
                                type="date"
-                               id="tuNgay"
                                name="tuNgay"
-                               value="${tuNgay}">
+                               value="${tuNgay}"
+                               required>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group statistics-date">
 
-                        <label class="form-label"
-                               for="denNgay">
-
+                        <label class="form-label">
                             Đến ngày
                         </label>
 
                         <input class="form-control"
                                type="date"
-                               id="denNgay"
                                name="denNgay"
-                               value="${denNgay}">
+                               value="${denNgay}"
+                               required>
                     </div>
 
-                </div>
-
-                <div class="toolbar-right">
-
-                    <button type="submit"
-                            class="btn btn-primary">
+                    <button class="btn btn-primary statistics-submit"
+                            type="submit">
 
                         <i class="fa-solid fa-filter"></i>
-                        Xem thống kê
+                        Xem báo cáo
                     </button>
 
                 </div>
 
             </form>
 
-            <section class="summary-grid">
+            <section class="summary-grid statistics-summary-grid">
 
-                <div class="summary-card">
+                <article class="summary-card">
 
                     <div class="summary-icon blue">
                         <i class="fa-solid fa-file-invoice"></i>
                     </div>
 
                     <div class="summary-content">
+
                         <span>Số hóa đơn</span>
-                        <strong>${soHoaDon}</strong>
+
+                        <strong>
+                            ${tongQuan.soHoaDon}
+                        </strong>
                     </div>
 
-                </div>
+                </article>
 
-                <div class="summary-card">
+                <article class="summary-card">
 
                     <div class="summary-icon green">
                         <i class="fa-solid fa-sack-dollar"></i>
@@ -144,66 +144,42 @@
                         <span>Tổng doanh thu</span>
 
                         <strong>
-
                             <fmt:formatNumber
-                                value="${tongDoanhThu}"
+                                value="${tongQuan.tongDoanhThu}"
                                 pattern="#,##0"/>
 
                             đ
                         </strong>
                     </div>
 
-                </div>
+                </article>
 
-                <div class="summary-card">
-
-                    <div class="summary-icon orange">
-                        <i class="fa-solid fa-money-bill-wave"></i>
-                    </div>
-
-                    <div class="summary-content">
-
-                        <span>Tiền mặt</span>
-
-                        <strong>
-
-                            <fmt:formatNumber
-                                value="${doanhThuTienMat}"
-                                pattern="#,##0"/>
-
-                            đ
-                        </strong>
-                    </div>
-
-                </div>
-
-                <div class="summary-card">
+                <article class="summary-card">
 
                     <div class="summary-icon purple">
-                        <i class="fa-solid fa-credit-card"></i>
+                        <i class="fa-solid fa-receipt"></i>
                     </div>
 
                     <div class="summary-content">
 
-                        <span>Thanh toán khác</span>
+                        <span>Giá trị đơn trung bình</span>
 
                         <strong>
-
                             <fmt:formatNumber
-                                value="${doanhThuKhac}"
+                                value="${tongQuan.giaTriTrungBinh}"
                                 pattern="#,##0"/>
 
                             đ
                         </strong>
                     </div>
 
-                </div>
+                </article>
 
             </section>
 
-            <section class="statistics-layout">
+            <section class="statistics-main-grid">
 
-                <div class="card">
+                <article class="card chart-card">
 
                     <div class="card-header">
 
@@ -211,31 +187,28 @@
                             <h3>Doanh thu theo ngày</h3>
 
                             <p>
-                                Biểu đồ trong khoảng thời gian đã chọn
+                                Biến động doanh thu trong thời gian đã chọn
                             </p>
                         </div>
 
                     </div>
 
-                    <div class="card-body">
+                    <div class="card-body chart-canvas-wrapper">
 
-                        <div class="chart-box">
-                            <canvas id="revenueChart"></canvas>
-                        </div>
-
+                        <canvas id="revenueChart"></canvas>
                     </div>
 
-                </div>
+                </article>
 
-                <div class="card">
+                <article class="card best-seller-card">
 
                     <div class="card-header">
 
                         <div>
-                            <h3>Cơ cấu doanh thu</h3>
+                            <h3>5 món bán chạy nhất</h3>
 
                             <p>
-                                Phân loại theo hình thức bán
+                                Xếp hạng theo số lượng đã bán
                             </p>
                         </div>
 
@@ -243,73 +216,74 @@
 
                     <div class="card-body">
 
-                        <div class="breakdown-list">
+                        <c:choose>
 
-                            <div class="breakdown-item">
+                            <c:when test="${not empty topSanPhamList}">
 
-                                <div class="breakdown-item-header">
+                                <div class="best-seller-list">
 
-                                    <span>Tại bàn</span>
+                                    <c:forEach var="sanPham"
+                                               items="${topSanPhamList}"
+                                               varStatus="status">
+
+                                        <div class="best-seller-item">
+
+                                            <span class="best-seller-rank">
+                                                ${status.index + 1}
+                                            </span>
+
+                                            <div class="best-seller-info">
+
+                                                <strong>
+                                                    <c:out value="${sanPham.tenSanPham}"/>
+                                                </strong>
+
+                                                <span>
+                                                    Đã bán:
+                                                    ${sanPham.soLuongBan}
+                                                    sản phẩm
+                                                </span>
+                                            </div>
+
+                                            <div class="best-seller-revenue">
+
+                                                <strong>
+                                                    <fmt:formatNumber
+                                                        value="${sanPham.doanhThu}"
+                                                        pattern="#,##0"/>
+
+                                                    đ
+                                                </strong>
+
+                                                <span>Doanh thu</span>
+                                            </div>
+
+                                        </div>
+
+                                    </c:forEach>
+
+                                </div>
+
+                            </c:when>
+
+                            <c:otherwise>
+
+                                <div class="empty-state">
+
+                                    <i class="fa-solid fa-ranking-star"></i>
 
                                     <strong>
-
-                                        <fmt:formatNumber
-                                            value="${doanhThuTaiBan}"
-                                            pattern="#,##0"/>
-
-                                        đ
+                                        Chưa có dữ liệu sản phẩm bán chạy
                                     </strong>
                                 </div>
 
-                                <div class="breakdown-progress">
+                            </c:otherwise>
 
-                                    <span style="
-                                          width:${tongDoanhThu > 0
-                                            ? doanhThuTaiBan
-                                                * 100
-                                                / tongDoanhThu
-                                            : 0}%;">
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                            <div class="breakdown-item">
-
-                                <div class="breakdown-item-header">
-
-                                    <span>Mang về</span>
-
-                                    <strong>
-
-                                        <fmt:formatNumber
-                                            value="${doanhThuMangVe}"
-                                            pattern="#,##0"/>
-
-                                        đ
-                                    </strong>
-                                </div>
-
-                                <div class="breakdown-progress">
-
-                                    <span style="
-                                          width:${tongDoanhThu > 0
-                                            ? doanhThuMangVe
-                                                * 100
-                                                / tongDoanhThu
-                                            : 0}%;">
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                        </div>
+                        </c:choose>
 
                     </div>
 
-                </div>
+                </article>
 
             </section>
 
@@ -321,7 +295,7 @@
                         <h3>Hóa đơn đã thanh toán</h3>
 
                         <p>
-                            Chi tiết doanh thu trong khoảng thời gian
+                            Chi tiết hóa đơn trong thời gian đã chọn
                         </p>
                     </div>
 
@@ -345,11 +319,8 @@
                             <tr>
                                 <th>Mã hóa đơn</th>
                                 <th>Ngày thanh toán</th>
-                                <th>Hình thức</th>
-                                <th>Bàn</th>
-                                <th>Nhân viên</th>
+                                <th>Người bán</th>
                                 <th>Khách hàng</th>
-                                <th>Thanh toán</th>
                                 <th>Tổng tiền</th>
                             </tr>
                         </thead>
@@ -358,58 +329,38 @@
 
                             <c:choose>
 
-                                <c:when test="${not empty dsThongKe}">
+                                <c:when test="${not empty hoaDonThongKeList}">
 
-                                    <c:forEach var="hd"
-                                               items="${dsThongKe}">
+                                    <c:forEach var="hoaDon"
+                                               items="${hoaDonThongKeList}">
 
                                         <tr class="statistics-row"
-                                            data-search="${hd.maHD}
-                                                         ${hd.maHienThi}
-                                                         ${hd.maNV}
-                                                         ${hd.maBan}
-                                                         ${hd.tenKhachHang}
-                                                         ${hd.hinhThuc}
-                                                         ${hd.phuongThucThanhToan}">
+                                            data-search="${hoaDon.maHienThi}
+                                                         ${hoaDon.tenTaiKhoan}
+                                                         ${hoaDon.tenKhachHang}">
 
                                             <td>
                                                 <strong>
-                                                    ${hd.maHienThi}
+                                                    ${hoaDon.maHienThi}
                                                 </strong>
                                             </td>
 
-                                            <td>${hd.ngayThanhToan}</td>
-
                                             <td>
-                                                <span class="badge badge-blue">
-                                                    ${hd.hinhThuc}
-                                                </span>
+                                                ${hoaDon.ngayThanhToan}
                                             </td>
 
                                             <td>
-                                                ${empty hd.maBan
-                                                    ? 'Không dùng bàn'
-                                                    : hd.maBan}
-                                            </td>
-
-                                            <td>${hd.maNV}</td>
-
-                                            <td>
-                                                ${empty hd.tenKhachHang
-                                                    ? 'Khách lẻ'
-                                                    : hd.tenKhachHang}
+                                                <c:out value="${hoaDon.tenTaiKhoan}"/>
                                             </td>
 
                                             <td>
-                                                ${hd.phuongThucThanhToan}
+                                                <c:out value="${hoaDon.tenKhachHang}"/>
                                             </td>
 
                                             <td>
-
                                                 <strong>
-
                                                     <fmt:formatNumber
-                                                        value="${hd.tongTien}"
+                                                        value="${hoaDon.tongTien}"
                                                         pattern="#,##0"/>
 
                                                     đ
@@ -425,14 +376,14 @@
                                 <c:otherwise>
 
                                     <tr>
-                                        <td colspan="8">
+                                        <td colspan="5">
 
                                             <div class="empty-state">
 
                                                 <i class="fa-solid fa-chart-line"></i>
 
                                                 <strong>
-                                                    Không có dữ liệu doanh thu
+                                                    Không có dữ liệu
                                                 </strong>
                                             </div>
 
@@ -455,46 +406,84 @@
 
     </main>
 
+    <div id="revenueChartData"
+         class="hidden">
+
+        <c:forEach var="item"
+                   items="${doanhThuNgayList}">
+
+            <span data-label="${item.ngay}"
+                  data-value="${item.doanhThu}">
+            </span>
+
+        </c:forEach>
+
+    </div>
+
     <script>
-        const chartLabels = [
-            <c:forEach var="item"
-                       items="${dsDoanhThuNgay}"
-                       varStatus="status">
+        function readRevenueData() {
+            const labels = [];
+            const values = [];
 
-                "${item.ngay}"${status.last ? "" : ","}
-            </c:forEach>
-        ];
+            const container =
+                    document.getElementById(
+                            "revenueChartData"
+                    );
 
-        const chartValues = [
-            <c:forEach var="item"
-                       items="${dsDoanhThuNgay}"
-                       varStatus="status">
+            if (!container) {
+                return {
+                    labels: labels,
+                    values: values
+                };
+            }
 
-                ${item.doanhThu}${status.last ? "" : ","}
-            </c:forEach>
-        ];
+            container.querySelectorAll("span")
+                    .forEach(function (item) {
+                        labels.push(
+                                item.dataset.label
+                        );
 
-        const chartCanvas =
-                document.getElementById("revenueChart");
+                        values.push(
+                                Number(
+                                        item.dataset.value
+                                ) || 0
+                        );
+                    });
 
-        if (chartCanvas) {
+            return {
+                labels: labels,
+                values: values
+            };
+        }
+
+        const revenueData =
+                readRevenueData();
+
+        const revenueCanvas =
+                document.getElementById(
+                        "revenueChart"
+                );
+
+        if (revenueCanvas) {
             new Chart(
-                    chartCanvas,
+                    revenueCanvas,
                     {
                         type: "line",
 
                         data: {
-                            labels: chartLabels,
+                            labels: revenueData.labels,
 
                             datasets: [
                                 {
                                     label: "Doanh thu",
-                                    data: chartValues,
+                                    data: revenueData.values,
                                     borderColor: "#3b82f6",
                                     backgroundColor:
-                                            "rgba(59, 130, 246, 0.10)",
+                                            "rgba(59, 130, 246, 0.12)",
                                     fill: true,
-                                    tension: 0.35
+                                    tension: 0.35,
+                                    pointRadius: 4,
+                                    pointHoverRadius: 6
                                 }
                             ]
                         },
@@ -527,37 +516,48 @@
             );
         }
 
-        document.getElementById("statisticsSearch")
-                .addEventListener(
-                        "input",
-                        function () {
-                            const keyword =
-                                    this.value
-                                            .toLowerCase()
-                                            .normalize("NFD")
-                                            .replace(
-                                                    /[\u0300-\u036f]/g,
-                                                    ""
-                                            );
+        const statisticsSearch =
+                document.getElementById(
+                        "statisticsSearch"
+                );
 
-                            document.querySelectorAll(".statistics-row")
-                                    .forEach(row => {
-                                        const text =
+        function normalizeText(value) {
+            return (value || "")
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(
+                            /[\u0300-\u036f]/g,
+                            ""
+                    );
+        }
+
+        if (statisticsSearch) {
+            statisticsSearch.addEventListener(
+                    "input",
+                    function () {
+                        const keyword =
+                                normalizeText(
+                                        statisticsSearch.value
+                                );
+
+                        document.querySelectorAll(
+                                ".statistics-row"
+                        ).forEach(
+                            function (row) {
+                                const text =
+                                        normalizeText(
                                                 row.dataset.search
-                                                        .toLowerCase()
-                                                        .normalize("NFD")
-                                                        .replace(
-                                                                /[\u0300-\u036f]/g,
-                                                                ""
-                                                        );
+                                        );
 
-                                        row.style.display =
-                                                text.includes(keyword)
+                                row.style.display =
+                                        text.includes(keyword)
                                                 ? ""
                                                 : "none";
-                                    });
-                        }
-                );
+                            }
+                        );
+                    }
+            );
+        }
     </script>
 
 </body>

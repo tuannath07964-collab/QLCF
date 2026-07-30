@@ -5,18 +5,16 @@ import model.NguyenLieu;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 
 @WebServlet("/KhoServlet")
-public class khoServlet
-        extends HttpServlet {
+public class khoServlet extends HttpServlet {
 
     private khoDAO dao;
 
@@ -33,50 +31,49 @@ public class khoServlet
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-
-        if (!daDangNhap(request, response)) {
+        if (!checkLogin(request, response)) {
             return;
         }
 
         String action =
-                request.getParameter(
-                        "action"
-                );
-
-        if (
-            action == null
-            || action.isBlank()
-        ) {
-            action = "list";
-        }
+                request.getParameter("action");
 
         try {
-            switch (action) {
+            if ("form".equals(action)) {
 
-                case "loadForm" ->
-                    loadForm(
-                            request,
-                            response
-                    );
+                String id =
+                        request.getParameter("id");
 
-                default ->
-                    listKho(
-                            request,
-                            response
+                if (
+                    id != null
+                    && !id.isBlank()
+                ) {
+                    request.setAttribute(
+                            "nguyenLieuEdit",
+                            dao.findById(id)
                     );
+                }
+
+                request.setAttribute(
+                        "showKhoModal",
+                        true
+                );
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            loadPage(
+                    request,
+                    response
+            );
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
 
             request.setAttribute(
                     "errorMessage",
-                    e.getMessage()
+                    exception.getMessage()
             );
 
-            listKho(
+            loadPage(
                     request,
                     response
             );
@@ -90,259 +87,142 @@ public class khoServlet
     ) throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
 
-        if (!daDangNhap(request, response)) {
+        if (!checkLogin(request, response)) {
             return;
         }
 
         String action =
-                request.getParameter(
-                        "action"
-                );
+                request.getParameter("action");
 
         try {
-            if ("edit".equals(action)) {
-                updateNguyenLieu(
-                        request,
-                        response
+            if ("restock".equals(action)) {
+
+                dao.nhapKhoCoDinh(
+                        request.getParameter("id")
                 );
 
-            } else if ("add".equals(action)) {
-                insertNguyenLieu(
-                        request,
-                        response
-                );
-
-            } else {
                 response.sendRedirect(
                         request.getContextPath()
-                        + "/KhoServlet"
+                        + "/KhoServlet?success=restock"
+                );
+
+                return;
+            }
+
+            NguyenLieu nguyenLieu =
+                    new NguyenLieu();
+
+            nguyenLieu.setMaNguyenLieu(
+                    request.getParameter(
+                            "maNguyenLieu"
+                    )
+            );
+
+            nguyenLieu.setTenNguyenLieu(
+                    request.getParameter(
+                            "tenNguyenLieu"
+                    )
+            );
+
+            nguyenLieu.setDonVi(
+                    request.getParameter(
+                            "donVi"
+                    )
+            );
+
+            try {
+                nguyenLieu.setSoLuongTon(
+                        Integer.parseInt(
+                                request.getParameter(
+                                        "soLuongTon"
+                                )
+                        )
+                );
+
+                nguyenLieu.setMucNhapCoDinh(
+                        Integer.parseInt(
+                                request.getParameter(
+                                        "mucNhapCoDinh"
+                                )
+                        )
+                );
+
+            } catch (NumberFormatException exception) {
+                throw new IllegalArgumentException(
+                        "Số lượng kho không hợp lệ."
                 );
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            nguyenLieu.setTrangThai(
+                    request.getParameter(
+                            "trangThai"
+                    ) != null
+            );
+
+            boolean edit =
+                    "edit".equals(
+                            request.getParameter(
+                                    "mode"
+                            )
+                    );
+
+            if (edit) {
+                dao.update(nguyenLieu);
+
+            } else {
+                dao.insert(nguyenLieu);
+            }
+
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/KhoServlet?success=save"
+            );
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
 
             request.setAttribute(
                     "errorMessage",
-                    e.getMessage()
+                    exception.getMessage()
             );
 
-            loadForm(
+            request.setAttribute(
+                    "showKhoModal",
+                    true
+            );
+
+            loadPage(
                     request,
                     response
             );
         }
     }
 
-    private void listKho(
+    private void loadPage(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        ArrayList<NguyenLieu> dsKho =
-                dao.getAllNguyenLieu();
+        request.setAttribute(
+                "nguyenLieuList",
+                dao.getAll()
+        );
 
         request.setAttribute(
-                "dsKho",
-                dsKho
+                "donViList",
+                dao.getDonViChoPhep()
         );
 
         request.getRequestDispatcher(
                 "/views/kho.jsp"
-        ).forward(request, response);
-    }
-
-    private void loadForm(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws ServletException, IOException {
-
-        String maNL =
-                trimToNull(
-                        request.getParameter(
-                                "maNL"
-                        )
-                );
-
-        if (maNL != null) {
-            NguyenLieu nl =
-                    dao.getNguyenLieuById(
-                            maNL
-                    );
-
-            if (nl == null) {
-                throw new IllegalArgumentException(
-                        "Không tìm thấy nguyên liệu."
-                );
-            }
-
-            request.setAttribute(
-                    "nl",
-                    nl
-            );
-
-            request.setAttribute(
-                    "mode",
-                    "edit"
-            );
-
-        } else {
-            request.setAttribute(
-                    "mode",
-                    "add"
-            );
-        }
-
-        request.setAttribute(
-                "showModal",
-                true
-        );
-
-        request.setAttribute(
-                "dsKho",
-                dao.getAllNguyenLieu()
-        );
-
-        request.getRequestDispatcher(
-                "/views/kho.jsp"
-        ).forward(request, response);
-    }
-
-    private void insertNguyenLieu(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws Exception {
-
-        NguyenLieu nl =
-                buildNguyenLieuFromRequest(
-                        request
-                );
-
-        if (!dao.insertNguyenLieu(nl)) {
-            throw new IllegalStateException(
-                    "Không thêm được nguyên liệu."
-            );
-        }
-
-        response.sendRedirect(
-                request.getContextPath()
-                + "/KhoServlet?success=add"
+        ).forward(
+                request,
+                response
         );
     }
 
-    private void updateNguyenLieu(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws Exception {
-
-        NguyenLieu nl =
-                buildNguyenLieuFromRequest(
-                        request
-                );
-
-        if (!dao.updateNguyenLieu(nl)) {
-            throw new IllegalStateException(
-                    "Không cập nhật được nguyên liệu."
-            );
-        }
-
-        response.sendRedirect(
-                request.getContextPath()
-                + "/KhoServlet?success=edit"
-        );
-    }
-
-    private NguyenLieu buildNguyenLieuFromRequest(
-            HttpServletRequest request
-    ) {
-        NguyenLieu nl =
-                new NguyenLieu();
-
-        String maNL =
-                trimToNull(
-                        request.getParameter(
-                                "maNL"
-                        )
-                );
-
-        String tenNL =
-                trimToNull(
-                        request.getParameter(
-                                "tenNL"
-                        )
-                );
-
-        String soLuong =
-                trimToNull(
-                        request.getParameter(
-                                "soLuong"
-                        )
-                );
-
-        String donVi =
-                trimToNull(
-                        request.getParameter(
-                                "donVi"
-                        )
-                );
-
-        if (maNL == null) {
-            throw new IllegalArgumentException(
-                    "Mã nguyên liệu là bắt buộc."
-            );
-        }
-
-        if (tenNL == null) {
-            throw new IllegalArgumentException(
-                    "Tên nguyên liệu là bắt buộc."
-            );
-        }
-
-        if (soLuong == null) {
-            throw new IllegalArgumentException(
-                    "Số lượng là bắt buộc."
-            );
-        }
-
-        if (donVi == null) {
-            throw new IllegalArgumentException(
-                    "Đơn vị tính là bắt buộc."
-            );
-        }
-
-        BigDecimal soLuongValue;
-
-        try {
-            soLuongValue =
-                    new BigDecimal(soLuong);
-
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
-                    "Số lượng nguyên liệu không hợp lệ."
-            );
-        }
-
-        if (
-            soLuongValue.compareTo(
-                    BigDecimal.ZERO
-            ) < 0
-        ) {
-            throw new IllegalArgumentException(
-                    "Số lượng nguyên liệu không được âm."
-            );
-        }
-
-        nl.setMaNL(maNL);
-        nl.setTenNL(tenNL);
-        nl.setSoLuong(soLuongValue);
-        nl.setDonVi(donVi);
-
-        return nl;
-    }
-
-    private boolean daDangNhap(
+    private boolean checkLogin(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
@@ -352,9 +232,7 @@ public class khoServlet
 
         if (
             session == null
-            || session.getAttribute(
-                    "maNV"
-            ) == null
+            || session.getAttribute("maNV") == null
         ) {
             response.sendRedirect(
                     request.getContextPath()
@@ -365,14 +243,5 @@ public class khoServlet
         }
 
         return true;
-    }
-
-    private String trimToNull(
-            String value
-    ) {
-        return value == null
-                || value.isBlank()
-                ? null
-                : value.trim();
     }
 }

@@ -2,7 +2,9 @@ package controller;
 
 import dao.HoaDonDAO;
 import dao.KhachHangDAO;
-import dao.MenuDAO;
+import dao.SanPhamDAO;
+
+import model.ChiTietHoaDon;
 import model.HoaDon;
 
 import jakarta.servlet.ServletException;
@@ -13,22 +15,28 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-@WebServlet(
-        name = "HoaDonServlet",
-        urlPatterns = {"/hoadon"}
-)
+@WebServlet(name = "HoaDonServlet", urlPatterns = {"/hoadon"})
 public class HoaDonServlet extends HttpServlet {
 
     private HoaDonDAO hoaDonDAO;
-    private MenuDAO menuDAO;
+    private SanPhamDAO sanPhamDAO;
     private KhachHangDAO khachHangDAO;
 
     @Override
-    public void init() throws ServletException {
-        hoaDonDAO = new HoaDonDAO();
-        menuDAO = new MenuDAO();
-        khachHangDAO = new KhachHangDAO();
+    public void init()
+            throws ServletException {
+
+        hoaDonDAO
+                = new HoaDonDAO();
+
+        sanPhamDAO
+                = new SanPhamDAO();
+
+        khachHangDAO
+                = new KhachHangDAO();
     }
 
     @Override
@@ -37,48 +45,58 @@ public class HoaDonServlet extends HttpServlet {
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType(
-                "text/html; charset=UTF-8"
-        );
-
-        if (!daDangNhap(request, response)) {
+        if (!checkLogin(request, response)) {
             return;
         }
 
-        String action =
-                trimToNull(
-                        request.getParameter(
-                                "action"
-                        )
+        String action
+                = request.getParameter(
+                        "action"
                 );
 
-        if (action == null) {
-            action = "list";
-        }
-
         try {
-            switch (action) {
+            if ("create".equals(action)) {
+                int maHD
+                        = hoaDonDAO.taoHoaDon(
+                                String.valueOf(
+                                        request
+                                                .getSession()
+                                                .getAttribute(
+                                                        "maNV"
+                                                )
+                                )
+                        );
 
-                case "takeaway" ->
-                    taoDonMangVe(
-                            request,
-                            response
-                    );
+                response.sendRedirect(
+                        request.getContextPath()
+                        + "/hoadon?action=edit&id="
+                        + maHD
+                );
 
-                case "edit" ->
-                    hienThiFormChinhSua(
-                            request,
-                            response
-                    );
-
-                default ->
-                    hienThiDanhSachHoaDon(
-                            request,
-                            response
-                    );
+                return;
             }
+
+            if ("edit".equals(action)) {
+                int maHD
+                        = parseId(
+                                request.getParameter(
+                                        "id"
+                                )
+                        );
+
+                loadEditor(
+                        request,
+                        response,
+                        maHD
+                );
+
+                return;
+            }
+
+            loadList(
+                    request,
+                    response
+            );
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,7 +106,7 @@ public class HoaDonServlet extends HttpServlet {
                     e.getMessage()
             );
 
-            hienThiDanhSachHoaDon(
+            loadList(
                     request,
                     response
             );
@@ -101,53 +119,82 @@ public class HoaDonServlet extends HttpServlet {
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType(
-                "text/html; charset=UTF-8"
+        request.setCharacterEncoding(
+                "UTF-8"
         );
 
-        if (!daDangNhap(request, response)) {
+        if (!checkLogin(request, response)) {
             return;
         }
 
-        String action =
-                trimToNull(
+        String action
+                = request.getParameter(
+                        "action"
+                );
+
+        int maHD
+                = parseId(
                         request.getParameter(
-                                "action"
+                                "maHD"
                         )
                 );
 
         try {
-            switch (
-                action == null
-                        ? ""
-                        : action
-            ) {
-                case "update" ->
-                    capNhatHoaDon(
-                            request,
-                            response
-                    );
+            if ("cancel".equals(action)) {
+                hoaDonDAO.huyHoaDon(
+                        maHD,
+                        request.getParameter(
+                                "lyDoHuy"
+                        )
+                );
 
-                case "pay" ->
-                    thanhToanHoaDon(
-                            request,
-                            response
-                    );
+                response.sendRedirect(
+                        request.getContextPath()
+                        + "/hoadon"
+                        + "?success=cancel"
+                );
 
-                case "cancel" ->
-                    huyHoaDon(
-                            request,
-                            response
-                    );
-
-                default ->
-                    response.sendRedirect(
-                            request.getContextPath()
-                            + "/hoadon"
-                    );
+                return;
             }
+
+            List<ChiTietHoaDon> items
+                    = buildItems(request);
+
+            if ("pay".equals(action)) {
+                hoaDonDAO.thanhToanHoaDon(
+                        maHD,
+                        request.getParameter("maKH"),
+                        request.getParameter("tenKhachHang"),
+                        request.getParameter("luuKhachMoi") != null,
+                        items
+                );
+
+                response.sendRedirect(
+                        request.getContextPath()
+                        + "/hoadon"
+                        + "?success=paid"
+                );
+
+                return;
+            }
+
+            hoaDonDAO.luuHoaDon(
+                    maHD,
+                    request.getParameter(
+                            "maKH"
+                    ),
+                    request.getParameter(
+                            "tenKhachHang"
+                    ),
+                    items
+            );
+
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/hoadon?action=edit&id="
+                    + maHD
+                    + "&success=save"
+            );
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -157,115 +204,64 @@ public class HoaDonServlet extends HttpServlet {
                     e.getMessage()
             );
 
-            if (
-                "update".equals(action)
-                || "pay".equals(action)
-            ) {
-                hienThiLaiFormHoaDonKhiLoi(
-                        request,
-                        response
-                );
-            } else {
-                hienThiDanhSachHoaDon(
-                        request,
-                        response
-                );
-            }
+            loadEditor(
+                    request,
+                    response,
+                    maHD
+            );
         }
     }
 
-    private void hienThiDanhSachHoaDon(
+    private void loadList(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws ServletException, IOException {
 
         request.setAttribute(
-                "listHoaDon",
+                "hoaDonList",
                 hoaDonDAO.getAll()
         );
 
         request.getRequestDispatcher(
                 "/views/hoadon.jsp"
-        ).forward(request, response);
-    }
-
-    private void taoDonMangVe(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws Exception {
-
-        HttpSession session =
-                request.getSession(false);
-
-        String maNV =
-                String.valueOf(
-                        session.getAttribute(
-                                "maNV"
-                        )
-                );
-
-        int maHD =
-                hoaDonDAO.taoHoaDonMangVe(
-                        maNV
-                );
-
-        response.sendRedirect(
-                request.getContextPath()
-                + "/hoadon?action=edit"
-                + "&maHD="
-                + maHD
+        ).forward(
+                request,
+                response
         );
     }
 
-    private void hienThiFormChinhSua(
+    private void loadEditor(
             HttpServletRequest request,
-            HttpServletResponse response
+            HttpServletResponse response,
+            int maHD
     ) throws ServletException, IOException {
 
-        String maHD =
-                trimToNull(
-                        request.getParameter(
-                                "maHD"
-                        )
-                );
+        HoaDon hoaDon
+                = hoaDonDAO.findById(maHD);
 
-        if (maHD == null) {
-            response.sendRedirect(
-                    request.getContextPath()
-                    + "/hoadon"
+        if (hoaDon == null) {
+            throw new IllegalArgumentException(
+                    "Không tìm thấy hóa đơn."
             );
-            return;
-        }
-
-        HoaDon hd =
-                hoaDonDAO.findById(maHD);
-
-        if (hd == null) {
-            response.sendRedirect(
-                    request.getContextPath()
-                    + "/hoadon?error=notFound"
-            );
-            return;
         }
 
         request.setAttribute(
-                "hoadon",
-                hd
+                "hoaDon",
+                hoaDon
         );
 
-        napDuLieuForm(request);
-
-        request.getRequestDispatcher(
-                "/views/hoadon1.jsp"
-        ).forward(request, response);
-    }
-
-    private void napDuLieuForm(
-            HttpServletRequest request
-    ) {
         request.setAttribute(
-                "menuList",
-                menuDAO.getAllMenu()
+                "chiTietList",
+                hoaDonDAO.getChiTiet(maHD)
+        );
+
+        request.setAttribute(
+                "sanPhamList",
+                sanPhamDAO.getAll(
+                        null,
+                        null,
+                        false
+                )
         );
 
         request.setAttribute(
@@ -273,306 +269,96 @@ public class HoaDonServlet extends HttpServlet {
                 khachHangDAO
                         .getAllKhachHang()
         );
-    }
-
-    private void capNhatHoaDon(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws Exception {
-
-        HoaDon hd =
-                taoHoaDonTuRequest(request);
-
-        validateHoaDon(hd);
-
-        if (hd.getMaHD() == null) {
-            throw new IllegalArgumentException(
-                    "Thiếu mã hóa đơn."
-            );
-        }
-
-        hoaDonDAO.luuDonHang(
-                hd,
-                request.getParameterValues(
-                        "itemMaMon"
-                ),
-                request.getParameterValues(
-                        "itemQty"
-                )
-        );
-
-        response.sendRedirect(
-                request.getContextPath()
-                + "/hoadon?action=edit"
-                + "&maHD="
-                + hd.getMaHD()
-                + "&success=save"
-        );
-    }
-
-    private void thanhToanHoaDon(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws Exception {
-
-        HoaDon hd =
-                taoHoaDonTuRequest(request);
-
-        validateHoaDon(hd);
-
-        if (hd.getMaHD() == null) {
-            throw new IllegalArgumentException(
-                    "Thiếu mã hóa đơn."
-            );
-        }
-
-        /*
-         * Luôn lưu danh sách món mới nhất
-         * trước khi thực hiện thanh toán.
-         */
-        hoaDonDAO.luuDonHang(
-                hd,
-                request.getParameterValues(
-                        "itemMaMon"
-                ),
-                request.getParameterValues(
-                        "itemQty"
-                )
-        );
-
-        boolean luuKhachMoi =
-                request.getParameter(
-                        "luuKhachMoi"
-                ) != null;
-
-        String tenKhachMoi =
-                trimToNull(
-                        request.getParameter(
-                                "tenKhachMoi"
-                        )
-                );
-
-        String phuongThuc =
-                "cash".equals(
-                        request.getParameter(
-                                "pay"
-                        )
-                )
-                        ? "Tiền mặt"
-                        : "Khác";
-
-        hoaDonDAO.thanhToanHoaDon(
-                Integer.parseInt(
-                        hd.getMaHD()
-                ),
-                hd.getMaKH(),
-                tenKhachMoi,
-                luuKhachMoi,
-                phuongThuc
-        );
-
-        if (hd.isMangVe()) {
-            response.sendRedirect(
-                    request.getContextPath()
-                    + "/hoadon?success=paid"
-            );
-        } else {
-            response.sendRedirect(
-                    request.getContextPath()
-                    + "/ban?success=paid"
-            );
-        }
-    }
-
-    private void huyHoaDon(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws Exception {
-
-        String maHD =
-                trimToNull(
-                        request.getParameter(
-                                "maHD"
-                        )
-                );
-
-        String lyDo =
-                trimToNull(
-                        request.getParameter(
-                                "lyDoHuy"
-                        )
-                );
-
-        if (maHD == null) {
-            throw new IllegalArgumentException(
-                    "Thiếu mã hóa đơn cần hủy."
-            );
-        }
-
-        if (lyDo == null) {
-            throw new IllegalArgumentException(
-                    "Vui lòng nhập lý do hủy hóa đơn."
-            );
-        }
-
-        hoaDonDAO.huyHoaDon(
-                Integer.parseInt(maHD),
-                lyDo
-        );
-
-        response.sendRedirect(
-                request.getContextPath()
-                + "/hoadon?success=cancel"
-        );
-    }
-
-    private HoaDon taoHoaDonTuRequest(
-            HttpServletRequest request
-    ) {
-        HoaDon hd = new HoaDon();
-
-        hd.setMaHD(
-                trimToNull(
-                        request.getParameter(
-                                "maHD"
-                        )
-                )
-        );
-
-        hd.setMaBan(
-                trimToNull(
-                        request.getParameter(
-                                "maBan"
-                        )
-                )
-        );
-
-        hd.setMaKH(
-                trimToNull(
-                        request.getParameter(
-                                "maKH"
-                        )
-                )
-        );
-
-        hd.setDanhSachMon(
-                trimToNull(
-                        request.getParameter(
-                                "danhSachMon"
-                        )
-                )
-        );
-
-        hd.setNgayTao(
-                trimToNull(
-                        request.getParameter(
-                                "ngayTao"
-                        )
-                )
-        );
-
-        hd.setTrangThai(
-                trimToNull(
-                        request.getParameter(
-                                "trangThai"
-                        )
-                )
-        );
-
-        hd.setHinhThuc(
-                trimToNull(
-                        request.getParameter(
-                                "hinhThuc"
-                        )
-                )
-        );
-
-        String maNV =
-                trimToNull(
-                        request.getParameter(
-                                "maNV"
-                        )
-                );
-
-        if (maNV == null) {
-            HttpSession session =
-                    request.getSession(false);
-
-            if (
-                session != null
-                && session.getAttribute(
-                        "maNV"
-                ) != null
-            ) {
-                maNV =
-                        String.valueOf(
-                                session.getAttribute(
-                                        "maNV"
-                                )
-                        );
-            }
-        }
-
-        hd.setMaNV(maNV);
-
-        return hd;
-    }
-
-    private void validateHoaDon(
-            HoaDon hd
-    ) {
-        if (hd.getMaNV() == null) {
-            throw new IllegalArgumentException(
-                    "Không xác định được nhân viên đăng nhập."
-            );
-        }
-
-        boolean mangVe =
-                "Mang về".equalsIgnoreCase(
-                        hd.getHinhThuc()
-                );
-
-        if (
-            !mangVe
-            && hd.getMaBan() == null
-        ) {
-            throw new IllegalArgumentException(
-                    "Hóa đơn tại bàn phải có bàn phục vụ."
-            );
-        }
-    }
-
-    private void hienThiLaiFormHoaDonKhiLoi(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws ServletException, IOException {
-
-        request.setAttribute(
-                "hoadon",
-                taoHoaDonTuRequest(request)
-        );
-
-        napDuLieuForm(request);
 
         request.getRequestDispatcher(
                 "/views/hoadon1.jsp"
-        ).forward(request, response);
+        ).forward(
+                request,
+                response
+        );
     }
 
-    private boolean daDangNhap(
+    private List<ChiTietHoaDon> buildItems(
+            HttpServletRequest request
+    ) {
+        String[] maSanPhams
+                = request.getParameterValues(
+                        "maSanPham"
+                );
+
+        String[] soLuongs
+                = request.getParameterValues(
+                        "soLuong"
+                );
+
+        if (maSanPhams == null
+                || soLuongs == null
+                || maSanPhams.length
+                != soLuongs.length) {
+            throw new IllegalArgumentException(
+                    "Hóa đơn chưa có sản phẩm."
+            );
+        }
+
+        List<ChiTietHoaDon> list
+                = new ArrayList<>();
+
+        for (int i = 0;
+                i < maSanPhams.length;
+                i++) {
+            ChiTietHoaDon item
+                    = new ChiTietHoaDon();
+
+            item.setMaSanPham(
+                    maSanPhams[i]
+            );
+
+            try {
+                item.setSoLuong(
+                        Integer.parseInt(
+                                soLuongs[i]
+                        )
+                );
+
+            } catch (Exception e) {
+                throw new IllegalArgumentException(
+                        "Số lượng sản phẩm không hợp lệ."
+                );
+            }
+
+            list.add(item);
+        }
+
+        return list;
+    }
+
+    private int parseId(
+            String value
+    ) {
+        try {
+            return Integer.parseInt(
+                    value
+            );
+
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "Mã hóa đơn không hợp lệ."
+            );
+        }
+    }
+
+    private boolean checkLogin(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
 
-        HttpSession session =
-                request.getSession(false);
+        HttpSession session
+                = request.getSession(false);
 
-        if (
-            session == null
-            || session.getAttribute(
-                    "maNV"
-            ) == null
-        ) {
+        if (session == null
+                || session.getAttribute(
+                        "maNV"
+                ) == null) {
             response.sendRedirect(
                     request.getContextPath()
                     + "/LoginServlet"
@@ -582,14 +368,5 @@ public class HoaDonServlet extends HttpServlet {
         }
 
         return true;
-    }
-
-    private String trimToNull(
-            String value
-    ) {
-        return value == null
-                || value.isBlank()
-                ? null
-                : value.trim();
     }
 }
