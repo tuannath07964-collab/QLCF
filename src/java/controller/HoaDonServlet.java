@@ -9,16 +9,21 @@ import model.HoaDon;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(name = "HoaDonServlet", urlPatterns = {"/hoadon"})
+@WebServlet(
+        name = "HoaDonServlet",
+        urlPatterns = {"/hoadon"}
+)
 public class HoaDonServlet extends HttpServlet {
 
     private HoaDonDAO hoaDonDAO;
@@ -26,17 +31,10 @@ public class HoaDonServlet extends HttpServlet {
     private KhachHangDAO khachHangDAO;
 
     @Override
-    public void init()
-            throws ServletException {
-
-        hoaDonDAO
-                = new HoaDonDAO();
-
-        sanPhamDAO
-                = new SanPhamDAO();
-
-        khachHangDAO
-                = new KhachHangDAO();
+    public void init() throws ServletException {
+        hoaDonDAO = new HoaDonDAO();
+        sanPhamDAO = new SanPhamDAO();
+        khachHangDAO = new KhachHangDAO();
     }
 
     @Override
@@ -49,21 +47,17 @@ public class HoaDonServlet extends HttpServlet {
             return;
         }
 
-        String action
-                = request.getParameter(
-                        "action"
-                );
+        String action =
+                request.getParameter("action");
 
         try {
             if ("create".equals(action)) {
-                int maHD
-                        = hoaDonDAO.taoHoaDon(
+                int maHD =
+                        hoaDonDAO.taoHoaDon(
                                 String.valueOf(
                                         request
                                                 .getSession()
-                                                .getAttribute(
-                                                        "maNV"
-                                                )
+                                                .getAttribute("maNV")
                                 )
                         );
 
@@ -77,11 +71,9 @@ public class HoaDonServlet extends HttpServlet {
             }
 
             if ("edit".equals(action)) {
-                int maHD
-                        = parseId(
-                                request.getParameter(
-                                        "id"
-                                )
+                int maHD =
+                        parseId(
+                                request.getParameter("id")
                         );
 
                 loadEditor(
@@ -98,12 +90,12 @@ public class HoaDonServlet extends HttpServlet {
                     response
             );
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
 
             request.setAttribute(
                     "errorMessage",
-                    e.getMessage()
+                    exception.getMessage()
             );
 
             loadList(
@@ -119,60 +111,62 @@ public class HoaDonServlet extends HttpServlet {
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        request.setCharacterEncoding(
-                "UTF-8"
-        );
+        request.setCharacterEncoding("UTF-8");
 
         if (!checkLogin(request, response)) {
             return;
         }
 
-        String action
-                = request.getParameter(
-                        "action"
-                );
+        String action =
+                request.getParameter("action");
 
-        int maHD
-                = parseId(
-                        request.getParameter(
-                                "maHD"
-                        )
+        int maHD =
+                parseId(
+                        request.getParameter("maHD")
                 );
 
         try {
             if ("cancel".equals(action)) {
                 hoaDonDAO.huyHoaDon(
                         maHD,
-                        request.getParameter(
-                                "lyDoHuy"
-                        )
+                        request.getParameter("lyDoHuy")
                 );
 
                 response.sendRedirect(
                         request.getContextPath()
-                        + "/hoadon"
-                        + "?success=cancel"
+                        + "/hoadon?success=cancel"
                 );
 
                 return;
             }
 
-            List<ChiTietHoaDon> items
-                    = buildItems(request);
+            List<ChiTietHoaDon> items =
+                    buildItems(request);
 
             if ("pay".equals(action)) {
+                Integer maVoucher =
+                        parseNullableId(
+                                request.getParameter(
+                                        "maVoucher"
+                                )
+                        );
+
                 hoaDonDAO.thanhToanHoaDon(
                         maHD,
                         request.getParameter("maKH"),
-                        request.getParameter("tenKhachHang"),
-                        request.getParameter("luuKhachMoi") != null,
+                        request.getParameter(
+                                "tenKhachHang"
+                        ),
+                        request.getParameter(
+                                "luuKhachMoi"
+                        ) != null,
+                        maVoucher,
                         items
                 );
 
                 response.sendRedirect(
                         request.getContextPath()
-                        + "/hoadon"
-                        + "?success=paid"
+                        + "/hoadon?success=paid"
                 );
 
                 return;
@@ -180,9 +174,7 @@ public class HoaDonServlet extends HttpServlet {
 
             hoaDonDAO.luuHoaDon(
                     maHD,
-                    request.getParameter(
-                            "maKH"
-                    ),
+                    request.getParameter("maKH"),
                     request.getParameter(
                             "tenKhachHang"
                     ),
@@ -196,12 +188,17 @@ public class HoaDonServlet extends HttpServlet {
                     + "&success=save"
             );
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
 
             request.setAttribute(
                     "errorMessage",
-                    e.getMessage()
+                    exception.getMessage()
+            );
+
+            request.setAttribute(
+                    "maVoucherDaChon",
+                    request.getParameter("maVoucher")
             );
 
             loadEditor(
@@ -236,8 +233,8 @@ public class HoaDonServlet extends HttpServlet {
             int maHD
     ) throws ServletException, IOException {
 
-        HoaDon hoaDon
-                = hoaDonDAO.findById(maHD);
+        HoaDon hoaDon =
+                hoaDonDAO.findById(maHD);
 
         if (hoaDon == null) {
             throw new IllegalArgumentException(
@@ -266,8 +263,19 @@ public class HoaDonServlet extends HttpServlet {
 
         request.setAttribute(
                 "khachHangList",
-                khachHangDAO
-                        .getAllKhachHang()
+                khachHangDAO.getAllKhachHang()
+        );
+
+        request.setAttribute(
+                "voucherList",
+                hoaDonDAO.getVoucherConHan()
+        );
+
+        request.setAttribute(
+                "voucherDaDung",
+                hoaDonDAO.getVoucherCuaHoaDon(
+                        maHD
+                )
         );
 
         request.getRequestDispatcher(
@@ -281,33 +289,37 @@ public class HoaDonServlet extends HttpServlet {
     private List<ChiTietHoaDon> buildItems(
             HttpServletRequest request
     ) {
-        String[] maSanPhams
-                = request.getParameterValues(
+        String[] maSanPhams =
+                request.getParameterValues(
                         "maSanPham"
                 );
 
-        String[] soLuongs
-                = request.getParameterValues(
+        String[] soLuongs =
+                request.getParameterValues(
                         "soLuong"
                 );
 
-        if (maSanPhams == null
-                || soLuongs == null
-                || maSanPhams.length
-                != soLuongs.length) {
+        if (
+            maSanPhams == null
+            || soLuongs == null
+            || maSanPhams.length
+               != soLuongs.length
+        ) {
             throw new IllegalArgumentException(
                     "Hóa đơn chưa có sản phẩm."
             );
         }
 
-        List<ChiTietHoaDon> list
-                = new ArrayList<>();
+        List<ChiTietHoaDon> list =
+                new ArrayList<>();
 
-        for (int i = 0;
-                i < maSanPhams.length;
-                i++) {
-            ChiTietHoaDon item
-                    = new ChiTietHoaDon();
+        for (
+            int i = 0;
+            i < maSanPhams.length;
+            i++
+        ) {
+            ChiTietHoaDon item =
+                    new ChiTietHoaDon();
 
             item.setMaSanPham(
                     maSanPhams[i]
@@ -320,7 +332,7 @@ public class HoaDonServlet extends HttpServlet {
                         )
                 );
 
-            } catch (Exception e) {
+            } catch (Exception exception) {
                 throw new IllegalArgumentException(
                         "Số lượng sản phẩm không hợp lệ."
                 );
@@ -336,13 +348,31 @@ public class HoaDonServlet extends HttpServlet {
             String value
     ) {
         try {
-            return Integer.parseInt(
-                    value
-            );
+            return Integer.parseInt(value);
 
-        } catch (Exception e) {
+        } catch (Exception exception) {
             throw new IllegalArgumentException(
                     "Mã hóa đơn không hợp lệ."
+            );
+        }
+    }
+
+    private Integer parseNullableId(
+            String value
+    ) {
+        if (
+            value == null
+            || value.isBlank()
+        ) {
+            return null;
+        }
+
+        try {
+            return Integer.valueOf(value);
+
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(
+                    "Mã voucher không hợp lệ."
             );
         }
     }
@@ -352,13 +382,13 @@ public class HoaDonServlet extends HttpServlet {
             HttpServletResponse response
     ) throws IOException {
 
-        HttpSession session
-                = request.getSession(false);
+        HttpSession session =
+                request.getSession(false);
 
-        if (session == null
-                || session.getAttribute(
-                        "maNV"
-                ) == null) {
+        if (
+            session == null
+            || session.getAttribute("maNV") == null
+        ) {
             response.sendRedirect(
                     request.getContextPath()
                     + "/LoginServlet"

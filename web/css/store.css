@@ -1255,3 +1255,265 @@
 .recipe-input {
     width: 95px;
 }
+
+.voucher-summary {
+    display: grid;
+    grid-template-columns:
+        minmax(250px, 0.45fr)
+        minmax(0, 1fr);
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.voucher-point-card,
+.voucher-rule-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    min-height: 100px;
+    padding: 18px;
+
+    border: 1px solid #e1e7eb;
+    border-radius: 13px;
+
+    background: #ffffff;
+}
+
+.voucher-point-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 50px;
+    height: 50px;
+
+    border-radius: 13px;
+
+    background: #fff3d6;
+    color: #c77700;
+
+    font-size: 20px;
+}
+
+.voucher-point-card span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #6f7d88;
+
+    font-size: 11px;
+}
+
+.voucher-point-card strong {
+    display: block;
+
+    color: #263746;
+
+    font-size: 24px;
+}
+
+.voucher-rule-card > i {
+    color: #3b82f6;
+
+    font-size: 21px;
+}
+
+.voucher-rule-card strong {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #263746;
+
+    font-size: 13px;
+}
+
+.voucher-rule-card span {
+    color: #6f7d88;
+
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.voucher-option-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(5, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.voucher-option {
+    padding: 16px;
+
+    border: 1px solid #e1e7eb;
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f7f9fa
+        );
+
+    text-align: center;
+}
+
+.voucher-value {
+    margin-bottom: 5px;
+
+    color: #30475e;
+
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.voucher-option > span {
+    display: block;
+
+    margin-bottom: 13px;
+
+    color: #6f7d88;
+
+    font-size: 10px;
+}
+
+.voucher-quantity {
+    text-align: center;
+}
+
+.voucher-exchange-summary {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(180px, 1fr));
+    gap: 10px;
+
+    margin-top: 18px;
+    padding: 15px;
+
+    border-radius: 11px;
+
+    background: #f4f7f9;
+}
+
+.voucher-exchange-summary > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    padding: 10px;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+}
+
+.voucher-exchange-summary span {
+    color: #6f7d88;
+
+    font-size: 10px;
+}
+
+.voucher-exchange-summary strong {
+    color: #263746;
+
+    font-size: 13px;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+@media screen and (max-width: 1100px) {
+    .voucher-option-grid {
+        grid-template-columns:
+            repeat(3, minmax(150px, 1fr));
+    }
+}
+
+@media screen and (max-width: 760px) {
+    .voucher-summary,
+    .voucher-exchange-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .voucher-option-grid {
+        grid-template-columns:
+            repeat(2, minmax(130px, 1fr));
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .voucher-option-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.invoice-voucher-box {
+    margin-top: 15px;
+    padding: 14px;
+
+    border: 1px solid #e3e9ed;
+    border-radius: 11px;
+
+    background: #f8fafb;
+}
+
+.form-help-text {
+    display: block;
+
+    margin-top: 7px;
+
+    color: #74818b;
+
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.selected-voucher-preview,
+.used-voucher-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-top: 11px;
+    padding: 11px 13px;
+
+    border: 1px dashed #70a989;
+    border-radius: 9px;
+
+    background: #f0faf4;
+}
+
+.selected-voucher-preview > i,
+.used-voucher-box > i {
+    color: #268153;
+    font-size: 19px;
+}
+
+.selected-voucher-preview span,
+.used-voucher-box span {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #718078;
+    font-size: 10px;
+}
+
+.selected-voucher-preview strong,
+.used-voucher-box strong {
+    color: #245d41;
+    font-size: 12px;
+}
+
+.voucher-discount-row strong {
+    color: #268153;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}

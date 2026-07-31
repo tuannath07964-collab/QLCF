@@ -9,7 +9,9 @@
 
 <!DOCTYPE html>
 <html lang="vi">
+
     <head>
+
         <meta charset="UTF-8">
 
         <meta name="viewport"
@@ -21,27 +23,32 @@
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
         <link rel="stylesheet"
-              href="${pageContext.request.contextPath}/css/app.css?v=50">
+              href="${pageContext.request.contextPath}/css/app.css?v=60">
 
         <link rel="stylesheet"
-              href="${pageContext.request.contextPath}/css/store.css?v=50">
+              href="${pageContext.request.contextPath}/css/store.css?v=60">
+
     </head>
 
     <body>
 
         <jsp:include page="/views/components/sidebar.jsp">
+
             <jsp:param name="active"
                        value="invoice"/>
+
         </jsp:include>
 
         <main class="app-main">
 
             <jsp:include page="/views/components/topbar.jsp">
+
                 <jsp:param name="title"
                            value="Chi tiết hóa đơn"/>
 
                 <jsp:param name="subtitle"
                            value="Chọn sản phẩm và thực hiện thanh toán"/>
+
             </jsp:include>
 
             <div class="app-content">
@@ -49,8 +56,11 @@
                 <c:if test="${param.success == 'save'}">
 
                     <div class="alert alert-success">
+
                         <i class="fa-solid fa-circle-check"></i>
+
                         Lưu hóa đơn thành công.
+
                     </div>
 
                 </c:if>
@@ -58,8 +68,11 @@
                 <c:if test="${not empty errorMessage}">
 
                     <div class="alert alert-danger">
+
                         <i class="fa-solid fa-circle-exclamation"></i>
+
                         <c:out value="${errorMessage}"/>
+
                     </div>
 
                 </c:if>
@@ -72,18 +85,27 @@
                            href="${pageContext.request.contextPath}/hoadon">
 
                             <i class="fa-solid fa-arrow-left"></i>
+
                             Quay lại danh sách
+
                         </a>
 
                         <h2 class="invoice-detail-title">
+
                             ${hoaDon.maHienThi}
+
                         </h2>
 
                         <p>
+
                             Tạo bởi:
+
                             <c:out value="${hoaDon.tenTaiKhoan}"/>
+
                             ·
+
                             ${hoaDon.ngayTao}
+
                         </p>
 
                     </div>
@@ -96,6 +118,7 @@
                             : 'badge-warning'}">
 
                         ${hoaDon.trangThai}
+
                     </span>
 
                 </div>
@@ -108,6 +131,18 @@
                            name="maHD"
                            value="${hoaDon.maHD}">
 
+                    <input type="hidden"
+                           id="usedVoucherValue"
+                           value="${empty voucherDaDung
+                                    ? 0
+                                    : voucherDaDung.menhGia}">
+
+                    <input type="hidden"
+                           id="usedVoucherCode"
+                           value="${empty voucherDaDung
+                                    ? ''
+                                    : voucherDaDung.maCode}">
+
                     <section class="invoice-editor-layout">
 
                         <article class="card product-picker-panel">
@@ -115,8 +150,13 @@
                             <div class="card-header">
 
                                 <div>
+
                                     <h3>Chọn sản phẩm</h3>
-                                    <p>Nhấn vào sản phẩm để thêm vào hóa đơn</p>
+
+                                    <p>
+                                        Nhấn vào sản phẩm để thêm vào hóa đơn
+                                    </p>
+
                                 </div>
 
                                 <div class="search-box product-picker-search">
@@ -130,6 +170,7 @@
                                            ${hoaDon.daKetThuc
                                              ? 'disabled'
                                              : ''}>
+
                                 </div>
 
                             </div>
@@ -158,32 +199,43 @@
                                                   : ''}>
 
                                             <span class="product-pick-icon">
+
                                                 <i class="fa-solid fa-mug-saucer"></i>
+
                                             </span>
 
                                             <span class="product-pick-content">
 
                                                 <small>
+
                                                     <c:out value="${sanPham.tenDanhMuc}"/>
+
                                                 </small>
 
                                                 <strong>
+
                                                     <c:out value="${sanPham.tenSanPham}"/>
+
                                                 </strong>
 
                                                 <span>
+
                                                     <fmt:formatNumber
                                                         value="${sanPham.giaBan}"
                                                         pattern="#,##0"/>
 
                                                     đ
+
                                                 </span>
 
                                                 <em>
+
                                                     ${sanPham.coTheBan
                                                       ? sanPham.soLuongCoTheBan
                                                       : 0}
+
                                                     phần
+
                                                 </em>
 
                                             </span>
@@ -203,8 +255,11 @@
                             <div class="card-header">
 
                                 <div>
+
                                     <h3>Thông tin hóa đơn</h3>
+
                                     <p>${hoaDon.maHienThi}</p>
+
                                 </div>
 
                             </div>
@@ -214,7 +269,9 @@
                                 <div class="form-group">
 
                                     <label class="form-label">
+
                                         Khách hàng đã lưu
+
                                     </label>
 
                                     <select class="form-control"
@@ -225,7 +282,9 @@
                                               : ''}>
 
                                         <option value="">
+
                                             Khách lẻ
+
                                         </option>
 
                                         <c:forEach var="khachHang"
@@ -238,8 +297,13 @@
                                                       : ''}>
 
                                                 ${khachHang.maKH}
+
                                                 -
+
                                                 ${khachHang.hoTen}
+
+                                                (${khachHang.diemTichLuy} điểm)
+
                                             </option>
 
                                         </c:forEach>
@@ -252,6 +316,7 @@
                                           <input type="hidden"
                                                  name="maKH"
                                                  value="${hoaDon.maKH}">
+
                                     </c:if>
 
                                 </div>
@@ -261,7 +326,9 @@
                                     <div class="form-group">
 
                                         <label class="form-label">
+
                                             Tên khách hàng mới
+
                                         </label>
 
                                         <input class="form-control"
@@ -273,6 +340,7 @@
                                                         : ''}"
                                                maxlength="100"
                                                placeholder="Để trống nếu là khách lẻ">
+
                                     </div>
 
                                     <label class="checkbox-item invoice-customer-save">
@@ -282,7 +350,123 @@
                                                name="luuKhachMoi">
 
                                         Lưu khách hàng mới để tích điểm
+
                                     </label>
+
+                                    <div class="form-group invoice-voucher-box">
+
+                                        <label class="form-label">
+
+                                            Voucher của khách hàng
+
+                                        </label>
+
+                                        <select class="form-control"
+                                                id="voucherSelect"
+                                                name="maVoucher">
+
+                                            <option value=""
+                                                    data-value="0"
+                                                    data-code="">
+
+                                                Không sử dụng voucher
+
+                                            </option>
+
+                                            <c:forEach var="voucher"
+                                                       items="${voucherList}">
+
+                                                <option value="${voucher.maVoucher}"
+                                                        data-customer="${voucher.maKH}"
+                                                        data-value="${voucher.menhGia}"
+                                                        data-code="${voucher.maCode}"
+                                                        ${maVoucherDaChon
+                                                          == voucher.maVoucher
+                                                          ? 'selected'
+                                                          : ''}>
+
+                                                    ${voucher.maCode}
+
+                                                    -
+
+                                                    Giảm
+
+                                                    <fmt:formatNumber
+                                                        value="${voucher.menhGia}"
+                                                        pattern="#,##0"/>
+
+                                                    đ
+
+                                                    -
+
+                                                    Hạn ${voucher.ngayHetHanHienThi}
+
+                                                </option>
+
+                                            </c:forEach>
+
+                                        </select>
+
+                                        <small id="voucherHelpText"
+                                               class="form-help-text">
+
+                                            Chọn khách hàng để xem voucher còn hiệu lực.
+
+                                        </small>
+
+                                        <div class="selected-voucher-preview hidden"
+                                             id="selectedVoucherPreview">
+
+                                            <i class="fa-solid fa-ticket"></i>
+
+                                            <div>
+
+                                                <span>Mã voucher đã chọn</span>
+
+                                                <strong id="selectedVoucherCode">
+
+                                                    —
+
+                                                </strong>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </c:if>
+
+                                <c:if test="${hoaDon.daKetThuc
+                                              and not empty voucherDaDung}">
+
+                                      <div class="used-voucher-box">
+
+                                          <i class="fa-solid fa-ticket"></i>
+
+                                          <div>
+
+                                              <span>Voucher đã sử dụng</span>
+
+                                              <strong>
+
+                                                  ${voucherDaDung.maCode}
+
+                                                  -
+
+                                                  Giảm
+
+                                                  <fmt:formatNumber
+                                                      value="${voucherDaDung.menhGia}"
+                                                      pattern="#,##0"/>
+
+                                                  đ
+
+                                              </strong>
+
+                                          </div>
+
+                                      </div>
 
                                 </c:if>
 
@@ -291,12 +475,19 @@
                                     <table class="invoice-cart-table">
 
                                         <thead>
+
                                             <tr>
+
                                                 <th>Sản phẩm</th>
+
                                                 <th>SL</th>
+
                                                 <th>Thành tiền</th>
+
                                                 <th></th>
+
                                             </tr>
+
                                         </thead>
 
                                         <tbody id="cartTableBody">
@@ -312,20 +503,25 @@
                                                     <td>
 
                                                         <strong>
+
                                                             <c:out value="${chiTiet.tenSanPham}"/>
+
                                                         </strong>
 
                                                         <small>
+
                                                             <fmt:formatNumber
                                                                 value="${chiTiet.donGia}"
                                                                 pattern="#,##0"/>
 
                                                             đ
+
                                                         </small>
 
                                                         <input type="hidden"
                                                                name="maSanPham"
                                                                value="${chiTiet.maSanPham}">
+
                                                     </td>
 
                                                     <td>
@@ -339,10 +535,13 @@
                                                                ${hoaDon.daKetThuc
                                                                  ? 'readonly'
                                                                  : ''}>
+
                                                     </td>
 
                                                     <td class="cart-line-total">
+
                                                         0đ
+
                                                     </td>
 
                                                     <td>
@@ -354,7 +553,9 @@
                                                                   : ''}>
 
                                                             <i class="fa-solid fa-xmark"></i>
+
                                                         </button>
+
                                                     </td>
 
                                                 </tr>
@@ -374,6 +575,7 @@
                                         <i class="fa-solid fa-basket-shopping"></i>
 
                                         <span>Chưa có sản phẩm</span>
+
                                     </div>
 
                                 </div>
@@ -381,18 +583,51 @@
                                 <div class="invoice-total-box">
 
                                     <div>
+
                                         <span>Tạm tính</span>
-                                        <strong id="subTotalValue">0đ</strong>
+
+                                        <strong id="subTotalValue">
+
+                                            0đ
+
+                                        </strong>
+
                                     </div>
 
                                     <div>
+
                                         <span>VAT 8%</span>
-                                        <strong id="vatValue">0đ</strong>
+
+                                        <strong id="vatValue">
+
+                                            0đ
+
+                                        </strong>
+
+                                    </div>
+
+                                    <div class="voucher-discount-row">
+
+                                        <span>Voucher</span>
+
+                                        <strong id="voucherDiscountValue">
+
+                                            -0đ
+
+                                        </strong>
+
                                     </div>
 
                                     <div class="grand-total-row">
+
                                         <span>Tổng thanh toán</span>
-                                        <strong id="grandTotalValue">0đ</strong>
+
+                                        <strong id="grandTotalValue">
+
+                                            0đ
+
+                                        </strong>
+
                                     </div>
 
                                 </div>
@@ -404,11 +639,15 @@
                                         <i class="fa-solid fa-money-bill-wave"></i>
 
                                         <div>
+
                                             <strong>Thanh toán tại quầy</strong>
 
                                             <span>
+
                                                 Hệ thống sẽ ghi nhận hóa đơn đã thanh toán.
+
                                             </span>
+
                                         </div>
 
                                     </div>
@@ -421,7 +660,9 @@
                                                 value="save">
 
                                             <i class="fa-solid fa-floppy-disk"></i>
+
                                             Lưu hóa đơn
+
                                         </button>
 
                                         <button class="btn btn-success"
@@ -430,7 +671,9 @@
                                                 value="pay">
 
                                             <i class="fa-solid fa-money-check-dollar"></i>
+
                                             Thanh toán
+
                                         </button>
 
                                         <button class="btn btn-danger"
@@ -438,7 +681,9 @@
                                                 id="cancelInvoiceButton">
 
                                             <i class="fa-solid fa-ban"></i>
+
                                             Hủy hóa đơn
+
                                         </button>
 
                                     </div>
@@ -452,7 +697,9 @@
                                         <i class="fa-solid fa-lock"></i>
 
                                         Hóa đơn đã kết thúc.
+
                                         Không thể thay đổi dữ liệu.
+
                                     </div>
 
                                     <c:if test="${hoaDon.trangThai == 'Đã hủy'}">
@@ -462,6 +709,7 @@
                                             <strong>Lý do hủy:</strong>
 
                                             <c:out value="${hoaDon.lyDoHuy}"/>
+
                                         </div>
 
                                     </c:if>
@@ -496,9 +744,11 @@
             <input type="hidden"
                    name="lyDoHuy"
                    id="cancelReasonInput">
+
         </form>
 
-        <script src="${pageContext.request.contextPath}/js/hoadon.js?v=50"></script>
+        <script src="${pageContext.request.contextPath}/js/hoadon.js?v=70"></script>
 
     </body>
+
 </html>

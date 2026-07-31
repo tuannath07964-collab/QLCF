@@ -2,6 +2,8 @@ package dao;
 
 import model.ChiTietHoaDon;
 import model.HoaDon;
+import model.VoucherKhachHang;
+
 import util.DBConnect;
 
 import java.math.BigDecimal;
@@ -22,14 +24,14 @@ import java.util.List;
 
 public class HoaDonDAO {
 
-    private static final BigDecimal VAT_RATE
-            = new BigDecimal("0.08");
+    private static final BigDecimal VAT_RATE =
+            new BigDecimal("0.08");
 
-    private static final BigDecimal MONEY_PER_POINT
-            = new BigDecimal("10000");
+    private static final BigDecimal MONEY_PER_POINT =
+            new BigDecimal("10000");
 
-    private static final DateTimeFormatter DATE_FORMAT
-            = DateTimeFormatter.ofPattern(
+    private static final DateTimeFormatter DATE_FORMAT =
+            DateTimeFormatter.ofPattern(
                     "dd/MM/yyyy HH:mm"
             );
 
@@ -37,7 +39,7 @@ public class HoaDonDAO {
             String maTaiKhoan
     ) {
         String sql = """
-            INSERT INTO HoaDon(
+            INSERT INTO HoaDon (
                 MaTaiKhoan,
                 TrangThai
             )
@@ -48,22 +50,26 @@ public class HoaDonDAO {
             """;
 
         try (
-                Connection conn
-                = DBConnect.getConnection(); PreparedStatement ps
-                = conn.prepareStatement(
-                        sql,
-                        Statement.RETURN_GENERATED_KEYS
-                )) {
-            ps.setString(
+            Connection connection =
+                    DBConnect.getConnection();
+
+            PreparedStatement statement =
+                    connection.prepareStatement(
+                            sql,
+                            Statement.RETURN_GENERATED_KEYS
+                    )
+        ) {
+            statement.setString(
                     1,
                     maTaiKhoan
             );
 
-            ps.executeUpdate();
+            statement.executeUpdate();
 
             try (
-                    ResultSet keys
-                    = ps.getGeneratedKeys()) {
+                ResultSet keys =
+                        statement.getGeneratedKeys()
+            ) {
                 if (!keys.next()) {
                     throw new IllegalStateException(
                             "Không tạo được mã hóa đơn."
@@ -73,60 +79,77 @@ public class HoaDonDAO {
                 return keys.getInt(1);
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException exception) {
             throw new IllegalStateException(
                     "Không tạo được hóa đơn.",
-                    e
+                    exception
             );
         }
     }
 
     public List<HoaDon> getAll() {
-
-        List<HoaDon> list
-                = new ArrayList<>();
+        List<HoaDon> list =
+                new ArrayList<>();
 
         String sql = """
-            SELECT h.MaHD,
-                   h.MaTaiKhoan,
-                   tk.HoTen AS TenTaiKhoan,
-                   h.MaKH,
-                   COALESCE(
-                       NULLIF(h.TenKhachHang, N''),
-                       kh.HoTen,
-                       N'Khách lẻ'
-                   ) AS TenKhachHang,
-                   h.NgayTao,
-                   h.NgayThanhToan,
-                   h.TamTinh,
-                   h.ThueVAT,
-                   h.TongTien,
-                   h.DiemCong,
-                   h.TrangThai,
-                   h.PhuongThucThanhToan,
-                   h.LyDoHuy
+            SELECT
+                h.MaHD,
+                h.MaTaiKhoan,
+                tk.HoTen AS TenTaiKhoan,
+                h.MaKH,
+
+                COALESCE(
+                    NULLIF(
+                        h.TenKhachHang,
+                        N''
+                    ),
+                    kh.HoTen,
+                    N'Khách lẻ'
+                ) AS TenKhachHang,
+
+                h.NgayTao,
+                h.NgayThanhToan,
+                h.TamTinh,
+                h.ThueVAT,
+                h.TongTien,
+                h.DiemCong,
+                h.TrangThai,
+                h.PhuongThucThanhToan,
+                h.LyDoHuy
+
             FROM HoaDon h
-            JOIN TaiKhoan tk
+
+            INNER JOIN TaiKhoan tk
                 ON tk.MaTaiKhoan =
                    h.MaTaiKhoan
+
             LEFT JOIN KhachHang kh
-                ON kh.MaKH = h.MaKH
+                ON kh.MaKH =
+                   h.MaKH
+
             ORDER BY h.MaHD DESC
             """;
 
         try (
-                Connection conn
-                = DBConnect.getConnection(); PreparedStatement ps
-                = conn.prepareStatement(sql); ResultSet rs
-                = ps.executeQuery()) {
-            while (rs.next()) {
-                list.add(mapRow(rs));
+            Connection connection =
+                    DBConnect.getConnection();
+
+            PreparedStatement statement =
+                    connection.prepareStatement(sql);
+
+            ResultSet resultSet =
+                    statement.executeQuery()
+        ) {
+            while (resultSet.next()) {
+                list.add(
+                        mapRow(resultSet)
+                );
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException exception) {
             throw new IllegalStateException(
                     "Không tải được danh sách hóa đơn.",
-                    e
+                    exception
             );
         }
 
@@ -137,129 +160,147 @@ public class HoaDonDAO {
             int maHD
     ) {
         String sql = """
-            SELECT h.MaHD,
-                   h.MaTaiKhoan,
-                   tk.HoTen AS TenTaiKhoan,
-                   h.MaKH,
-                   COALESCE(
-                       NULLIF(h.TenKhachHang, N''),
-                       kh.HoTen,
-                       N'Khách lẻ'
-                   ) AS TenKhachHang,
-                   h.NgayTao,
-                   h.NgayThanhToan,
-                   h.TamTinh,
-                   h.ThueVAT,
-                   h.TongTien,
-                   h.DiemCong,
-                   h.TrangThai,
-                   h.PhuongThucThanhToan,
-                   h.LyDoHuy
+            SELECT
+                h.MaHD,
+                h.MaTaiKhoan,
+                tk.HoTen AS TenTaiKhoan,
+                h.MaKH,
+
+                COALESCE(
+                    NULLIF(
+                        h.TenKhachHang,
+                        N''
+                    ),
+                    kh.HoTen,
+                    N'Khách lẻ'
+                ) AS TenKhachHang,
+
+                h.NgayTao,
+                h.NgayThanhToan,
+                h.TamTinh,
+                h.ThueVAT,
+                h.TongTien,
+                h.DiemCong,
+                h.TrangThai,
+                h.PhuongThucThanhToan,
+                h.LyDoHuy
+
             FROM HoaDon h
-            JOIN TaiKhoan tk
+
+            INNER JOIN TaiKhoan tk
                 ON tk.MaTaiKhoan =
                    h.MaTaiKhoan
+
             LEFT JOIN KhachHang kh
-                ON kh.MaKH = h.MaKH
+                ON kh.MaKH =
+                   h.MaKH
+
             WHERE h.MaHD = ?
             """;
 
         try (
-                Connection conn
-                = DBConnect.getConnection(); PreparedStatement ps
-                = conn.prepareStatement(sql)) {
-            ps.setInt(
+            Connection connection =
+                    DBConnect.getConnection();
+
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setInt(
                     1,
                     maHD
             );
 
             try (
-                    ResultSet rs
-                    = ps.executeQuery()) {
-                return rs.next()
-                        ? mapRow(rs)
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                return resultSet.next()
+                        ? mapRow(resultSet)
                         : null;
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException exception) {
             throw new IllegalStateException(
                     "Không tìm thấy hóa đơn.",
-                    e
+                    exception
             );
         }
     }
 
-    public List<ChiTietHoaDon>
-            getChiTiet(
-                    int maHD
-            ) {
-
-        List<ChiTietHoaDon> list
-                = new ArrayList<>();
+    public List<ChiTietHoaDon> getChiTiet(
+            int maHD
+    ) {
+        List<ChiTietHoaDon> list =
+                new ArrayList<>();
 
         String sql = """
-            SELECT ct.MaCT,
-                   ct.MaHD,
-                   ct.MaSanPham,
-                   sp.TenSanPham,
-                   ct.SoLuong,
-                   ct.DonGia
+            SELECT
+                ct.MaCT,
+                ct.MaHD,
+                ct.MaSanPham,
+                sp.TenSanPham,
+                ct.SoLuong,
+                ct.DonGia
+
             FROM ChiTietHoaDon ct
-            JOIN SanPham sp
+
+            INNER JOIN SanPham sp
                 ON sp.MaSanPham =
                    ct.MaSanPham
+
             WHERE ct.MaHD = ?
+
             ORDER BY ct.MaCT
             """;
 
         try (
-                Connection conn
-                = DBConnect.getConnection(); PreparedStatement ps
-                = conn.prepareStatement(sql)) {
-            ps.setInt(
+            Connection connection =
+                    DBConnect.getConnection();
+
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setInt(
                     1,
                     maHD
             );
 
             try (
-                    ResultSet rs
-                    = ps.executeQuery()) {
-                while (rs.next()) {
-                    ChiTietHoaDon item
-                            = new ChiTietHoaDon();
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                while (resultSet.next()) {
+                    ChiTietHoaDon item =
+                            new ChiTietHoaDon();
 
                     item.setMaCT(
-                            rs.getInt(
-                                    "MaCT"
-                            )
+                            resultSet.getInt("MaCT")
                     );
 
                     item.setMaHD(
-                            rs.getInt(
-                                    "MaHD"
-                            )
+                            resultSet.getInt("MaHD")
                     );
 
                     item.setMaSanPham(
-                            rs.getString(
+                            resultSet.getString(
                                     "MaSanPham"
                             )
                     );
 
                     item.setTenSanPham(
-                            rs.getString(
+                            resultSet.getString(
                                     "TenSanPham"
                             )
                     );
 
                     item.setSoLuong(
-                            rs.getInt(
+                            resultSet.getInt(
                                     "SoLuong"
                             )
                     );
 
                     item.setDonGia(
-                            rs.getBigDecimal(
+                            resultSet.getBigDecimal(
                                     "DonGia"
                             )
                     );
@@ -268,14 +309,138 @@ public class HoaDonDAO {
                 }
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException exception) {
             throw new IllegalStateException(
                     "Không tải được chi tiết hóa đơn.",
-                    e
+                    exception
             );
         }
 
         return list;
+    }
+
+    public List<VoucherKhachHang>
+            getVoucherConHan() {
+
+        List<VoucherKhachHang> list =
+                new ArrayList<>();
+
+        String sqlUpdate = """
+            UPDATE VoucherKhachHang
+            SET TrangThai = N'Hết hạn'
+            WHERE TrangThai = N'Chưa sử dụng'
+              AND NgayHetHan < SYSDATETIME()
+            """;
+
+        String sql = """
+            SELECT
+                MaVoucher,
+                MaCode,
+                MaKH,
+                MenhGia,
+                SoDiemDaDoi,
+                NgayDoi,
+                NgayHetHan,
+                TrangThai
+
+            FROM VoucherKhachHang
+
+            WHERE TrangThai = N'Chưa sử dụng'
+              AND NgayHetHan >= SYSDATETIME()
+
+            ORDER BY
+                MaKH,
+                MenhGia DESC,
+                MaVoucher DESC
+            """;
+
+        try (
+            Connection connection =
+                    DBConnect.getConnection()
+        ) {
+            try (
+                PreparedStatement updateStatement =
+                        connection.prepareStatement(
+                                sqlUpdate
+                        )
+            ) {
+                updateStatement.executeUpdate();
+            }
+
+            try (
+                PreparedStatement statement =
+                        connection.prepareStatement(sql);
+
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                while (resultSet.next()) {
+                    list.add(
+                            mapVoucher(resultSet)
+                    );
+                }
+            }
+
+        } catch (SQLException exception) {
+            throw new IllegalStateException(
+                    "Không tải được voucher.",
+                    exception
+            );
+        }
+
+        return list;
+    }
+
+    public VoucherKhachHang getVoucherCuaHoaDon(
+            int maHD
+    ) {
+        String sql = """
+            SELECT
+                v.MaVoucher,
+                v.MaCode,
+                v.MaKH,
+                v.MenhGia,
+                v.SoDiemDaDoi,
+                v.NgayDoi,
+                v.NgayHetHan,
+                v.TrangThai
+
+            FROM HoaDon h
+
+            INNER JOIN VoucherKhachHang v
+                ON v.MaVoucher =
+                   h.MaVoucher
+
+            WHERE h.MaHD = ?
+            """;
+
+        try (
+            Connection connection =
+                    DBConnect.getConnection();
+
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setInt(
+                    1,
+                    maHD
+            );
+
+            try (
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                return resultSet.next()
+                        ? mapVoucher(resultSet)
+                        : null;
+            }
+
+        } catch (SQLException exception) {
+            throw new IllegalStateException(
+                    "Không tải được voucher của hóa đơn.",
+                    exception
+            );
+        }
     }
 
     public void luuHoaDon(
@@ -285,100 +450,105 @@ public class HoaDonDAO {
             List<ChiTietHoaDon> items
     ) {
         try (
-                Connection conn
-                = DBConnect.getConnection()) {
-            conn.setAutoCommit(false);
+            Connection connection =
+                    DBConnect.getConnection()
+        ) {
+            connection.setAutoCommit(false);
 
             try {
                 kiemTraHoaDonChuaKetThuc(
-                        conn,
+                        connection,
                         maHD
                 );
 
                 thayChiTiet(
-                        conn,
+                        connection,
                         maHD,
                         items
                 );
 
-                BigDecimal tamTinh
-                        = layTamTinh(
-                                conn,
+                BigDecimal tamTinh =
+                        layTamTinh(
+                                connection,
                                 maHD
                         );
 
-                BigDecimal thue
-                        = tinhVAT(tamTinh);
+                BigDecimal thue =
+                        tinhVAT(tamTinh);
 
-                BigDecimal tong
-                        = tamTinh.add(thue);
+                BigDecimal tong =
+                        tamTinh.add(thue);
 
                 String sql = """
                     UPDATE HoaDon
-                    SET MaKH = ?,
+                    SET
+                        MaKH = ?,
                         TenKhachHang = ?,
                         TamTinh = ?,
                         ThueVAT = ?,
+                        GiamGia = 0,
+                        MaVoucher = NULL,
                         TongTien = ?
                     WHERE MaHD = ?
                     """;
 
                 try (
-                        PreparedStatement ps
-                        = conn.prepareStatement(sql)) {
+                    PreparedStatement statement =
+                            connection.prepareStatement(sql)
+                ) {
                     setNullableString(
-                            ps,
+                            statement,
                             1,
                             maKH
                     );
 
                     setNullableString(
-                            ps,
+                            statement,
                             2,
                             tenKhachHang
                     );
 
-                    ps.setBigDecimal(
+                    statement.setBigDecimal(
                             3,
                             tamTinh
                     );
 
-                    ps.setBigDecimal(
+                    statement.setBigDecimal(
                             4,
                             thue
                     );
 
-                    ps.setBigDecimal(
+                    statement.setBigDecimal(
                             5,
                             tong
                     );
 
-                    ps.setInt(
+                    statement.setInt(
                             6,
                             maHD
                     );
 
-                    ps.executeUpdate();
+                    statement.executeUpdate();
                 }
 
-                conn.commit();
+                connection.commit();
 
-            } catch (Exception e) {
-                conn.rollback();
+            } catch (Exception exception) {
+                connection.rollback();
 
                 throw new IllegalStateException(
-                        e.getMessage(),
-                        e
+                        exception.getMessage(),
+                        exception
                 );
 
             } finally {
-                conn.setAutoCommit(true);
+                connection.setAutoCommit(true);
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException exception) {
             throw new IllegalStateException(
                     "Không lưu được hóa đơn.",
-                    e
+                    exception
             );
         }
     }
@@ -388,191 +558,278 @@ public class HoaDonDAO {
             String maKH,
             String tenKhachHang,
             boolean luuKhachMoi,
+            Integer maVoucher,
             List<ChiTietHoaDon> items
     ) {
         try (
-                Connection conn
-                = DBConnect.getConnection()) {
-            conn.setAutoCommit(false);
+            Connection connection =
+                    DBConnect.getConnection()
+        ) {
+            connection.setAutoCommit(false);
 
             try {
                 kiemTraHoaDonChuaKetThuc(
-                        conn,
+                        connection,
                         maHD
                 );
 
                 thayChiTiet(
-                        conn,
+                        connection,
                         maHD,
                         items
                 );
 
                 kiemTraSanPhamCoCongThuc(
-                        conn,
+                        connection,
                         maHD
                 );
 
                 kiemTraDuTonKho(
-                        conn,
+                        connection,
                         maHD
                 );
 
-                String maKhachThanhToan
-                        = trimToNull(maKH);
+                String maKhachThanhToan =
+                        trimToNull(maKH);
 
-                String tenKhachHienThi
-                        = trimToNull(
-                                tenKhachHang
-                        );
+                String tenKhachHienThi =
+                        trimToNull(tenKhachHang);
 
                 if (maKhachThanhToan != null) {
-                    tenKhachHienThi
-                            = layTenKhachHang(
-                                    conn,
+                    tenKhachHienThi =
+                            layTenKhachHang(
+                                    connection,
                                     maKhachThanhToan
                             );
 
-                } else if (luuKhachMoi
-                        && tenKhachHienThi != null) {
-                    maKhachThanhToan
-                            = taoKhachHangNhanh(
-                                    conn,
+                } else if (
+                    luuKhachMoi
+                    && tenKhachHienThi != null
+                ) {
+                    maKhachThanhToan =
+                            taoKhachHangNhanh(
+                                    connection,
                                     tenKhachHienThi
                             );
                 }
 
                 if (tenKhachHienThi == null) {
-                    tenKhachHienThi
-                            = "Khách lẻ";
+                    tenKhachHienThi =
+                            "Khách lẻ";
                 }
 
-                BigDecimal tamTinh
-                        = layTamTinh(
-                                conn,
+                BigDecimal tamTinh =
+                        layTamTinh(
+                                connection,
                                 maHD
                         );
 
-                BigDecimal thue
-                        = tinhVAT(tamTinh);
+                BigDecimal thue =
+                        tinhVAT(tamTinh);
 
-                BigDecimal tong
-                        = tamTinh.add(thue);
+                BigDecimal tongTruocGiam =
+                        tamTinh.add(thue);
 
-                int diemCong
-                        = maKhachThanhToan == null
+                BigDecimal giamGia =
+                        BigDecimal.ZERO;
+
+                VoucherKhachHang voucher =
+                        null;
+
+                if (maVoucher != null) {
+                    if (maKhachThanhToan == null) {
+                        throw new IllegalArgumentException(
+                                "Phải chọn khách hàng "
+                                + "trước khi dùng voucher."
+                        );
+                    }
+
+                    voucher =
+                            layVoucherHopLe(
+                                    connection,
+                                    maVoucher,
+                                    maKhachThanhToan
+                            );
+
+                    giamGia =
+                            BigDecimal.valueOf(
+                                    voucher.getMenhGia()
+                            );
+
+                    if (
+                        giamGia.compareTo(
+                                tongTruocGiam
+                        ) > 0
+                    ) {
+                        throw new IllegalArgumentException(
+                                "Mệnh giá voucher lớn hơn "
+                                + "tổng giá trị hóa đơn."
+                        );
+                    }
+                }
+
+                BigDecimal tongThanhToan =
+                        tongTruocGiam.subtract(
+                                giamGia
+                        );
+
+                int diemCong =
+                        maKhachThanhToan == null
                                 ? 0
-                                : tong.divide(
-                                        MONEY_PER_POINT,
-                                        0,
-                                        RoundingMode.DOWN
-                                ).intValue();
+                                : tongThanhToan
+                                        .divide(
+                                                MONEY_PER_POINT,
+                                                0,
+                                                RoundingMode.DOWN
+                                        )
+                                        .intValue();
 
                 truTonKho(
-                        conn,
+                        connection,
                         maHD
                 );
 
                 String sql = """
-    UPDATE HoaDon
-    SET MaKH = ?,
-        TenKhachHang = ?,
-        TamTinh = ?,
-        ThueVAT = ?,
-        TongTien = ?,
-        DiemCong = ?,
-        TrangThai = N'Đã thanh toán',
-        PhuongThucThanhToan = N'Tiền mặt',
-        NgayThanhToan = SYSDATETIME(),
-        LyDoHuy = NULL
-    WHERE MaHD = ?
-    """;
+                    UPDATE HoaDon
+                    SET
+                        MaKH = ?,
+                        TenKhachHang = ?,
+                        TamTinh = ?,
+                        ThueVAT = ?,
+                        MaVoucher = ?,
+                        GiamGia = ?,
+                        TongTien = ?,
+                        DiemCong = ?,
+                        TrangThai = N'Đã thanh toán',
+                        PhuongThucThanhToan = N'Tiền mặt',
+                        NgayThanhToan = SYSDATETIME(),
+                        LyDoHuy = NULL
+                    WHERE MaHD = ?
+                    """;
 
                 try (
-                        PreparedStatement ps
-                        = conn.prepareStatement(sql)) {
+                    PreparedStatement statement =
+                            connection.prepareStatement(sql)
+                ) {
                     setNullableString(
-                            ps,
+                            statement,
                             1,
                             maKhachThanhToan
                     );
 
-                    ps.setString(
+                    statement.setString(
                             2,
                             tenKhachHienThi
                     );
 
-                    ps.setBigDecimal(
+                    statement.setBigDecimal(
                             3,
                             tamTinh
                     );
 
-                    ps.setBigDecimal(
+                    statement.setBigDecimal(
                             4,
                             thue
                     );
 
-                    ps.setBigDecimal(
-                            5,
-                            tong
+                    if (maVoucher == null) {
+                        statement.setNull(
+                                5,
+                                Types.INTEGER
+                        );
+                    } else {
+                        statement.setInt(
+                                5,
+                                maVoucher
+                        );
+                    }
+
+                    statement.setBigDecimal(
+                            6,
+                            giamGia
                     );
 
-                    ps.setInt(
-                            6,
+                    statement.setBigDecimal(
+                            7,
+                            tongThanhToan
+                    );
+
+                    statement.setInt(
+                            8,
                             diemCong
                     );
 
-                    ps.setInt(
-                            7,
+                    statement.setInt(
+                            9,
                             maHD
                     );
 
-                    ps.executeUpdate();
+                    if (
+                        statement.executeUpdate()
+                        != 1
+                    ) {
+                        throw new IllegalStateException(
+                                "Không cập nhật được hóa đơn."
+                        );
+                    }
                 }
 
-                if (diemCong > 0
-                        && maKhachThanhToan != null) {
+                if (voucher != null) {
+                    danhDauVoucherDaSuDung(
+                            connection,
+                            voucher.getMaVoucher()
+                    );
+                }
+
+                if (
+                    diemCong > 0
+                    && maKhachThanhToan != null
+                ) {
+                    String pointSql = """
+                        UPDATE KhachHang
+                        SET DiemTichLuy =
+                            DiemTichLuy + ?
+                        WHERE MaKH = ?
+                        """;
+
                     try (
-                            PreparedStatement ps
-                            = conn.prepareStatement(
-                                    """
-                                UPDATE KhachHang
-                                SET DiemTichLuy =
-                                    DiemTichLuy + ?
-                                WHERE MaKH = ?
-                                """
-                            )) {
-                                ps.setInt(
-                                        1,
-                                        diemCong
-                                );
+                        PreparedStatement statement =
+                                connection.prepareStatement(
+                                        pointSql
+                                )
+                    ) {
+                        statement.setInt(
+                                1,
+                                diemCong
+                        );
 
-                                ps.setString(
-                                        2,
-                                        maKhachThanhToan
-                                );
+                        statement.setString(
+                                2,
+                                maKhachThanhToan
+                        );
 
-                                ps.executeUpdate();
-                            }
+                        statement.executeUpdate();
+                    }
                 }
 
-                conn.commit();
+                connection.commit();
 
-            } catch (Exception e) {
-                conn.rollback();
+            } catch (Exception exception) {
+                connection.rollback();
 
                 throw new IllegalStateException(
-                        e.getMessage(),
-                        e
+                        exception.getMessage(),
+                        exception
                 );
 
             } finally {
-                conn.setAutoCommit(true);
+                connection.setAutoCommit(true);
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException exception) {
             throw new IllegalStateException(
                     "Không thanh toán được hóa đơn.",
-                    e
+                    exception
             );
         }
     }
@@ -581,8 +838,8 @@ public class HoaDonDAO {
             int maHD,
             String lyDo
     ) {
-        String reason
-                = trimToNull(lyDo);
+        String reason =
+                trimToNull(lyDo);
 
         if (reason == null) {
             throw new IllegalArgumentException(
@@ -592,82 +849,185 @@ public class HoaDonDAO {
 
         String sql = """
             UPDATE HoaDon
-            SET TrangThai = N'Đã hủy',
+            SET
+                TrangThai = N'Đã hủy',
                 LyDoHuy = ?,
                 PhuongThucThanhToan = NULL,
                 NgayThanhToan = NULL,
-                DiemCong = 0
+                DiemCong = 0,
+                MaVoucher = NULL,
+                GiamGia = 0
             WHERE MaHD = ?
               AND TrangThai =
                   N'Chờ thanh toán'
             """;
 
         try (
-                Connection conn
-                = DBConnect.getConnection(); PreparedStatement ps
-                = conn.prepareStatement(sql)) {
-            ps.setString(
+            Connection connection =
+                    DBConnect.getConnection();
+
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setString(
                     1,
                     reason
             );
 
-            ps.setInt(
+            statement.setInt(
                     2,
                     maHD
             );
 
-            if (ps.executeUpdate() != 1) {
+            if (
+                statement.executeUpdate()
+                != 1
+            ) {
                 throw new IllegalStateException(
                         "Hóa đơn đã kết thúc "
                         + "hoặc không tồn tại."
                 );
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException exception) {
             throw new IllegalStateException(
                     "Không hủy được hóa đơn.",
-                    e
+                    exception
             );
         }
     }
 
+    private VoucherKhachHang layVoucherHopLe(
+            Connection connection,
+            int maVoucher,
+            String maKH
+    ) throws SQLException {
+
+        String sql = """
+            SELECT
+                MaVoucher,
+                MaCode,
+                MaKH,
+                MenhGia,
+                SoDiemDaDoi,
+                NgayDoi,
+                NgayHetHan,
+                TrangThai
+
+            FROM VoucherKhachHang
+                WITH (UPDLOCK, HOLDLOCK)
+
+            WHERE MaVoucher = ?
+              AND MaKH = ?
+              AND TrangThai = N'Chưa sử dụng'
+              AND NgayHetHan >= SYSDATETIME()
+            """;
+
+        try (
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setInt(
+                    1,
+                    maVoucher
+            );
+
+            statement.setString(
+                    2,
+                    maKH
+            );
+
+            try (
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                if (!resultSet.next()) {
+                    throw new IllegalArgumentException(
+                            "Voucher không hợp lệ, "
+                            + "đã sử dụng hoặc đã hết hạn."
+                    );
+                }
+
+                return mapVoucher(resultSet);
+            }
+        }
+    }
+
+    private void danhDauVoucherDaSuDung(
+            Connection connection,
+            int maVoucher
+    ) throws SQLException {
+
+        String sql = """
+            UPDATE VoucherKhachHang
+            SET TrangThai = N'Đã sử dụng'
+            WHERE MaVoucher = ?
+              AND TrangThai = N'Chưa sử dụng'
+              AND NgayHetHan >= SYSDATETIME()
+            """;
+
+        try (
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setInt(
+                    1,
+                    maVoucher
+            );
+
+            if (
+                statement.executeUpdate()
+                != 1
+            ) {
+                throw new IllegalStateException(
+                        "Không thể sử dụng voucher."
+                );
+            }
+        }
+    }
+
     private void thayChiTiet(
-            Connection conn,
+            Connection connection,
             int maHD,
             List<ChiTietHoaDon> items
     ) throws SQLException {
 
-        if (items == null
-                || items.isEmpty()) {
+        if (
+            items == null
+            || items.isEmpty()
+        ) {
             throw new IllegalArgumentException(
                     "Hóa đơn phải có ít nhất một sản phẩm."
             );
         }
 
+        String deleteSql = """
+            DELETE FROM ChiTietHoaDon
+            WHERE MaHD = ?
+            """;
+
         try (
-                PreparedStatement ps
-                = conn.prepareStatement(
-                        """
-                    DELETE FROM ChiTietHoaDon
-                    WHERE MaHD = ?
-                    """
-                )) {
-                    ps.setInt(
-                            1,
-                            maHD
-                    );
+            PreparedStatement statement =
+                    connection.prepareStatement(
+                            deleteSql
+                    )
+        ) {
+            statement.setInt(
+                    1,
+                    maHD
+            );
 
-                    ps.executeUpdate();
-                }
+            statement.executeUpdate();
+        }
 
-                String productSql = """
+        String productSql = """
             SELECT GiaBan
             FROM SanPham
             WHERE MaSanPham = ?
             """;
 
-                String insertSql = """
-            INSERT INTO ChiTietHoaDon(
+        String insertSql = """
+            INSERT INTO ChiTietHoaDon (
                 MaHD,
                 MaSanPham,
                 SoLuong,
@@ -676,79 +1036,85 @@ public class HoaDonDAO {
             VALUES (?, ?, ?, ?)
             """;
 
+        try (
+            PreparedStatement productStatement =
+                    connection.prepareStatement(
+                            productSql
+                    );
+
+            PreparedStatement insertStatement =
+                    connection.prepareStatement(
+                            insertSql
+                    )
+        ) {
+            for (
+                ChiTietHoaDon item : items
+            ) {
+                if (
+                    item.getMaSanPham() == null
+                    || item.getMaSanPham().isBlank()
+                    || item.getSoLuong() <= 0
+                ) {
+                    throw new IllegalArgumentException(
+                            "Sản phẩm hoặc số lượng "
+                            + "không hợp lệ."
+                    );
+                }
+
+                productStatement.setString(
+                        1,
+                        item.getMaSanPham()
+                );
+
+                BigDecimal donGia;
+
                 try (
-                        PreparedStatement productPs
-                        = conn.prepareStatement(
-                                productSql
-                        ); PreparedStatement insertPs
-                        = conn.prepareStatement(
-                                insertSql
-                        )) {
-                            for (ChiTietHoaDon item
-                                    : items) {
-                                if (item.getMaSanPham() == null
-                                        || item.getMaSanPham()
-                                                .isBlank()
-                                        || item.getSoLuong() <= 0) {
-                                    throw new IllegalArgumentException(
-                                            "Sản phẩm hoặc số lượng "
-                                            + "không hợp lệ."
-                                    );
-                                }
+                    ResultSet resultSet =
+                            productStatement.executeQuery()
+                ) {
+                    if (!resultSet.next()) {
+                        throw new IllegalArgumentException(
+                                "Không tìm thấy sản phẩm "
+                                + item.getMaSanPham()
+                                + "."
+                        );
+                    }
 
-                                productPs.setString(
-                                        1,
-                                        item.getMaSanPham()
-                                );
+                    donGia =
+                            resultSet.getBigDecimal(
+                                    "GiaBan"
+                            );
+                }
 
-                                BigDecimal donGia;
+                insertStatement.setInt(
+                        1,
+                        maHD
+                );
 
-                                try (
-                                        ResultSet rs
-                                        = productPs.executeQuery()) {
-                                    if (!rs.next()) {
-                                        throw new IllegalArgumentException(
-                                                "Không tìm thấy sản phẩm "
-                                                + item.getMaSanPham()
-                                                + "."
-                                        );
-                                    }
+                insertStatement.setString(
+                        2,
+                        item.getMaSanPham()
+                );
 
-                                    donGia
-                                            = rs.getBigDecimal(
-                                                    "GiaBan"
-                                            );
-                                }
+                insertStatement.setInt(
+                        3,
+                        item.getSoLuong()
+                );
 
-                                insertPs.setInt(
-                                        1,
-                                        maHD
-                                );
+                insertStatement.setBigDecimal(
+                        4,
+                        donGia
+                );
 
-                                insertPs.setString(
-                                        2,
-                                        item.getMaSanPham()
-                                );
+                insertStatement.addBatch();
+            }
 
-                                insertPs.setInt(
-                                        3,
-                                        item.getSoLuong()
-                                );
-
-                                insertPs.setBigDecimal(
-                                        4,
-                                        donGia
-                                );
-
-                                insertPs.addBatch();
-                            }
-
-                            insertPs.executeBatch();
-                        }
+            insertStatement.executeBatch();
+        }
     }
 
     private void kiemTraHoaDonChuaKetThuc(
-            Connection conn,
+            Connection connection,
             int maHD
     ) throws SQLException {
 
@@ -760,28 +1126,32 @@ public class HoaDonDAO {
             """;
 
         try (
-                PreparedStatement ps
-                = conn.prepareStatement(sql)) {
-            ps.setInt(
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setInt(
                     1,
                     maHD
             );
 
             try (
-                    ResultSet rs
-                    = ps.executeQuery()) {
-                if (!rs.next()) {
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                if (!resultSet.next()) {
                     throw new IllegalArgumentException(
                             "Không tìm thấy hóa đơn."
                     );
                 }
 
-                if (!"Chờ thanh toán"
-                        .equalsIgnoreCase(
-                                rs.getString(
-                                        "TrangThai"
-                                )
-                        )) {
+                if (
+                    !"Chờ thanh toán"
+                            .equalsIgnoreCase(
+                                    resultSet.getString(
+                                            "TrangThai"
+                                    )
+                            )
+                ) {
                     throw new IllegalArgumentException(
                             "Hóa đơn đã kết thúc."
                     );
@@ -791,18 +1161,22 @@ public class HoaDonDAO {
     }
 
     private void kiemTraSanPhamCoCongThuc(
-            Connection conn,
+            Connection connection,
             int maHD
     ) throws SQLException {
 
         String sql = """
             SELECT TOP 1
-                   sp.TenSanPham
+                sp.TenSanPham
+
             FROM ChiTietHoaDon ct
-            JOIN SanPham sp
+
+            INNER JOIN SanPham sp
                 ON sp.MaSanPham =
                    ct.MaSanPham
+
             WHERE ct.MaHD = ?
+
               AND NOT EXISTS (
                   SELECT 1
                   FROM CongThucSanPham c
@@ -812,20 +1186,22 @@ public class HoaDonDAO {
             """;
 
         try (
-                PreparedStatement ps
-                = conn.prepareStatement(sql)) {
-            ps.setInt(
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setInt(
                     1,
                     maHD
             );
 
             try (
-                    ResultSet rs
-                    = ps.executeQuery()) {
-                if (rs.next()) {
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                if (resultSet.next()) {
                     throw new IllegalArgumentException(
                             "Sản phẩm chưa có công thức: "
-                            + rs.getString(
+                            + resultSet.getString(
                                     "TenSanPham"
                             )
                     );
@@ -835,64 +1211,86 @@ public class HoaDonDAO {
     }
 
     private void kiemTraDuTonKho(
-            Connection conn,
+            Connection connection,
             int maHD
     ) throws SQLException {
 
         String sql = """
             WITH CanDung AS (
-                SELECT ct.MaNguyenLieu,
-                       SUM(
-                           ct.SoLuongCan
-                           * hd.SoLuong
-                       ) AS SoLuongCan
+                SELECT
+                    ct.MaNguyenLieu,
+
+                    SUM(
+                        ct.SoLuongCan
+                        * hd.SoLuong
+                    ) AS SoLuongCan
+
                 FROM ChiTietHoaDon hd
-                JOIN CongThucSanPham ct
+
+                INNER JOIN CongThucSanPham ct
                     ON ct.MaSanPham =
                        hd.MaSanPham
+
                 WHERE hd.MaHD = ?
+
                 GROUP BY ct.MaNguyenLieu
             )
+
             SELECT TOP 1
-                   nl.TenNguyenLieu,
-                   nl.SoLuongTon,
-                   cd.SoLuongCan
+                nl.TenNguyenLieu,
+                nl.SoLuongTon,
+                nl.DonVi,
+                cd.SoLuongCan
+
             FROM CanDung cd
-            JOIN NguyenLieu nl
+
+            INNER JOIN NguyenLieu nl
                 ON nl.MaNguyenLieu =
                    cd.MaNguyenLieu
+
             WHERE nl.TrangThai = 0
                OR nl.SoLuongTon
                   < cd.SoLuongCan
+
             ORDER BY nl.TenNguyenLieu
             """;
 
         try (
-                PreparedStatement ps
-                = conn.prepareStatement(sql)) {
-            ps.setInt(
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setInt(
                     1,
                     maHD
             );
 
             try (
-                    ResultSet rs
-                    = ps.executeQuery()) {
-                if (rs.next()) {
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                if (resultSet.next()) {
                     throw new IllegalArgumentException(
                             "Không đủ nguyên liệu: "
-                            + rs.getString(
+                            + resultSet.getString(
                                     "TenNguyenLieu"
                             )
                             + ". Tồn "
-                            + rs.getInt(
+                            + resultSet.getInt(
                                     "SoLuongTon"
                             )
+                            + " "
+                            + resultSet.getString(
+                                    "DonVi"
+                            )
                             + ", cần "
-                            + rs.getInt(
+                            + resultSet.getInt(
                                     "SoLuongCan"
                             )
-                            + " đơn vị."
+                            + " "
+                            + resultSet.getString(
+                                    "DonVi"
+                            )
+                            + "."
                     );
                 }
             }
@@ -900,79 +1298,95 @@ public class HoaDonDAO {
     }
 
     private void truTonKho(
-            Connection conn,
+            Connection connection,
             int maHD
     ) throws SQLException {
 
         String sql = """
             WITH CanDung AS (
-                SELECT ct.MaNguyenLieu,
-                       SUM(
-                           ct.SoLuongCan
-                           * hd.SoLuong
-                       ) AS SoLuongCan
+                SELECT
+                    ct.MaNguyenLieu,
+
+                    SUM(
+                        ct.SoLuongCan
+                        * hd.SoLuong
+                    ) AS SoLuongCan
+
                 FROM ChiTietHoaDon hd
-                JOIN CongThucSanPham ct
+
+                INNER JOIN CongThucSanPham ct
                     ON ct.MaSanPham =
                        hd.MaSanPham
+
                 WHERE hd.MaHD = ?
+
                 GROUP BY ct.MaNguyenLieu
             )
+
             UPDATE nl
+
             SET nl.SoLuongTon =
                 nl.SoLuongTon
                 - cd.SoLuongCan
+
             FROM NguyenLieu nl
-            JOIN CanDung cd
+
+            INNER JOIN CanDung cd
                 ON cd.MaNguyenLieu =
                    nl.MaNguyenLieu
             """;
 
         try (
-                PreparedStatement ps
-                = conn.prepareStatement(sql)) {
-            ps.setInt(
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setInt(
                     1,
                     maHD
             );
 
-            ps.executeUpdate();
+            statement.executeUpdate();
         }
     }
 
     private BigDecimal layTamTinh(
-            Connection conn,
+            Connection connection,
             int maHD
     ) throws SQLException {
 
         String sql = """
-            SELECT CAST(
-                ISNULL(
-                    SUM(
-                        SoLuong * DonGia
-                    ),
-                    0
-                )
-                AS DECIMAL(18,0)
-            ) AS TamTinh
+            SELECT
+                CAST(
+                    ISNULL(
+                        SUM(
+                            SoLuong * DonGia
+                        ),
+                        0
+                    )
+                    AS DECIMAL(18, 0)
+                ) AS TamTinh
+
             FROM ChiTietHoaDon
+
             WHERE MaHD = ?
             """;
 
         try (
-                PreparedStatement ps
-                = conn.prepareStatement(sql)) {
-            ps.setInt(
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setInt(
                     1,
                     maHD
             );
 
             try (
-                    ResultSet rs
-                    = ps.executeQuery()) {
-                rs.next();
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                resultSet.next();
 
-                return rs.getBigDecimal(
+                return resultSet.getBigDecimal(
                         "TamTinh"
                 );
             }
@@ -991,7 +1405,7 @@ public class HoaDonDAO {
     }
 
     private String layTenKhachHang(
-            Connection conn,
+            Connection connection,
             String maKH
     ) throws SQLException {
 
@@ -1002,23 +1416,25 @@ public class HoaDonDAO {
             """;
 
         try (
-                PreparedStatement ps
-                = conn.prepareStatement(sql)) {
-            ps.setString(
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setString(
                     1,
                     maKH
             );
 
             try (
-                    ResultSet rs
-                    = ps.executeQuery()) {
-                if (!rs.next()) {
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                if (!resultSet.next()) {
                     throw new IllegalArgumentException(
                             "Không tìm thấy khách hàng."
                     );
                 }
 
-                return rs.getString(
+                return resultSet.getString(
                         "HoTen"
                 );
             }
@@ -1026,105 +1442,109 @@ public class HoaDonDAO {
     }
 
     private String taoKhachHangNhanh(
-            Connection conn,
+            Connection connection,
             String hoTen
     ) throws SQLException {
 
         int sequenceValue;
 
+        String sequenceSql = """
+            SELECT NEXT VALUE FOR
+                   dbo.Seq_KhachHang
+                   AS GiaTri
+            """;
+
         try (
-                PreparedStatement ps
-                = conn.prepareStatement(
-                        """
-                    SELECT NEXT VALUE FOR
-                           dbo.Seq_KhachHang
-                           AS GiaTri
-                    """
-                ); ResultSet rs
-                = ps.executeQuery()) {
-                    rs.next();
+            PreparedStatement statement =
+                    connection.prepareStatement(
+                            sequenceSql
+                    );
 
-                    sequenceValue
-                            = rs.getInt(
-                                    "GiaTri"
-                            );
-                }
+            ResultSet resultSet =
+                    statement.executeQuery()
+        ) {
+            resultSet.next();
 
-                String maKH
-                        = String.format(
-                                "KH%03d",
-                                sequenceValue
-                        );
+            sequenceValue =
+                    resultSet.getInt(
+                            "GiaTri"
+                    );
+        }
 
-                try (
-                        PreparedStatement ps
-                        = conn.prepareStatement(
-                                """
-                    INSERT INTO KhachHang(
-                        MaKH,
-                        HoTen,
-                        SDT,
-                        DiemTichLuy
+        String maKH =
+                String.format(
+                        "KH%03d",
+                        sequenceValue
+                );
+
+        String insertSql = """
+            INSERT INTO KhachHang (
+                MaKH,
+                HoTen,
+                SDT,
+                DiemTichLuy
+            )
+            VALUES (?, ?, NULL, 0)
+            """;
+
+        try (
+            PreparedStatement statement =
+                    connection.prepareStatement(
+                            insertSql
                     )
-                    VALUES (?, ?, NULL, 0)
-                    """
-                        )) {
-                            ps.setString(
-                                    1,
-                                    maKH
-                            );
+        ) {
+            statement.setString(
+                    1,
+                    maKH
+            );
 
-                            ps.setString(
-                                    2,
-                                    hoTen
-                            );
+            statement.setString(
+                    2,
+                    hoTen
+            );
 
-                            ps.executeUpdate();
-                        }
+            statement.executeUpdate();
+        }
 
-                        return maKH;
+        return maKH;
     }
 
     private HoaDon mapRow(
-            ResultSet rs
+            ResultSet resultSet
     ) throws SQLException {
 
-        HoaDon hoaDon
-                = new HoaDon();
+        HoaDon hoaDon =
+                new HoaDon();
 
         hoaDon.setMaHD(
-                rs.getInt(
-                        "MaHD"
-                )
+                resultSet.getInt("MaHD")
         );
 
         hoaDon.setMaTaiKhoan(
-                rs.getString(
+                resultSet.getString(
                         "MaTaiKhoan"
                 )
         );
 
         hoaDon.setTenTaiKhoan(
-                rs.getString(
+                resultSet.getString(
                         "TenTaiKhoan"
                 )
         );
 
         hoaDon.setMaKH(
-                rs.getString(
-                        "MaKH"
-                )
+                resultSet.getString("MaKH")
         );
 
         hoaDon.setTenKhachHang(
-                rs.getString(
+                resultSet.getString(
                         "TenKhachHang"
                 )
         );
 
         hoaDon.setNgayTao(
                 formatTimestamp(
-                        rs.getTimestamp(
+                        resultSet.getTimestamp(
                                 "NgayTao"
                         )
                 )
@@ -1132,7 +1552,7 @@ public class HoaDonDAO {
 
         hoaDon.setNgayThanhToan(
                 formatTimestamp(
-                        rs.getTimestamp(
+                        resultSet.getTimestamp(
                                 "NgayThanhToan"
                         )
                 )
@@ -1140,45 +1560,45 @@ public class HoaDonDAO {
 
         hoaDon.setTamTinh(
                 getMoney(
-                        rs,
+                        resultSet,
                         "TamTinh"
                 )
         );
 
         hoaDon.setThueVAT(
                 getMoney(
-                        rs,
+                        resultSet,
                         "ThueVAT"
                 )
         );
 
         hoaDon.setTongTien(
                 getMoney(
-                        rs,
+                        resultSet,
                         "TongTien"
                 )
         );
 
         hoaDon.setDiemCong(
-                rs.getInt(
+                resultSet.getInt(
                         "DiemCong"
                 )
         );
 
         hoaDon.setTrangThai(
-                rs.getString(
+                resultSet.getString(
                         "TrangThai"
                 )
         );
 
         hoaDon.setPhuongThucThanhToan(
-                rs.getString(
+                resultSet.getString(
                         "PhuongThucThanhToan"
                 )
         );
 
         hoaDon.setLyDoHuy(
-                rs.getString(
+                resultSet.getString(
                         "LyDoHuy"
                 )
         );
@@ -1186,13 +1606,83 @@ public class HoaDonDAO {
         return hoaDon;
     }
 
+    private VoucherKhachHang mapVoucher(
+            ResultSet resultSet
+    ) throws SQLException {
+
+        VoucherKhachHang voucher =
+                new VoucherKhachHang();
+
+        voucher.setMaVoucher(
+                resultSet.getInt(
+                        "MaVoucher"
+                )
+        );
+
+        voucher.setMaCode(
+                resultSet.getString(
+                        "MaCode"
+                )
+        );
+
+        voucher.setMaKH(
+                resultSet.getString(
+                        "MaKH"
+                )
+        );
+
+        voucher.setMenhGia(
+                resultSet.getInt(
+                        "MenhGia"
+                )
+        );
+
+        voucher.setSoDiemDaDoi(
+                resultSet.getInt(
+                        "SoDiemDaDoi"
+                )
+        );
+
+        Timestamp ngayDoi =
+                resultSet.getTimestamp(
+                        "NgayDoi"
+                );
+
+        if (ngayDoi != null) {
+            voucher.setNgayDoi(
+                    ngayDoi.toLocalDateTime()
+            );
+        }
+
+        Timestamp ngayHetHan =
+                resultSet.getTimestamp(
+                        "NgayHetHan"
+                );
+
+        if (ngayHetHan != null) {
+            voucher.setNgayHetHan(
+                    ngayHetHan.toLocalDateTime()
+            );
+        }
+
+        voucher.setTrangThai(
+                resultSet.getString(
+                        "TrangThai"
+                )
+        );
+
+        return voucher;
+    }
+
     private BigDecimal getMoney(
-            ResultSet rs,
+            ResultSet resultSet,
             String column
     ) throws SQLException {
 
-        BigDecimal value
-                = rs.getBigDecimal(column);
+        BigDecimal value =
+                resultSet.getBigDecimal(
+                        column
+                );
 
         return value == null
                 ? BigDecimal.ZERO
@@ -1212,22 +1702,22 @@ public class HoaDonDAO {
     }
 
     private void setNullableString(
-            PreparedStatement ps,
+            PreparedStatement statement,
             int index,
             String value
     ) throws SQLException {
 
-        String cleaned
-                = trimToNull(value);
+        String cleaned =
+                trimToNull(value);
 
         if (cleaned == null) {
-            ps.setNull(
+            statement.setNull(
                     index,
                     Types.NVARCHAR
             );
 
         } else {
-            ps.setString(
+            statement.setString(
                     index,
                     cleaned
             );
