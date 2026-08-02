@@ -1517,3 +1517,148 @@
 .text-danger {
     color: #dc3545 !important;
 }
+
+.customer-mode-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.customer-mode-item {
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+
+.customer-mode-item > input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.customer-mode-item > span {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    min-height: 82px;
+    padding: 14px;
+    border: 1px solid #dce4e9;
+    border-radius: 11px;
+    background: #ffffff;
+    transition: border-color 0.2s ease,
+                background 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.customer-mode-item > span > i {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    color: #74838d;
+    font-size: 18px;
+}
+
+.customer-mode-item > span > span {
+    min-width: 0;
+}
+
+.customer-mode-item strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #26343e;
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+.customer-mode-item small {
+    display: block;
+    color: #77858e;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.customer-mode-item > input:checked + span {
+    border-color: #34825c;
+    background: #f0faf4;
+    box-shadow: 0 0 0 2px rgba(52, 130, 92, 0.1);
+}
+
+.customer-mode-item > input:checked + span > i,
+.customer-mode-item > input:checked + span strong {
+    color: #26754f;
+}
+
+.invoice-voucher-box {
+    margin-top: 15px;
+    padding: 14px;
+    border: 1px solid #e3e9ed;
+    border-radius: 11px;
+    background: #f8fafb;
+}
+
+.form-help-text {
+    display: block;
+    margin-top: 7px;
+    color: #74818b;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.selected-voucher-preview,
+.used-voucher-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 11px;
+    padding: 11px 13px;
+    border: 1px dashed #70a989;
+    border-radius: 9px;
+    background: #f0faf4;
+}
+
+.selected-voucher-preview > i,
+.used-voucher-box > i {
+    color: #268153;
+    font-size: 19px;
+}
+
+.selected-voucher-preview span,
+.used-voucher-box span {
+    display: block;
+    margin-bottom: 3px;
+    color: #718078;
+    font-size: 10px;
+}
+
+.selected-voucher-preview strong,
+.used-voucher-box strong {
+    color: #245d41;
+    font-size: 12px;
+}
+
+.customer-saved-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border: 1px solid #b9dcc8;
+    border-radius: 9px;
+    background: #f0faf4;
+    color: #26754f;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.voucher-discount-row strong {
+    color: #268153;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+@media (max-width: 700px) {
+    .customer-mode-options {
+        grid-template-columns: 1fr;
+    }
+}

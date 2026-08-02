@@ -3,7 +3,6 @@ package dao;
 import model.ChiTietHoaDon;
 import model.HoaDon;
 import model.VoucherKhachHang;
-
 import util.DBConnect;
 
 import java.math.BigDecimal;
@@ -107,6 +106,15 @@ public class HoaDonDAO {
                     N'Khách lẻ'
                 ) AS TenKhachHang,
 
+                COALESCE(
+                    NULLIF(
+                        h.SDTKhachHang,
+                        ''
+                    ),
+                    kh.SDT,
+                    ''
+                ) AS SDTKhachHang,
+
                 h.NgayTao,
                 h.NgayThanhToan,
                 h.TamTinh,
@@ -174,6 +182,15 @@ public class HoaDonDAO {
                     kh.HoTen,
                     N'Khách lẻ'
                 ) AS TenKhachHang,
+
+                COALESCE(
+                    NULLIF(
+                        h.SDTKhachHang,
+                        ''
+                    ),
+                    kh.SDT,
+                    ''
+                ) AS SDTKhachHang,
 
                 h.NgayTao,
                 h.NgayThanhToan,
@@ -274,11 +291,15 @@ public class HoaDonDAO {
                             new ChiTietHoaDon();
 
                     item.setMaCT(
-                            resultSet.getInt("MaCT")
+                            resultSet.getInt(
+                                    "MaCT"
+                            )
                     );
 
                     item.setMaHD(
-                            resultSet.getInt("MaHD")
+                            resultSet.getInt(
+                                    "MaHD"
+                            )
                     );
 
                     item.setMaSanPham(
@@ -319,20 +340,18 @@ public class HoaDonDAO {
         return list;
     }
 
-    public List<VoucherKhachHang>
-            getVoucherConHan() {
-
+    public List<VoucherKhachHang> getVoucherConHan() {
         List<VoucherKhachHang> list =
                 new ArrayList<>();
 
-        String sqlUpdate = """
+        String updateSql = """
             UPDATE VoucherKhachHang
             SET TrangThai = N'Hết hạn'
             WHERE TrangThai = N'Chưa sử dụng'
               AND NgayHetHan < SYSDATETIME()
             """;
 
-        String sql = """
+        String selectSql = """
             SELECT
                 MaVoucher,
                 MaCode,
@@ -359,17 +378,19 @@ public class HoaDonDAO {
                     DBConnect.getConnection()
         ) {
             try (
-                PreparedStatement updateStatement =
+                PreparedStatement statement =
                         connection.prepareStatement(
-                                sqlUpdate
+                                updateSql
                         )
             ) {
-                updateStatement.executeUpdate();
+                statement.executeUpdate();
             }
 
             try (
                 PreparedStatement statement =
-                        connection.prepareStatement(sql);
+                        connection.prepareStatement(
+                                selectSql
+                        );
 
                 ResultSet resultSet =
                         statement.executeQuery()
@@ -447,8 +468,21 @@ public class HoaDonDAO {
             int maHD,
             String maKH,
             String tenKhachHang,
+            String sdtKhachHang,
             List<ChiTietHoaDon> items
     ) {
+        String maKhachDaChon =
+                trimToNull(maKH);
+
+        String tenKhachDaNhap =
+                trimToNull(tenKhachHang);
+
+        String sdtDaLamSach =
+                chuanHoaSoDienThoai(
+                        sdtKhachHang,
+                        false
+                );
+
         try (
             Connection connection =
                     DBConnect.getConnection()
@@ -467,6 +501,20 @@ public class HoaDonDAO {
                         items
                 );
 
+                if (maKhachDaChon != null) {
+                    tenKhachDaNhap =
+                            layTenKhachHang(
+                                    connection,
+                                    maKhachDaChon
+                            );
+
+                    sdtDaLamSach =
+                            laySoDienThoaiKhachHang(
+                                    connection,
+                                    maKhachDaChon
+                            );
+                }
+
                 BigDecimal tamTinh =
                         layTamTinh(
                                 connection,
@@ -476,7 +524,7 @@ public class HoaDonDAO {
                 BigDecimal thue =
                         tinhVAT(tamTinh);
 
-                BigDecimal tong =
+                BigDecimal tongTien =
                         tamTinh.add(thue);
 
                 String sql = """
@@ -484,6 +532,7 @@ public class HoaDonDAO {
                     SET
                         MaKH = ?,
                         TenKhachHang = ?,
+                        SDTKhachHang = ?,
                         TamTinh = ?,
                         ThueVAT = ?,
                         GiamGia = 0,
@@ -499,36 +548,46 @@ public class HoaDonDAO {
                     setNullableString(
                             statement,
                             1,
-                            maKH
+                            maKhachDaChon
                     );
 
                     setNullableString(
                             statement,
                             2,
-                            tenKhachHang
+                            tenKhachDaNhap
                     );
 
-                    statement.setBigDecimal(
+                    setNullableString(
+                            statement,
                             3,
-                            tamTinh
+                            sdtDaLamSach
                     );
 
                     statement.setBigDecimal(
                             4,
-                            thue
+                            tamTinh
                     );
 
                     statement.setBigDecimal(
                             5,
-                            tong
+                            thue
+                    );
+
+                    statement.setBigDecimal(
+                            6,
+                            tongTien
                     );
 
                     statement.setInt(
-                            6,
+                            7,
                             maHD
                     );
 
-                    statement.executeUpdate();
+                    if (statement.executeUpdate() != 1) {
+                        throw new IllegalStateException(
+                                "Không cập nhật được hóa đơn."
+                        );
+                    }
                 }
 
                 connection.commit();
@@ -557,6 +616,7 @@ public class HoaDonDAO {
             int maHD,
             String maKH,
             String tenKhachHang,
+            String sdtKhachHang,
             boolean luuKhachMoi,
             Integer maVoucher,
             List<ChiTietHoaDon> items
@@ -595,6 +655,12 @@ public class HoaDonDAO {
                 String tenKhachHienThi =
                         trimToNull(tenKhachHang);
 
+                String sdtKhachHienThi =
+                        chuanHoaSoDienThoai(
+                                sdtKhachHang,
+                                false
+                        );
+
                 if (maKhachThanhToan != null) {
                     tenKhachHienThi =
                             layTenKhachHang(
@@ -602,14 +668,30 @@ public class HoaDonDAO {
                                     maKhachThanhToan
                             );
 
-                } else if (
-                    luuKhachMoi
-                    && tenKhachHienThi != null
-                ) {
+                    sdtKhachHienThi =
+                            laySoDienThoaiKhachHang(
+                                    connection,
+                                    maKhachThanhToan
+                            );
+
+                } else if (luuKhachMoi) {
+                    if (tenKhachHienThi == null) {
+                        throw new IllegalArgumentException(
+                                "Vui lòng nhập tên khách hàng mới."
+                        );
+                    }
+
+                    sdtKhachHienThi =
+                            chuanHoaSoDienThoai(
+                                    sdtKhachHang,
+                                    true
+                            );
+
                     maKhachThanhToan =
                             taoKhachHangNhanh(
                                     connection,
-                                    tenKhachHienThi
+                                    tenKhachHienThi,
+                                    sdtKhachHienThi
                             );
                 }
 
@@ -639,8 +721,7 @@ public class HoaDonDAO {
                 if (maVoucher != null) {
                     if (maKhachThanhToan == null) {
                         throw new IllegalArgumentException(
-                                "Phải chọn khách hàng "
-                                + "trước khi dùng voucher."
+                                "Phải chọn khách hàng trước khi dùng voucher."
                         );
                     }
 
@@ -662,8 +743,7 @@ public class HoaDonDAO {
                         ) > 0
                     ) {
                         throw new IllegalArgumentException(
-                                "Mệnh giá voucher lớn hơn "
-                                + "tổng giá trị hóa đơn."
+                                "Mệnh giá voucher lớn hơn tổng giá trị hóa đơn."
                         );
                     }
                 }
@@ -694,6 +774,7 @@ public class HoaDonDAO {
                     SET
                         MaKH = ?,
                         TenKhachHang = ?,
+                        SDTKhachHang = ?,
                         TamTinh = ?,
                         ThueVAT = ?,
                         MaVoucher = ?,
@@ -722,52 +803,56 @@ public class HoaDonDAO {
                             tenKhachHienThi
                     );
 
-                    statement.setBigDecimal(
+                    setNullableString(
+                            statement,
                             3,
-                            tamTinh
+                            sdtKhachHienThi
                     );
 
                     statement.setBigDecimal(
                             4,
+                            tamTinh
+                    );
+
+                    statement.setBigDecimal(
+                            5,
                             thue
                     );
 
                     if (maVoucher == null) {
                         statement.setNull(
-                                5,
+                                6,
                                 Types.INTEGER
                         );
+
                     } else {
                         statement.setInt(
-                                5,
+                                6,
                                 maVoucher
                         );
                     }
 
                     statement.setBigDecimal(
-                            6,
+                            7,
                             giamGia
                     );
 
                     statement.setBigDecimal(
-                            7,
+                            8,
                             tongThanhToan
                     );
 
                     statement.setInt(
-                            8,
+                            9,
                             diemCong
                     );
 
                     statement.setInt(
-                            9,
+                            10,
                             maHD
                     );
 
-                    if (
-                        statement.executeUpdate()
-                        != 1
-                    ) {
+                    if (statement.executeUpdate() != 1) {
                         throw new IllegalStateException(
                                 "Không cập nhật được hóa đơn."
                         );
@@ -808,7 +893,11 @@ public class HoaDonDAO {
                                 maKhachThanhToan
                         );
 
-                        statement.executeUpdate();
+                        if (statement.executeUpdate() != 1) {
+                            throw new IllegalStateException(
+                                    "Không cộng được điểm khách hàng."
+                            );
+                        }
                     }
                 }
 
@@ -858,8 +947,7 @@ public class HoaDonDAO {
                 MaVoucher = NULL,
                 GiamGia = 0
             WHERE MaHD = ?
-              AND TrangThai =
-                  N'Chờ thanh toán'
+              AND TrangThai = N'Chờ thanh toán'
             """;
 
         try (
@@ -879,13 +967,9 @@ public class HoaDonDAO {
                     maHD
             );
 
-            if (
-                statement.executeUpdate()
-                != 1
-            ) {
+            if (statement.executeUpdate() != 1) {
                 throw new IllegalStateException(
-                        "Hóa đơn đã kết thúc "
-                        + "hoặc không tồn tại."
+                        "Hóa đơn đã kết thúc hoặc không tồn tại."
                 );
             }
 
@@ -902,7 +986,6 @@ public class HoaDonDAO {
             int maVoucher,
             String maKH
     ) throws SQLException {
-
         String sql = """
             SELECT
                 MaVoucher,
@@ -943,8 +1026,7 @@ public class HoaDonDAO {
             ) {
                 if (!resultSet.next()) {
                     throw new IllegalArgumentException(
-                            "Voucher không hợp lệ, "
-                            + "đã sử dụng hoặc đã hết hạn."
+                            "Voucher không hợp lệ, đã sử dụng hoặc đã hết hạn."
                     );
                 }
 
@@ -957,7 +1039,6 @@ public class HoaDonDAO {
             Connection connection,
             int maVoucher
     ) throws SQLException {
-
         String sql = """
             UPDATE VoucherKhachHang
             SET TrangThai = N'Đã sử dụng'
@@ -975,10 +1056,7 @@ public class HoaDonDAO {
                     maVoucher
             );
 
-            if (
-                statement.executeUpdate()
-                != 1
-            ) {
+            if (statement.executeUpdate() != 1) {
                 throw new IllegalStateException(
                         "Không thể sử dụng voucher."
                 );
@@ -991,7 +1069,6 @@ public class HoaDonDAO {
             int maHD,
             List<ChiTietHoaDon> items
     ) throws SQLException {
-
         if (
             items == null
             || items.isEmpty()
@@ -1047,17 +1124,14 @@ public class HoaDonDAO {
                             insertSql
                     )
         ) {
-            for (
-                ChiTietHoaDon item : items
-            ) {
+            for (ChiTietHoaDon item : items) {
                 if (
                     item.getMaSanPham() == null
                     || item.getMaSanPham().isBlank()
                     || item.getSoLuong() <= 0
                 ) {
                     throw new IllegalArgumentException(
-                            "Sản phẩm hoặc số lượng "
-                            + "không hợp lệ."
+                            "Sản phẩm hoặc số lượng không hợp lệ."
                     );
                 }
 
@@ -1117,7 +1191,6 @@ public class HoaDonDAO {
             Connection connection,
             int maHD
     ) throws SQLException {
-
         String sql = """
             SELECT TrangThai
             FROM HoaDon
@@ -1145,12 +1218,11 @@ public class HoaDonDAO {
                 }
 
                 if (
-                    !"Chờ thanh toán"
-                            .equalsIgnoreCase(
-                                    resultSet.getString(
-                                            "TrangThai"
-                                    )
+                    !"Chờ thanh toán".equalsIgnoreCase(
+                            resultSet.getString(
+                                    "TrangThai"
                             )
+                    )
                 ) {
                     throw new IllegalArgumentException(
                             "Hóa đơn đã kết thúc."
@@ -1164,7 +1236,6 @@ public class HoaDonDAO {
             Connection connection,
             int maHD
     ) throws SQLException {
-
         String sql = """
             SELECT TOP 1
                 sp.TenSanPham
@@ -1214,7 +1285,6 @@ public class HoaDonDAO {
             Connection connection,
             int maHD
     ) throws SQLException {
-
         String sql = """
             WITH CanDung AS (
                 SELECT
@@ -1301,7 +1371,6 @@ public class HoaDonDAO {
             Connection connection,
             int maHD
     ) throws SQLException {
-
         String sql = """
             WITH CanDung AS (
                 SELECT
@@ -1353,7 +1422,6 @@ public class HoaDonDAO {
             Connection connection,
             int maHD
     ) throws SQLException {
-
         String sql = """
             SELECT
                 CAST(
@@ -1408,7 +1476,6 @@ public class HoaDonDAO {
             Connection connection,
             String maKH
     ) throws SQLException {
-
         String sql = """
             SELECT HoTen
             FROM KhachHang
@@ -1441,17 +1508,63 @@ public class HoaDonDAO {
         }
     }
 
+    private String laySoDienThoaiKhachHang(
+            Connection connection,
+            String maKH
+    ) throws SQLException {
+        String sql = """
+            SELECT SDT
+            FROM KhachHang
+            WHERE MaKH = ?
+            """;
+
+        try (
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setString(
+                    1,
+                    maKH
+            );
+
+            try (
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                if (!resultSet.next()) {
+                    throw new IllegalArgumentException(
+                            "Không tìm thấy khách hàng."
+                    );
+                }
+
+                return resultSet.getString(
+                        "SDT"
+                );
+            }
+        }
+    }
+
     private String taoKhachHangNhanh(
             Connection connection,
-            String hoTen
+            String hoTen,
+            String soDienThoai
     ) throws SQLException {
+        if (
+            kiemTraTrungSoDienThoai(
+                    connection,
+                    soDienThoai
+            )
+        ) {
+            throw new IllegalArgumentException(
+                    "Số điện thoại đã thuộc về khách hàng khác."
+            );
+        }
 
         int sequenceValue;
 
         String sequenceSql = """
             SELECT NEXT VALUE FOR
-                   dbo.Seq_KhachHang
-                   AS GiaTri
+                   dbo.Seq_KhachHang AS GiaTri
             """;
 
         try (
@@ -1484,7 +1597,7 @@ public class HoaDonDAO {
                 SDT,
                 DiemTichLuy
             )
-            VALUES (?, ?, NULL, 0)
+            VALUES (?, ?, ?, 0)
             """;
 
         try (
@@ -1500,7 +1613,12 @@ public class HoaDonDAO {
 
             statement.setString(
                     2,
-                    hoTen
+                    hoTen.trim()
+            );
+
+            statement.setString(
+                    3,
+                    soDienThoai
             );
 
             statement.executeUpdate();
@@ -1509,15 +1627,76 @@ public class HoaDonDAO {
         return maKH;
     }
 
+    private boolean kiemTraTrungSoDienThoai(
+            Connection connection,
+            String soDienThoai
+    ) throws SQLException {
+        String sql = """
+            SELECT 1
+            FROM KhachHang
+            WHERE SDT = ?
+            """;
+
+        try (
+            PreparedStatement statement =
+                    connection.prepareStatement(sql)
+        ) {
+            statement.setString(
+                    1,
+                    soDienThoai
+            );
+
+            try (
+                ResultSet resultSet =
+                        statement.executeQuery()
+            ) {
+                return resultSet.next();
+            }
+        }
+    }
+
+    private String chuanHoaSoDienThoai(
+            String value,
+            boolean batBuoc
+    ) {
+        String phone =
+                trimToNull(value);
+
+        if (phone == null) {
+            if (batBuoc) {
+                throw new IllegalArgumentException(
+                        "Vui lòng nhập số điện thoại khách hàng."
+                );
+            }
+
+            return null;
+        }
+
+        phone =
+                phone.replaceAll(
+                        "\\s+",
+                        ""
+                );
+
+        if (!phone.matches("0\\d{8,10}")) {
+            throw new IllegalArgumentException(
+                    "Số điện thoại phải bắt đầu bằng 0 và có từ 9 đến 11 số."
+            );
+        }
+
+        return phone;
+    }
+
     private HoaDon mapRow(
             ResultSet resultSet
     ) throws SQLException {
-
         HoaDon hoaDon =
                 new HoaDon();
 
         hoaDon.setMaHD(
-                resultSet.getInt("MaHD")
+                resultSet.getInt(
+                        "MaHD"
+                )
         );
 
         hoaDon.setMaTaiKhoan(
@@ -1533,12 +1712,20 @@ public class HoaDonDAO {
         );
 
         hoaDon.setMaKH(
-                resultSet.getString("MaKH")
+                resultSet.getString(
+                        "MaKH"
+                )
         );
 
         hoaDon.setTenKhachHang(
                 resultSet.getString(
                         "TenKhachHang"
+                )
+        );
+
+        hoaDon.setSdtKhachHang(
+                resultSet.getString(
+                        "SDTKhachHang"
                 )
         );
 
@@ -1609,7 +1796,6 @@ public class HoaDonDAO {
     private VoucherKhachHang mapVoucher(
             ResultSet resultSet
     ) throws SQLException {
-
         VoucherKhachHang voucher =
                 new VoucherKhachHang();
 
@@ -1678,7 +1864,6 @@ public class HoaDonDAO {
             ResultSet resultSet,
             String column
     ) throws SQLException {
-
         BigDecimal value =
                 resultSet.getBigDecimal(
                         column
@@ -1706,7 +1891,6 @@ public class HoaDonDAO {
             int index,
             String value
     ) throws SQLException {
-
         String cleaned =
                 trimToNull(value);
 

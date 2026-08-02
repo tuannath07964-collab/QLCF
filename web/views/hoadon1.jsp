@@ -7,6 +7,31 @@
 <%@ taglib prefix="fmt"
            uri="jakarta.tags.fmt" %>
 
+<c:set var="customerModeValue"
+       value="${requestScope.customerModeDaChon ne null
+                ? requestScope.customerModeDaChon
+                : (not empty hoaDon.maKH ? 'saved' : 'guest')}"/>
+
+<c:set var="selectedCustomerCode"
+       value="${requestScope.maKHDaChon ne null
+                ? requestScope.maKHDaChon
+                : hoaDon.maKH}"/>
+
+<c:set var="guestCustomerName"
+       value="${requestScope.tenKhachHangDaNhap ne null
+                ? requestScope.tenKhachHangDaNhap
+                : (empty hoaDon.maKH
+                   and hoaDon.tenKhachHang != 'Khách lẻ'
+                   ? hoaDon.tenKhachHang
+                   : '')}"/>
+
+<c:set var="guestCustomerPhone"
+       value="${requestScope.sdtKhachHangDaNhap ne null
+                ? requestScope.sdtKhachHangDaNhap
+                : (empty hoaDon.maKH
+                   ? hoaDon.sdtKhachHang
+                   : '')}"/>
+
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -23,10 +48,10 @@
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
         <link rel="stylesheet"
-              href="${pageContext.request.contextPath}/css/app.css?v=60">
+              href="${pageContext.request.contextPath}/css/app.css?v=80">
 
         <link rel="stylesheet"
-              href="${pageContext.request.contextPath}/css/store.css?v=60">
+              href="${pageContext.request.contextPath}/css/store.css?v=80">
 
     </head>
 
@@ -137,12 +162,6 @@
                                     ? 0
                                     : voucherDaDung.menhGia}">
 
-                    <input type="hidden"
-                           id="usedVoucherCode"
-                           value="${empty voucherDaDung
-                                    ? ''
-                                    : voucherDaDung.maCode}">
-
                     <section class="invoice-editor-layout">
 
                         <article class="card product-picker-panel">
@@ -191,8 +210,8 @@
                                                 data-name="${sanPham.tenSanPham}"
                                                 data-price="${sanPham.giaBan}"
                                                 data-search="${sanPham.maSanPham}
-                                                ${sanPham.tenSanPham}
-                                                ${sanPham.tenDanhMuc}"
+                                                             ${sanPham.tenSanPham}
+                                                             ${sanPham.tenDanhMuc}"
                                                 ${not sanPham.coTheBan
                                                   or hoaDon.daKetThuc
                                                   ? 'disabled'
@@ -207,15 +226,11 @@
                                             <span class="product-pick-content">
 
                                                 <small>
-
                                                     <c:out value="${sanPham.tenDanhMuc}"/>
-
                                                 </small>
 
                                                 <strong>
-
                                                     <c:out value="${sanPham.tenSanPham}"/>
-
                                                 </strong>
 
                                                 <span>
@@ -266,99 +281,189 @@
 
                             <div class="card-body">
 
-                                <div class="form-group">
-
-                                    <label class="form-label">
-
-                                        Khách hàng đã lưu
-
-                                    </label>
-
-                                    <select class="form-control"
-                                            id="customerSelect"
-                                            name="maKH"
-                                            ${hoaDon.daKetThuc
-                                              ? 'disabled'
-                                              : ''}>
-
-                                        <option value="">
-
-                                            Khách lẻ
-
-                                        </option>
-
-                                        <c:forEach var="khachHang"
-                                                   items="${khachHangList}">
-
-                                            <option value="${khachHang.maKH}"
-                                                    ${hoaDon.maKH
-                                                      == khachHang.maKH
-                                                      ? 'selected'
-                                                      : ''}>
-
-                                                ${khachHang.maKH}
-
-                                                -
-
-                                                ${khachHang.hoTen}
-
-                                                (${khachHang.diemTichLuy} điểm)
-
-                                            </option>
-
-                                        </c:forEach>
-
-                                    </select>
-
-                                    <c:if test="${hoaDon.daKetThuc
-                                                  and not empty hoaDon.maKH}">
-
-                                          <input type="hidden"
-                                                 name="maKH"
-                                                 value="${hoaDon.maKH}">
-
-                                    </c:if>
-
-                                </div>
-
                                 <c:if test="${not hoaDon.daKetThuc}">
 
                                     <div class="form-group">
 
                                         <label class="form-label">
-
-                                            Tên khách hàng mới
-
+                                            Loại khách hàng
                                         </label>
 
-                                        <input class="form-control"
-                                               type="text"
-                                               id="newCustomerName"
-                                               name="tenKhachHang"
-                                               value="${empty hoaDon.maKH
-                                                        ? hoaDon.tenKhachHang
-                                                        : ''}"
-                                               maxlength="100"
-                                               placeholder="Để trống nếu là khách lẻ">
+                                        <div class="customer-mode-options">
+
+                                            <label class="customer-mode-item">
+
+                                                <input type="radio"
+                                                       name="customerMode"
+                                                       value="saved"
+                                                       ${customerModeValue == 'saved'
+                                                         ? 'checked'
+                                                         : ''}>
+
+                                                <span>
+
+                                                    <i class="fa-solid fa-user-check"></i>
+
+                                                    <span>
+
+                                                        <strong>
+                                                            Khách hàng đã lưu
+                                                        </strong>
+
+                                                        <small>
+                                                            Chọn khách có sẵn và sử dụng voucher
+                                                        </small>
+
+                                                    </span>
+
+                                                </span>
+
+                                            </label>
+
+                                            <label class="customer-mode-item">
+
+                                                <input type="radio"
+                                                       name="customerMode"
+                                                       value="guest"
+                                                       ${customerModeValue == 'guest'
+                                                         ? 'checked'
+                                                         : ''}>
+
+                                                <span>
+
+                                                    <i class="fa-solid fa-user-plus"></i>
+
+                                                    <span>
+
+                                                        <strong>
+                                                            Khách lẻ / khách mới
+                                                        </strong>
+
+                                                        <small>
+                                                            Nhập tên và số điện thoại
+                                                        </small>
+
+                                                    </span>
+
+                                                </span>
+
+                                            </label>
+
+                                        </div>
 
                                     </div>
 
-                                    <label class="checkbox-item invoice-customer-save">
+                                    <div id="savedCustomerSection"
+                                         class="${customerModeValue == 'saved'
+                                                  ? ''
+                                                  : 'hidden'}">
 
-                                        <input type="checkbox"
-                                               id="saveCustomerCheckbox"
-                                               name="luuKhachMoi">
+                                        <div class="form-group">
 
-                                        Lưu khách hàng mới để tích điểm
+                                            <label class="form-label">
+                                                Chọn khách hàng đã lưu
+                                            </label>
 
-                                    </label>
+                                            <select class="form-control"
+                                                    id="customerSelect"
+                                                    name="maKH">
 
-                                    <div class="form-group invoice-voucher-box">
+                                                <option value="">
+                                                    -- Chọn khách hàng --
+                                                </option>
+
+                                                <c:forEach var="khachHang"
+                                                           items="${khachHangList}">
+
+                                                    <option value="${khachHang.maKH}"
+                                                            data-phone="${khachHang.sdt}"
+                                                            ${customerModeValue == 'saved'
+                                                              and selectedCustomerCode == khachHang.maKH
+                                                              ? 'selected'
+                                                              : ''}>
+
+                                                        ${khachHang.maKH}
+                                                        -
+                                                        ${khachHang.hoTen}
+                                                        -
+                                                        ${empty khachHang.sdt
+                                                          ? 'Chưa có SĐT'
+                                                          : khachHang.sdt}
+
+                                                        (${khachHang.diemTichLuy} điểm)
+
+                                                    </option>
+
+                                                </c:forEach>
+
+                                            </select>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div id="guestCustomerSection"
+                                         class="${customerModeValue == 'guest'
+                                                  ? ''
+                                                  : 'hidden'}">
+
+                                        <div class="form-group">
+
+                                            <label class="form-label">
+                                                Tên khách lẻ hoặc khách hàng mới
+                                            </label>
+
+                                            <input class="form-control"
+                                                   type="text"
+                                                   id="newCustomerName"
+                                                   name="tenKhachHang"
+                                                   value="${guestCustomerName}"
+                                                   maxlength="100"
+                                                   placeholder="Có thể để trống nếu là khách lẻ">
+
+                                        </div>
+
+                                        <div class="form-group">
+
+                                            <label class="form-label">
+                                                Số điện thoại
+                                            </label>
+
+                                            <input class="form-control"
+                                                   type="tel"
+                                                   id="newCustomerPhone"
+                                                   name="sdtKhachHang"
+                                                   value="${guestCustomerPhone}"
+                                                   maxlength="11"
+                                                   inputmode="numeric"
+                                                   pattern="0[0-9]{8,10}"
+                                                   placeholder="Ví dụ: 0988123456">
+
+                                        </div>
+
+                                        <label class="checkbox-item invoice-customer-save">
+
+                                            <input type="checkbox"
+                                                   id="saveCustomerCheckbox"
+                                                   name="luuKhachMoi"
+                                                   ${luuKhachMoiDaChon
+                                                     ? 'checked'
+                                                     : ''}>
+
+                                            Lưu thành khách hàng mới để tích điểm
+
+                                        </label>
+
+                                    </div>
+
+                                    <div id="voucherSection"
+                                         class="form-group invoice-voucher-box
+                                                ${customerModeValue == 'saved'
+                                                  ? ''
+                                                  : 'hidden'}">
 
                                         <label class="form-label">
-
                                             Voucher của khách hàng
-
                                         </label>
 
                                         <select class="form-control"
@@ -380,15 +485,12 @@
                                                         data-customer="${voucher.maKH}"
                                                         data-value="${voucher.menhGia}"
                                                         data-code="${voucher.maCode}"
-                                                        ${maVoucherDaChon
-                                                          == voucher.maVoucher
+                                                        ${maVoucherDaChon == voucher.maVoucher
                                                           ? 'selected'
                                                           : ''}>
 
                                                     ${voucher.maCode}
-
                                                     -
-
                                                     Giảm
 
                                                     <fmt:formatNumber
@@ -396,9 +498,7 @@
                                                         pattern="#,##0"/>
 
                                                     đ
-
                                                     -
-
                                                     Hạn ${voucher.ngayHetHanHienThi}
 
                                                 </option>
@@ -410,7 +510,7 @@
                                         <small id="voucherHelpText"
                                                class="form-help-text">
 
-                                            Chọn khách hàng để xem voucher còn hiệu lực.
+                                            Chọn khách hàng để xem voucher.
 
                                         </small>
 
@@ -424,9 +524,7 @@
                                                 <span>Mã voucher đã chọn</span>
 
                                                 <strong id="selectedVoucherCode">
-
                                                     —
-
                                                 </strong>
 
                                             </div>
@@ -437,36 +535,80 @@
 
                                 </c:if>
 
-                                <c:if test="${hoaDon.daKetThuc
-                                              and not empty voucherDaDung}">
+                                <c:if test="${hoaDon.daKetThuc}">
 
-                                      <div class="used-voucher-box">
+                                    <div class="form-group">
 
-                                          <i class="fa-solid fa-ticket"></i>
+                                        <label class="form-label">
+                                            Khách hàng
+                                        </label>
 
-                                          <div>
+                                        <input class="form-control"
+                                               type="text"
+                                               value="${hoaDon.tenKhachHang}"
+                                               readonly>
 
-                                              <span>Voucher đã sử dụng</span>
+                                    </div>
 
-                                              <strong>
+                                    <c:if test="${not empty hoaDon.sdtKhachHang}">
 
-                                                  ${voucherDaDung.maCode}
+                                        <div class="form-group">
 
-                                                  -
+                                            <label class="form-label">
+                                                Số điện thoại
+                                            </label>
 
-                                                  Giảm
+                                            <input class="form-control"
+                                                   type="text"
+                                                   value="${hoaDon.sdtKhachHang}"
+                                                   readonly>
 
-                                                  <fmt:formatNumber
-                                                      value="${voucherDaDung.menhGia}"
-                                                      pattern="#,##0"/>
+                                        </div>
 
-                                                  đ
+                                    </c:if>
 
-                                              </strong>
+                                    <c:if test="${not empty hoaDon.maKH}">
 
-                                          </div>
+                                        <div class="customer-saved-notice">
 
-                                      </div>
+                                            <i class="fa-solid fa-user-check"></i>
+
+                                            Khách hàng đã được lưu:
+                                            ${hoaDon.maKH}
+
+                                        </div>
+
+                                    </c:if>
+
+                                    <c:if test="${not empty voucherDaDung}">
+
+                                        <div class="used-voucher-box">
+
+                                            <i class="fa-solid fa-ticket"></i>
+
+                                            <div>
+
+                                                <span>Voucher đã sử dụng</span>
+
+                                                <strong>
+
+                                                    ${voucherDaDung.maCode}
+                                                    -
+                                                    Giảm
+
+                                                    <fmt:formatNumber
+                                                        value="${voucherDaDung.menhGia}"
+                                                        pattern="#,##0"/>
+
+                                                    đ
+
+                                                </strong>
+
+                                            </div>
+
+                                        </div>
+
+                                    </c:if>
 
                                 </c:if>
 
@@ -479,11 +621,8 @@
                                             <tr>
 
                                                 <th>Sản phẩm</th>
-
                                                 <th>SL</th>
-
                                                 <th>Thành tiền</th>
-
                                                 <th></th>
 
                                             </tr>
@@ -503,9 +642,7 @@
                                                     <td>
 
                                                         <strong>
-
                                                             <c:out value="${chiTiet.tenSanPham}"/>
-
                                                         </strong>
 
                                                         <small>
@@ -539,9 +676,7 @@
                                                     </td>
 
                                                     <td class="cart-line-total">
-
                                                         0đ
-
                                                     </td>
 
                                                     <td>
@@ -587,9 +722,7 @@
                                         <span>Tạm tính</span>
 
                                         <strong id="subTotalValue">
-
                                             0đ
-
                                         </strong>
 
                                     </div>
@@ -599,9 +732,7 @@
                                         <span>VAT 8%</span>
 
                                         <strong id="vatValue">
-
                                             0đ
-
                                         </strong>
 
                                     </div>
@@ -611,9 +742,7 @@
                                         <span>Voucher</span>
 
                                         <strong id="voucherDiscountValue">
-
                                             -0đ
-
                                         </strong>
 
                                     </div>
@@ -623,9 +752,7 @@
                                         <span>Tổng thanh toán</span>
 
                                         <strong id="grandTotalValue">
-
                                             0đ
-
                                         </strong>
 
                                     </div>
@@ -643,9 +770,7 @@
                                             <strong>Thanh toán tại quầy</strong>
 
                                             <span>
-
-                                                Hệ thống sẽ ghi nhận hóa đơn đã thanh toán.
-
+                                                Hệ thống ghi nhận thanh toán bằng tiền mặt.
                                             </span>
 
                                         </div>
@@ -697,7 +822,6 @@
                                         <i class="fa-solid fa-lock"></i>
 
                                         Hóa đơn đã kết thúc.
-
                                         Không thể thay đổi dữ liệu.
 
                                     </div>
@@ -747,7 +871,7 @@
 
         </form>
 
-        <script src="${pageContext.request.contextPath}/js/hoadon.js?v=70"></script>
+        <script src="${pageContext.request.contextPath}/js/hoadon.js?v=80"></script>
 
     </body>
 

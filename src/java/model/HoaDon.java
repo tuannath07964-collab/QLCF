@@ -10,6 +10,7 @@ public class HoaDon {
 
     private String maKH;
     private String tenKhachHang;
+    private String sdtKhachHang;
 
     private String ngayTao;
     private String ngayThanhToan;
@@ -36,14 +37,19 @@ public class HoaDon {
     }
 
     public String getMaHienThi() {
-        return String.format("HD%06d", maHD);
+        return String.format(
+                "HD%06d",
+                maHD
+        );
     }
 
     public String getMaTaiKhoan() {
         return maTaiKhoan;
     }
 
-    public void setMaTaiKhoan(String maTaiKhoan) {
+    public void setMaTaiKhoan(
+            String maTaiKhoan
+    ) {
         this.maTaiKhoan = maTaiKhoan;
     }
 
@@ -51,7 +57,9 @@ public class HoaDon {
         return tenTaiKhoan;
     }
 
-    public void setTenTaiKhoan(String tenTaiKhoan) {
+    public void setTenTaiKhoan(
+            String tenTaiKhoan
+    ) {
         this.tenTaiKhoan = tenTaiKhoan;
     }
 
@@ -59,7 +67,9 @@ public class HoaDon {
         return maKH;
     }
 
-    public void setMaKH(String maKH) {
+    public void setMaKH(
+            String maKH
+    ) {
         this.maKH = maKH;
     }
 
@@ -67,15 +77,29 @@ public class HoaDon {
         return tenKhachHang;
     }
 
-    public void setTenKhachHang(String tenKhachHang) {
+    public void setTenKhachHang(
+            String tenKhachHang
+    ) {
         this.tenKhachHang = tenKhachHang;
+    }
+
+    public String getSdtKhachHang() {
+        return sdtKhachHang;
+    }
+
+    public void setSdtKhachHang(
+            String sdtKhachHang
+    ) {
+        this.sdtKhachHang = sdtKhachHang;
     }
 
     public String getNgayTao() {
         return ngayTao;
     }
 
-    public void setNgayTao(String ngayTao) {
+    public void setNgayTao(
+            String ngayTao
+    ) {
         this.ngayTao = ngayTao;
     }
 
@@ -83,15 +107,20 @@ public class HoaDon {
         return ngayThanhToan;
     }
 
-    public void setNgayThanhToan(String ngayThanhToan) {
-        this.ngayThanhToan = ngayThanhToan;
+    public void setNgayThanhToan(
+            String ngayThanhToan
+    ) {
+        this.ngayThanhToan =
+                ngayThanhToan;
     }
 
     public BigDecimal getTamTinh() {
         return tamTinh;
     }
 
-    public void setTamTinh(BigDecimal tamTinh) {
+    public void setTamTinh(
+            BigDecimal tamTinh
+    ) {
         this.tamTinh = tamTinh;
     }
 
@@ -99,7 +128,9 @@ public class HoaDon {
         return thueVAT;
     }
 
-    public void setThueVAT(BigDecimal thueVAT) {
+    public void setThueVAT(
+            BigDecimal thueVAT
+    ) {
         this.thueVAT = thueVAT;
     }
 
@@ -107,7 +138,9 @@ public class HoaDon {
         return tongTien;
     }
 
-    public void setTongTien(BigDecimal tongTien) {
+    public void setTongTien(
+            BigDecimal tongTien
+    ) {
         this.tongTien = tongTien;
     }
 
@@ -115,7 +148,9 @@ public class HoaDon {
         return diemCong;
     }
 
-    public void setDiemCong(int diemCong) {
+    public void setDiemCong(
+            int diemCong
+    ) {
         this.diemCong = diemCong;
     }
 
@@ -123,7 +158,9 @@ public class HoaDon {
         return trangThai;
     }
 
-    public void setTrangThai(String trangThai) {
+    public void setTrangThai(
+            String trangThai
+    ) {
         this.trangThai = trangThai;
     }
 
@@ -142,12 +179,20 @@ public class HoaDon {
         return lyDoHuy;
     }
 
-    public void setLyDoHuy(String lyDoHuy) {
+    public void setLyDoHuy(
+            String lyDoHuy
+    ) {
         this.lyDoHuy = lyDoHuy;
     }
 
     public boolean isDaKetThuc() {
-        return "Đã thanh toán".equalsIgnoreCase(trangThai)
-                || "Đã hủy".equalsIgnoreCase(trangThai);
+        return "Đã thanh toán"
+                .equalsIgnoreCase(
+                        trangThai
+                )
+                || "Đã hủy"
+                .equalsIgnoreCase(
+                        trangThai
+                );
     }
 }

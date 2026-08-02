@@ -31,10 +31,17 @@ public class HoaDonServlet extends HttpServlet {
     private KhachHangDAO khachHangDAO;
 
     @Override
-    public void init() throws ServletException {
-        hoaDonDAO = new HoaDonDAO();
-        sanPhamDAO = new SanPhamDAO();
-        khachHangDAO = new KhachHangDAO();
+    public void init()
+            throws ServletException {
+
+        hoaDonDAO =
+                new HoaDonDAO();
+
+        sanPhamDAO =
+                new SanPhamDAO();
+
+        khachHangDAO =
+                new KhachHangDAO();
     }
 
     @Override
@@ -43,12 +50,17 @@ public class HoaDonServlet extends HttpServlet {
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        if (!checkLogin(request, response)) {
+        if (!checkLogin(
+                request,
+                response
+        )) {
             return;
         }
 
         String action =
-                request.getParameter("action");
+                request.getParameter(
+                        "action"
+                );
 
         try {
             if ("create".equals(action)) {
@@ -57,7 +69,9 @@ public class HoaDonServlet extends HttpServlet {
                                 String.valueOf(
                                         request
                                                 .getSession()
-                                                .getAttribute("maNV")
+                                                .getAttribute(
+                                                        "maNV"
+                                                )
                                 )
                         );
 
@@ -73,7 +87,9 @@ public class HoaDonServlet extends HttpServlet {
             if ("edit".equals(action)) {
                 int maHD =
                         parseId(
-                                request.getParameter("id")
+                                request.getParameter(
+                                        "id"
+                                )
                         );
 
                 loadEditor(
@@ -111,25 +127,36 @@ public class HoaDonServlet extends HttpServlet {
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding(
+                "UTF-8"
+        );
 
-        if (!checkLogin(request, response)) {
+        if (!checkLogin(
+                request,
+                response
+        )) {
             return;
         }
 
         String action =
-                request.getParameter("action");
+                request.getParameter(
+                        "action"
+                );
 
         int maHD =
                 parseId(
-                        request.getParameter("maHD")
+                        request.getParameter(
+                                "maHD"
+                        )
                 );
 
         try {
             if ("cancel".equals(action)) {
                 hoaDonDAO.huyHoaDon(
                         maHD,
-                        request.getParameter("lyDoHuy")
+                        request.getParameter(
+                                "lyDoHuy"
+                        )
                 );
 
                 response.sendRedirect(
@@ -153,9 +180,14 @@ public class HoaDonServlet extends HttpServlet {
 
                 hoaDonDAO.thanhToanHoaDon(
                         maHD,
-                        request.getParameter("maKH"),
+                        request.getParameter(
+                                "maKH"
+                        ),
                         request.getParameter(
                                 "tenKhachHang"
+                        ),
+                        request.getParameter(
+                                "sdtKhachHang"
                         ),
                         request.getParameter(
                                 "luuKhachMoi"
@@ -174,9 +206,14 @@ public class HoaDonServlet extends HttpServlet {
 
             hoaDonDAO.luuHoaDon(
                     maHD,
-                    request.getParameter("maKH"),
+                    request.getParameter(
+                            "maKH"
+                    ),
                     request.getParameter(
                             "tenKhachHang"
+                    ),
+                    request.getParameter(
+                            "sdtKhachHang"
                     ),
                     items
             );
@@ -197,8 +234,45 @@ public class HoaDonServlet extends HttpServlet {
             );
 
             request.setAttribute(
+                    "customerModeDaChon",
+                    request.getParameter(
+                            "customerMode"
+                    )
+            );
+
+            request.setAttribute(
+                    "maKHDaChon",
+                    request.getParameter(
+                            "maKH"
+                    )
+            );
+
+            request.setAttribute(
+                    "tenKhachHangDaNhap",
+                    request.getParameter(
+                            "tenKhachHang"
+                    )
+            );
+
+            request.setAttribute(
+                    "sdtKhachHangDaNhap",
+                    request.getParameter(
+                            "sdtKhachHang"
+                    )
+            );
+
+            request.setAttribute(
+                    "luuKhachMoiDaChon",
+                    request.getParameter(
+                            "luuKhachMoi"
+                    ) != null
+            );
+
+            request.setAttribute(
                     "maVoucherDaChon",
-                    request.getParameter("maVoucher")
+                    request.getParameter(
+                            "maVoucher"
+                    )
             );
 
             loadEditor(
@@ -234,7 +308,9 @@ public class HoaDonServlet extends HttpServlet {
     ) throws ServletException, IOException {
 
         HoaDon hoaDon =
-                hoaDonDAO.findById(maHD);
+                hoaDonDAO.findById(
+                        maHD
+                );
 
         if (hoaDon == null) {
             throw new IllegalArgumentException(
@@ -249,7 +325,9 @@ public class HoaDonServlet extends HttpServlet {
 
         request.setAttribute(
                 "chiTietList",
-                hoaDonDAO.getChiTiet(maHD)
+                hoaDonDAO.getChiTiet(
+                        maHD
+                )
         );
 
         request.setAttribute(
@@ -263,19 +341,22 @@ public class HoaDonServlet extends HttpServlet {
 
         request.setAttribute(
                 "khachHangList",
-                khachHangDAO.getAllKhachHang()
+                khachHangDAO
+                        .getAllKhachHang()
         );
 
         request.setAttribute(
                 "voucherList",
-                hoaDonDAO.getVoucherConHan()
+                hoaDonDAO
+                        .getVoucherConHan()
         );
 
         request.setAttribute(
                 "voucherDaDung",
-                hoaDonDAO.getVoucherCuaHoaDon(
-                        maHD
-                )
+                hoaDonDAO
+                        .getVoucherCuaHoaDon(
+                                maHD
+                        )
         );
 
         request.getRequestDispatcher(
@@ -314,21 +395,21 @@ public class HoaDonServlet extends HttpServlet {
                 new ArrayList<>();
 
         for (
-            int i = 0;
-            i < maSanPhams.length;
-            i++
+            int index = 0;
+            index < maSanPhams.length;
+            index++
         ) {
             ChiTietHoaDon item =
                     new ChiTietHoaDon();
 
             item.setMaSanPham(
-                    maSanPhams[i]
+                    maSanPhams[index]
             );
 
             try {
                 item.setSoLuong(
                         Integer.parseInt(
-                                soLuongs[i]
+                                soLuongs[index]
                         )
                 );
 
@@ -348,7 +429,9 @@ public class HoaDonServlet extends HttpServlet {
             String value
     ) {
         try {
-            return Integer.parseInt(value);
+            return Integer.parseInt(
+                    value
+            );
 
         } catch (Exception exception) {
             throw new IllegalArgumentException(
@@ -368,7 +451,9 @@ public class HoaDonServlet extends HttpServlet {
         }
 
         try {
-            return Integer.valueOf(value);
+            return Integer.valueOf(
+                    value
+            );
 
         } catch (NumberFormatException exception) {
             throw new IllegalArgumentException(
@@ -383,11 +468,15 @@ public class HoaDonServlet extends HttpServlet {
     ) throws IOException {
 
         HttpSession session =
-                request.getSession(false);
+                request.getSession(
+                        false
+                );
 
         if (
             session == null
-            || session.getAttribute("maNV") == null
+            || session.getAttribute(
+                    "maNV"
+            ) == null
         ) {
             response.sendRedirect(
                     request.getContextPath()

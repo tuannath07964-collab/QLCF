@@ -6,7 +6,9 @@
 
 <!DOCTYPE html>
 <html lang="vi">
+
     <head>
+
         <meta charset="UTF-8">
 
         <meta name="viewport"
@@ -18,44 +20,41 @@
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
         <link rel="stylesheet"
-              href="${pageContext.request.contextPath}/css/app.css">
+              href="${pageContext.request.contextPath}/css/app.css?v=80">
+
     </head>
 
     <body>
 
         <jsp:include page="/views/components/sidebar.jsp">
+
             <jsp:param name="active"
                        value="customer"/>
+
         </jsp:include>
 
         <main class="app-main">
 
             <jsp:include page="/views/components/topbar.jsp">
+
                 <jsp:param name="title"
                            value="Khách hàng"/>
 
                 <jsp:param name="subtitle"
                            value="Quản lý thông tin và điểm tích lũy"/>
+
             </jsp:include>
 
             <div class="app-content">
-
-                <c:if test="${param.success == 'add'}">
-
-                    <div class="alert alert-success">
-
-                        <i class="fa-solid fa-circle-check"></i>
-                        Thêm khách hàng thành công.
-                    </div>
-
-                </c:if>
 
                 <c:if test="${param.success == 'edit'}">
 
                     <div class="alert alert-success">
 
                         <i class="fa-solid fa-circle-check"></i>
+
                         Cập nhật khách hàng thành công.
+
                     </div>
 
                 </c:if>
@@ -65,7 +64,9 @@
                     <div class="alert alert-success">
 
                         <i class="fa-solid fa-circle-check"></i>
+
                         Xóa khách hàng thành công.
+
                     </div>
 
                 </c:if>
@@ -75,7 +76,9 @@
                     <div class="alert alert-danger">
 
                         <i class="fa-solid fa-circle-exclamation"></i>
-                        ${errorMessage}
+
+                        <c:out value="${errorMessage}"/>
+
                     </div>
 
                 </c:if>
@@ -83,25 +86,12 @@
                 <div class="page-header">
 
                     <div>
+
                         <h2>Danh sách khách hàng</h2>
 
                         <p>
-                            Lưu thông tin khách hàng khi thanh toán để tích điểm.
+                            Khách hàng mới được tạo trong quá trình thanh toán hóa đơn.
                         </p>
-                    </div>
-
-                    <div class="page-actions">
-
-                        <button type="button"
-                                class="btn btn-primary"
-                                onclick="openCustomerModal(
-                                                '${pageContext.request.contextPath}/khachhang?action=loadForm',
-                                                'Thêm khách hàng'
-                                                )">
-
-                            <i class="fa-solid fa-plus"></i>
-                            Thêm khách hàng
-                        </button>
 
                     </div>
 
@@ -117,6 +107,7 @@
                                id="customerSearch"
                                placeholder="Tìm mã, tên hoặc số điện thoại..."
                                autocomplete="off">
+
                     </div>
 
                 </div>
@@ -128,13 +119,17 @@
                         <table class="data-table">
 
                             <thead>
+
                                 <tr>
+
                                     <th>Mã khách hàng</th>
                                     <th>Họ và tên</th>
                                     <th>Số điện thoại</th>
                                     <th>Điểm tích lũy</th>
                                     <th>Thao tác</th>
+
                                 </tr>
+
                             </thead>
 
                             <tbody>
@@ -147,12 +142,16 @@
                                                    items="${listKH}">
 
                                             <tr class="customer-row"
-                                                data-search="${kh.maKH} ${kh.hoTen} ${kh.sdt}">
+                                                data-search="${kh.maKH}
+                                                             ${kh.hoTen}
+                                                             ${kh.sdt}">
 
                                                 <td>
+
                                                     <strong>
                                                         <c:out value="${kh.maKH}"/>
                                                     </strong>
+
                                                 </td>
 
                                                 <td>
@@ -160,6 +159,7 @@
                                                 </td>
 
                                                 <td>
+
                                                     <c:choose>
 
                                                         <c:when test="${not empty kh.sdt}">
@@ -171,6 +171,7 @@
                                                         </c:otherwise>
 
                                                     </c:choose>
+
                                                 </td>
 
                                                 <td>
@@ -182,12 +183,15 @@
                                                             <i class="fa-solid fa-star"></i>
 
                                                             ${kh.diemTichLuy} điểm
+
                                                         </span>
 
                                                         <c:if test="${kh.diemTichLuy >= 50}">
 
                                                             <span class="badge badge-success">
+
                                                                 Có thể đổi voucher
+
                                                             </span>
 
                                                         </c:if>
@@ -204,11 +208,12 @@
                                                                 class="table-action"
                                                                 title="Cập nhật"
                                                                 onclick="openCustomerModal(
-                                                    '${pageContext.request.contextPath}/khachhang?action=loadForm&maKH=${kh.maKH}',
+                                                                    '${pageContext.request.contextPath}/khachhang?action=loadForm&maKH=${kh.maKH}',
                                                                     'Cập nhật khách hàng'
-                                                                    )">
+                                                                )">
 
                                                             <i class="fa-solid fa-pen"></i>
+
                                                         </button>
 
                                                         <a class="table-action"
@@ -216,16 +221,18 @@
                                                            title="Đổi voucher">
 
                                                             <i class="fa-solid fa-gift"></i>
+
                                                         </a>
 
                                                         <a class="table-action"
                                                            href="${pageContext.request.contextPath}/khachhang?action=delete&maKH=${kh.maKH}"
                                                            title="Xóa"
                                                            onclick="return confirm(
-                                               'Xác nhận xóa khách hàng ${kh.hoTen}?'
-                                               )">
+                                                               'Xác nhận xóa khách hàng ${kh.hoTen}?'
+                                                           )">
 
                                                             <i class="fa-solid fa-trash-can"></i>
+
                                                         </a>
 
                                                     </div>
@@ -251,6 +258,10 @@
                                                     <strong>
                                                         Chưa có khách hàng
                                                     </strong>
+
+                                                    <span>
+                                                        Khách hàng mới được tạo khi thanh toán.
+                                                    </span>
 
                                                 </div>
 
@@ -290,46 +301,63 @@
                             onclick="closeCustomerModal()">
 
                         <i class="fa-solid fa-xmark"></i>
+
                     </button>
 
                 </div>
 
                 <div class="modal-body"
-                     id="customerModalBody"></div>
+                     id="customerModalBody">
+
+                </div>
 
             </div>
 
         </div>
 
         <script>
+
             const customerModal =
-                    document.getElementById("customerModal");
+                    document.getElementById(
+                            "customerModal"
+                    );
 
-            function openCustomerModal(url, title) {
-                document.getElementById("customerModalTitle")
-                        .textContent = title;
+            function openCustomerModal(
+                    url,
+                    title
+            ) {
+                document.getElementById(
+                        "customerModalTitle"
+                ).textContent = title;
 
-                document.getElementById("customerModalBody")
-                        .innerHTML =
+                document.getElementById(
+                        "customerModalBody"
+                ).innerHTML =
                         '<div class="loading-state">Đang tải...</div>';
 
-                customerModal.classList.add("show");
+                customerModal.classList.add(
+                        "show"
+                );
 
                 fetch(url)
-                        .then(response => {
+                        .then(function (response) {
                             if (!response.ok) {
-                                throw new Error("Không tải được biểu mẫu.");
+                                throw new Error(
+                                        "Không tải được biểu mẫu."
+                                );
                             }
 
                             return response.text();
                         })
-                        .then(html => {
-                            document.getElementById("customerModalBody")
-                                    .innerHTML = html;
+                        .then(function (html) {
+                            document.getElementById(
+                                    "customerModalBody"
+                            ).innerHTML = html;
                         })
-                        .catch(error => {
-                            document.getElementById("customerModalBody")
-                                    .innerHTML =
+                        .catch(function (error) {
+                            document.getElementById(
+                                    "customerModalBody"
+                            ).innerHTML =
                                     '<div class="alert alert-danger">'
                                     + error.message
                                     + '</div>';
@@ -337,50 +365,63 @@
             }
 
             function closeCustomerModal() {
-                customerModal.classList.remove("show");
+                customerModal.classList.remove(
+                        "show"
+                );
             }
 
             customerModal.addEventListener(
                     "click",
                     function (event) {
-                        if (event.target === customerModal) {
+                        if (
+                            event.target
+                            === customerModal
+                        ) {
                             closeCustomerModal();
                         }
                     }
             );
 
-            document.getElementById("customerSearch")
-                    .addEventListener(
-                            "input",
-                            function () {
-                                const keyword =
-                                        this.value
+            document.getElementById(
+                    "customerSearch"
+            ).addEventListener(
+                    "input",
+                    function () {
+                        const keyword =
+                                this.value
                                         .toLowerCase()
                                         .normalize("NFD")
                                         .replace(
                                                 /[\u0300-\u036f]/g,
                                                 ""
-                                                );
+                                        );
 
-                                document.querySelectorAll(".customer-row")
-                                        .forEach(row => {
-                                            const text =
-                                                    row.dataset.search
+                        document.querySelectorAll(
+                                ".customer-row"
+                        ).forEach(
+                                function (row) {
+                                    const text =
+                                            row.dataset.search
                                                     .toLowerCase()
                                                     .normalize("NFD")
                                                     .replace(
                                                             /[\u0300-\u036f]/g,
                                                             ""
-                                                            );
+                                                    );
 
-                                            row.style.display =
-                                                    text.includes(keyword)
-                                                    ? ""
-                                                    : "none";
-                                        });
-                            }
-                    );
+                                    row.style.display =
+                                            text.includes(
+                                                    keyword
+                                            )
+                                            ? ""
+                                            : "none";
+                                }
+                        );
+                    }
+            );
+
         </script>
 
     </body>
+
 </html>
