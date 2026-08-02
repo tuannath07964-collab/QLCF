@@ -9,421 +9,746 @@
 
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <head>
 
-    <title>Trang chủ - Quản lý bán hàng</title>
+        <meta charset="UTF-8">
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/css/app.css?v=50">
+        <title>Trang chủ - Quản lý bán hàng</title>
 
-    <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/css/store.css?v=50">
-</head>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-<body>
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/app.css?v=90">
 
-    <jsp:include page="/views/components/sidebar.jsp">
-        <jsp:param name="active"
-                   value="home"/>
-    </jsp:include>
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/store.css?v=90">
 
-    <main class="app-main">
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/homepage-dashboard.css?v=90">
 
-        <jsp:include page="/views/components/topbar.jsp">
-            <jsp:param name="title"
-                       value="Trang chủ"/>
+    </head>
 
-            <jsp:param name="subtitle"
-                       value="Tổng quan hoạt động bán hàng của quán"/>
+    <body>
+
+        <jsp:include page="/views/components/sidebar.jsp">
+
+            <jsp:param name="active"
+                       value="home"/>
+
         </jsp:include>
 
-        <div class="app-content">
+        <main class="app-main">
 
-            <c:if test="${not empty errorMessage}">
+            <jsp:include page="/views/components/topbar.jsp">
 
-                <div class="alert alert-danger">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    <c:out value="${errorMessage}"/>
-                </div>
+                <jsp:param name="title"
+                           value="Trang chủ"/>
 
-            </c:if>
+                <jsp:param name="subtitle"
+                           value="Tổng quan hoạt động bán hàng trong ngày"/>
 
-            <section class="home-hero">
+            </jsp:include>
 
-                <div>
+            <div class="app-content">
 
-                    <span class="home-hero-label">
-                        QUẢN LÝ BÁN HÀNG
-                    </span>
+                <c:if test="${not empty errorMessage}">
 
-                    <h2>
-                        Xin chào,
-                        <c:out value="${sessionScope.tenNV}"/>
-                    </h2>
+                    <div class="alert alert-danger">
 
-                    <p>
-                        Tạo hóa đơn, quản lý sản phẩm, kiểm tra tồn kho
-                        và theo dõi các đơn đang chờ thanh toán.
-                    </p>
+                        <i class="fa-solid fa-circle-exclamation"></i>
 
-                </div>
+                        <c:out value="${errorMessage}"/>
 
-                <a class="btn btn-blue home-hero-button"
-                   href="${pageContext.request.contextPath}/hoadon?action=create">
-
-                    <i class="fa-solid fa-plus"></i>
-                    Tạo hóa đơn mới
-                </a>
-
-            </section>
-
-            <section class="home-summary-grid">
-
-                <article class="home-summary-card">
-
-                    <span class="home-summary-icon blue">
-                        <i class="fa-solid fa-hourglass-half"></i>
-                    </span>
-
-                    <div>
-                        <span>Đơn chờ thanh toán</span>
-                        <strong>${tongQuan.donChoThanhToan}</strong>
                     </div>
 
-                </article>
+                </c:if>
 
-                <article class="home-summary-card">
-
-                    <span class="home-summary-icon green">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </span>
+                <section class="home-hero">
 
                     <div>
-                        <span>Đơn đã bán hôm nay</span>
-                        <strong>${tongQuan.donHomNay}</strong>
+
+                        <span class="home-hero-label">
+                            QUẢN LÝ BÁN HÀNG
+                        </span>
+
+                        <h2>
+
+                            Xin chào,
+
+                            <c:out value="${sessionScope.tenNV}"/>
+
+                        </h2>
+
+                        <p>
+                            Theo dõi doanh thu, hóa đơn trong ngày,
+                            quản lý sản phẩm và kiểm tra tồn kho.
+                        </p>
+
                     </div>
 
-                </article>
+                    <a class="btn btn-blue home-hero-button"
+                       href="${pageContext.request.contextPath}/hoadon?action=create">
 
-                <article class="home-summary-card">
+                        <i class="fa-solid fa-plus"></i>
 
-                    <span class="home-summary-icon purple">
-                        <i class="fa-solid fa-mug-saucer"></i>
-                    </span>
+                        Tạo hóa đơn mới
 
-                    <div>
-                        <span>Sản phẩm đang bán</span>
-                        <strong>${tongQuan.sanPhamDangBan}</strong>
-                    </div>
+                    </a>
 
-                </article>
+                </section>
 
-                <article class="home-summary-card">
+                <section class="home-summary-grid dashboard-summary-grid">
 
-                    <span class="home-summary-icon orange">
-                        <i class="fa-solid fa-box-open"></i>
-                    </span>
+                    <article class="home-summary-card revenue">
 
-                    <div>
-                        <span>Nguyên liệu cần nhập</span>
-                        <strong>${tongQuan.nguyenLieuCanNhap}</strong>
-                    </div>
+                        <span class="home-summary-icon green">
 
-                </article>
+                            <i class="fa-solid fa-sack-dollar"></i>
 
-                <article class="home-summary-card revenue">
-
-                    <span class="home-summary-icon green">
-                        <i class="fa-solid fa-sack-dollar"></i>
-                    </span>
-
-                    <div>
-                        <span>Doanh thu hôm nay</span>
-
-                        <strong>
-                            <fmt:formatNumber
-                                value="${tongQuan.doanhThuHomNay}"
-                                pattern="#,##0"/>
-
-                            đ
-                        </strong>
-                    </div>
-
-                </article>
-
-            </section>
-
-            <section class="quick-grid">
-
-                <a class="quick-card"
-                   href="${pageContext.request.contextPath}/hoadon?action=create">
-
-                    <span>
-                        <i class="fa-solid fa-file-circle-plus"></i>
-                    </span>
-
-                    <div>
-                        <strong>Tạo hóa đơn</strong>
-                        <small>Bắt đầu đơn bán hàng mới</small>
-                    </div>
-
-                </a>
-
-                <a class="quick-card"
-                   href="${pageContext.request.contextPath}/san-pham/quan-ly">
-
-                    <span>
-                        <i class="fa-solid fa-mug-saucer"></i>
-                    </span>
-
-                    <div>
-                        <strong>Quản lý sản phẩm</strong>
-                        <small>Thêm món và cấu hình công thức</small>
-                    </div>
-
-                </a>
-
-                <a class="quick-card"
-                   href="${pageContext.request.contextPath}/KhoServlet">
-
-                    <span>
-                        <i class="fa-solid fa-boxes-stacked"></i>
-                    </span>
-
-                    <div>
-                        <strong>Kiểm tra kho</strong>
-                        <small>Nhập nguyên liệu theo mức cố định</small>
-                    </div>
-
-                </a>
-
-                <a class="quick-card"
-                   href="${pageContext.request.contextPath}/ThongKeServlet">
-
-                    <span>
-                        <i class="fa-solid fa-chart-line"></i>
-                    </span>
-
-                    <div>
-                        <strong>Xem thống kê</strong>
-                        <small>Doanh thu và sản phẩm bán chạy</small>
-                    </div>
-
-                </a>
-
-            </section>
-
-            <section class="home-content-grid">
-
-                <article class="card">
-
-                    <div class="card-header">
+                        </span>
 
                         <div>
-                            <h3>Đơn chờ thanh toán</h3>
-                            <p>Các hóa đơn chưa hoàn tất</p>
+
+                            <span>Tổng doanh thu trong ngày</span>
+
+                            <strong>
+
+                                <fmt:formatNumber
+                                    value="${tongQuan.doanhThuHomNay}"
+                                    pattern="#,##0"/>
+
+                                đ
+
+                            </strong>
+
                         </div>
 
-                        <a class="btn btn-outline"
-                           href="${pageContext.request.contextPath}/hoadon">
+                    </article>
 
-                            Xem tất cả
-                        </a>
+                    <article class="home-summary-card">
 
-                    </div>
+                        <span class="home-summary-icon green">
 
-                    <div class="table-wrapper">
+                            <i class="fa-solid fa-receipt"></i>
 
-                        <table class="data-table">
+                        </span>
 
-                            <thead>
-                                <tr>
-                                    <th>Mã hóa đơn</th>
-                                    <th>Khách hàng</th>
-                                    <th>Người tạo</th>
-                                    <th>Ngày tạo</th>
-                                    <th>Tạm tính</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
+                        <div>
 
-                            <tbody>
+                            <span>Hóa đơn trong ngày</span>
 
-                                <c:choose>
+                            <strong>
+                                ${tongQuan.donHomNay}
+                            </strong>
 
-                                    <c:when test="${not empty donChoThanhToan}">
+                        </div>
 
-                                        <c:forEach var="hoaDon"
-                                                   items="${donChoThanhToan}">
+                    </article>
+
+                    <article class="home-summary-card">
+
+                        <span class="home-summary-icon blue">
+
+                            <i class="fa-solid fa-hourglass-half"></i>
+
+                        </span>
+
+                        <div>
+
+                            <span>Đơn chờ thanh toán</span>
+
+                            <strong>
+                                ${tongQuan.donChoThanhToan}
+                            </strong>
+
+                        </div>
+
+                    </article>
+
+                    <article class="home-summary-card">
+
+                        <span class="home-summary-icon purple">
+
+                            <i class="fa-solid fa-mug-saucer"></i>
+
+                        </span>
+
+                        <div>
+
+                            <span>Sản phẩm đang bán</span>
+
+                            <strong>
+                                ${tongQuan.sanPhamDangBan}
+                            </strong>
+
+                        </div>
+
+                    </article>
+
+                    <article class="home-summary-card">
+
+                        <span class="home-summary-icon orange">
+
+                            <i class="fa-solid fa-box-open"></i>
+
+                        </span>
+
+                        <div>
+
+                            <span>Nguyên liệu cần nhập</span>
+
+                            <strong>
+                                ${tongQuan.nguyenLieuCanNhap}
+                            </strong>
+
+                        </div>
+
+                    </article>
+
+                </section>
+
+                <section class="quick-grid">
+
+                    <a class="quick-card"
+                       href="${pageContext.request.contextPath}/hoadon?action=create">
+
+                        <span>
+
+                            <i class="fa-solid fa-file-circle-plus"></i>
+
+                        </span>
+
+                        <div>
+
+                            <strong>Tạo hóa đơn</strong>
+
+                            <small>
+                                Bắt đầu đơn bán hàng mới
+                            </small>
+
+                        </div>
+
+                    </a>
+
+                    <a class="quick-card"
+                       href="${pageContext.request.contextPath}/san-pham/quan-ly">
+
+                        <span>
+
+                            <i class="fa-solid fa-mug-saucer"></i>
+
+                        </span>
+
+                        <div>
+
+                            <strong>Quản lý sản phẩm</strong>
+
+                            <small>
+                                Thêm món và cấu hình công thức
+                            </small>
+
+                        </div>
+
+                    </a>
+
+                    <a class="quick-card"
+                       href="${pageContext.request.contextPath}/KhoServlet">
+
+                        <span>
+
+                            <i class="fa-solid fa-boxes-stacked"></i>
+
+                        </span>
+
+                        <div>
+
+                            <strong>Kiểm tra kho</strong>
+
+                            <small>
+                                Nhập nguyên liệu theo mức cố định
+                            </small>
+
+                        </div>
+
+                    </a>
+
+                    <a class="quick-card"
+                       href="${pageContext.request.contextPath}/ThongKeServlet">
+
+                        <span>
+
+                            <i class="fa-solid fa-chart-line"></i>
+
+                        </span>
+
+                        <div>
+
+                            <strong>Xem thống kê</strong>
+
+                            <small>
+                                Doanh thu và sản phẩm bán chạy
+                            </small>
+
+                        </div>
+
+                    </a>
+
+                </section>
+
+                <section class="home-day-grid">
+
+                    <article class="card home-chart-card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <h3>
+                                    Biểu đồ hóa đơn trong ngày
+                                </h3>
+
+                                <p>
+                                    Số hóa đơn đã thanh toán theo từng giờ
+                                </p>
+
+                            </div>
+
+                            <span class="badge badge-success">
+
+                                <i class="fa-solid fa-receipt"></i>
+
+                                ${tongQuan.donHomNay} hóa đơn
+
+                            </span>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <div id="invoiceTodayChartData"
+                                 class="hidden">
+
+                                <c:forEach var="point"
+                                           items="${bieuDoHoaDonHomNay}">
+
+                                    <span data-label="${point.gioHienThi}"
+                                          data-value="${point.soHoaDon}">
+
+                                    </span>
+
+                                </c:forEach>
+
+                            </div>
+
+                            <div class="home-chart-container">
+
+                                <canvas id="invoiceTodayChart">
+
+                                </canvas>
+
+                                <div id="invoiceTodayChartEmpty"
+                                     class="home-chart-empty hidden">
+
+                                    <i class="fa-solid fa-chart-column"></i>
+
+                                    <strong>
+                                        Chưa có hóa đơn trong ngày
+                                    </strong>
+
+                                    <span>
+                                        Biểu đồ sẽ hiển thị sau khi có hóa đơn được thanh toán.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                    <article class="card home-today-invoice-card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <h3>Hóa đơn trong ngày</h3>
+
+                                <p>
+                                    Các hóa đơn vừa thanh toán
+                                </p>
+
+                            </div>
+
+                            <a class="btn btn-outline"
+                               href="${pageContext.request.contextPath}/hoadon">
+
+                                Xem tất cả
+
+                            </a>
+
+                        </div>
+
+                        <div class="table-wrapper">
+
+                            <table class="data-table home-today-table">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>Mã</th>
+                                        <th>Khách hàng</th>
+                                        <th>Thanh toán</th>
+                                        <th>Tổng tiền</th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    <c:choose>
+
+                                        <c:when test="${not empty hoaDonHomNay}">
+
+                                            <c:forEach var="hoaDon"
+                                                       items="${hoaDonHomNay}">
+
+                                                <tr>
+
+                                                    <td>
+
+                                                        <a class="invoice-code-link"
+                                                           href="${pageContext.request.contextPath}/hoadon?action=edit&id=${hoaDon.maHD}">
+
+                                                            ${hoaDon.maHienThi}
+
+                                                        </a>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <c:out value="${hoaDon.tenKhachHang}"/>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <span class="home-invoice-time">
+
+                                                            <c:out value="${hoaDon.ngayThanhToan}"/>
+
+                                                        </span>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <strong class="home-invoice-money">
+
+                                                            <fmt:formatNumber
+                                                                value="${hoaDon.tongTien}"
+                                                                pattern="#,##0"/>
+
+                                                            đ
+
+                                                        </strong>
+
+                                                    </td>
+
+                                                </tr>
+
+                                            </c:forEach>
+
+                                        </c:when>
+
+                                        <c:otherwise>
 
                                             <tr>
 
-                                                <td>
-                                                    <strong>
-                                                        ${hoaDon.maHienThi}
-                                                    </strong>
-                                                </td>
+                                                <td colspan="4">
 
-                                                <td>
-                                                    <c:out value="${hoaDon.tenKhachHang}"/>
-                                                </td>
+                                                    <div class="empty-state">
 
-                                                <td>
-                                                    <c:out value="${hoaDon.tenTaiKhoan}"/>
-                                                </td>
+                                                        <i class="fa-solid fa-receipt"></i>
 
-                                                <td>
-                                                    <c:out value="${hoaDon.ngayTao}"/>
-                                                </td>
+                                                        <strong>
+                                                            Chưa có hóa đơn trong ngày
+                                                        </strong>
 
-                                                <td>
-                                                    <fmt:formatNumber
-                                                        value="${hoaDon.tongTien}"
-                                                        pattern="#,##0"/>
-
-                                                    đ
-                                                </td>
-
-                                                <td>
-
-                                                    <a class="table-action"
-                                                       href="${pageContext.request.contextPath}/hoadon?action=edit&id=${hoaDon.maHD}"
-                                                       title="Mở hóa đơn">
-
-                                                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                                    </a>
+                                                    </div>
 
                                                 </td>
 
                                             </tr>
 
-                                        </c:forEach>
+                                        </c:otherwise>
 
-                                    </c:when>
+                                    </c:choose>
 
-                                    <c:otherwise>
+                                </tbody>
 
-                                        <tr>
-                                            <td colspan="6">
+                            </table>
 
-                                                <div class="empty-state">
-
-                                                    <i class="fa-solid fa-circle-check"></i>
-
-                                                    <strong>
-                                                        Không có đơn chờ thanh toán
-                                                    </strong>
-                                                </div>
-
-                                            </td>
-                                        </tr>
-
-                                    </c:otherwise>
-
-                                </c:choose>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </article>
-
-                <article class="card">
-
-                    <div class="card-header">
-
-                        <div>
-                            <h3>Cảnh báo kho</h3>
-                            <p>Nguyên liệu hết hoặc sắp hết</p>
                         </div>
 
-                        <a class="btn btn-outline"
-                           href="${pageContext.request.contextPath}/KhoServlet">
+                    </article>
 
-                            Mở kho
-                        </a>
+                </section>
 
-                    </div>
+                <section class="home-content-grid">
 
-                    <div class="card-body">
+                    <article class="card">
 
-                        <c:choose>
+                        <div class="card-header">
 
-                            <c:when test="${not empty nguyenLieuCanNhap}">
+                            <div>
 
-                                <div class="warning-stock-list">
+                                <h3>Đơn chờ thanh toán</h3>
 
-                                    <c:forEach var="nguyenLieu"
-                                               items="${nguyenLieuCanNhap}">
+                                <p>
+                                    Các hóa đơn chưa hoàn tất
+                                </p>
 
-                                        <div class="warning-stock-item">
+                            </div>
 
-                                            <div>
+                            <a class="btn btn-outline"
+                               href="${pageContext.request.contextPath}/hoadon">
 
-                                                <strong>
-                                                    <c:out value="${nguyenLieu.tenNguyenLieu}"/>
-                                                </strong>
+                                Xem tất cả
 
-                                                <small>
-                                                    ${nguyenLieu.maNguyenLieu}
-                                                </small>
+                            </a>
+
+                        </div>
+
+                        <div class="table-wrapper">
+
+                            <table class="data-table">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>Mã hóa đơn</th>
+                                        <th>Khách hàng</th>
+                                        <th>Người tạo</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Tạm tính</th>
+                                        <th></th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    <c:choose>
+
+                                        <c:when test="${not empty donChoThanhToan}">
+
+                                            <c:forEach var="hoaDon"
+                                                       items="${donChoThanhToan}">
+
+                                                <tr>
+
+                                                    <td>
+
+                                                        <strong>
+                                                            ${hoaDon.maHienThi}
+                                                        </strong>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <c:out value="${hoaDon.tenKhachHang}"/>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <c:out value="${hoaDon.tenTaiKhoan}"/>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <c:out value="${hoaDon.ngayTao}"/>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <fmt:formatNumber
+                                                            value="${hoaDon.tongTien}"
+                                                            pattern="#,##0"/>
+
+                                                        đ
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <a class="table-action"
+                                                           href="${pageContext.request.contextPath}/hoadon?action=edit&id=${hoaDon.maHD}"
+                                                           title="Mở hóa đơn">
+
+                                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+
+                                                        </a>
+
+                                                    </td>
+
+                                                </tr>
+
+                                            </c:forEach>
+
+                                        </c:when>
+
+                                        <c:otherwise>
+
+                                            <tr>
+
+                                                <td colspan="6">
+
+                                                    <div class="empty-state">
+
+                                                        <i class="fa-solid fa-circle-check"></i>
+
+                                                        <strong>
+                                                            Không có đơn chờ thanh toán
+                                                        </strong>
+
+                                                    </div>
+
+                                                </td>
+
+                                            </tr>
+
+                                        </c:otherwise>
+
+                                    </c:choose>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </article>
+
+                    <article class="card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <h3>Cảnh báo kho</h3>
+
+                                <p>
+                                    Nguyên liệu hết hoặc sắp hết
+                                </p>
+
+                            </div>
+
+                            <a class="btn btn-outline"
+                               href="${pageContext.request.contextPath}/KhoServlet">
+
+                                Mở kho
+
+                            </a>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <c:choose>
+
+                                <c:when test="${not empty nguyenLieuCanNhap}">
+
+                                    <div class="warning-stock-list">
+
+                                        <c:forEach var="nguyenLieu"
+                                                   items="${nguyenLieuCanNhap}">
+
+                                            <div class="warning-stock-item">
+
+                                                <div>
+
+                                                    <strong>
+
+                                                        <c:out value="${nguyenLieu.tenNguyenLieu}"/>
+
+                                                    </strong>
+
+                                                    <small>
+
+                                                        <c:out value="${nguyenLieu.maNguyenLieu}"/>
+
+                                                    </small>
+
+                                                </div>
+
+                                                <div class="warning-stock-value">
+
+                                                    <strong>
+                                                        ${nguyenLieu.soLuongTon}
+                                                    </strong>
+
+                                                    <span>
+
+                                                        <c:out value="${nguyenLieu.donVi}"/>
+
+                                                    </span>
+
+                                                </div>
 
                                             </div>
 
-                                            <div class="warning-stock-value">
+                                        </c:forEach>
 
-                                                <strong>
-                                                    ${nguyenLieu.soLuongTon}
-                                                </strong>
+                                    </div>
 
-                                                <span>
-                                                    ${nguyenLieu.donVi}
-                                                </span>
+                                </c:when>
 
-                                            </div>
+                                <c:otherwise>
 
-                                        </div>
+                                    <div class="empty-state">
 
-                                    </c:forEach>
+                                        <i class="fa-solid fa-box"></i>
 
-                                </div>
+                                        <strong>
+                                            Kho đang ổn định
+                                        </strong>
 
-                            </c:when>
+                                    </div>
 
-                            <c:otherwise>
+                                </c:otherwise>
 
-                                <div class="empty-state">
+                            </c:choose>
 
-                                    <i class="fa-solid fa-box"></i>
+                        </div>
 
-                                    <strong>
-                                        Kho đang ổn định
-                                    </strong>
+                    </article>
 
-                                </div>
+                </section>
 
-                            </c:otherwise>
+            </div>
 
-                        </c:choose>
+        </main>
 
-                    </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-                </article>
+        <script src="${pageContext.request.contextPath}/js/homepage.js?v=90"></script>
 
-            </section>
+    </body>
 
-        </div>
-
-    </main>
-
-</body>
 </html>

@@ -1,0 +1,158 @@
+.dashboard-summary-grid {
+    grid-template-columns:
+        repeat(6, minmax(0, 1fr));
+}
+
+.dashboard-summary-grid
+.home-summary-card.revenue {
+    grid-column: span 2;
+}
+
+.home-day-grid {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.25fr)
+        minmax(420px, 0.9fr);
+    gap: 18px;
+
+    margin-bottom: 20px;
+}
+
+.home-chart-card,
+.home-today-invoice-card {
+    min-width: 0;
+}
+
+.home-chart-card .card-body {
+    padding: 18px 20px 20px;
+}
+
+.home-chart-container {
+    position: relative;
+
+    width: 100%;
+    height: 315px;
+}
+
+.home-chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.home-chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+
+    color: #89959f;
+    text-align: center;
+}
+
+.home-chart-empty i {
+    margin-bottom: 12px;
+
+    color: #a9b4bc;
+
+    font-size: 38px;
+}
+
+.home-chart-empty strong {
+    margin-bottom: 5px;
+
+    color: #4c5c68;
+
+    font-size: 14px;
+}
+
+.home-chart-empty span {
+    max-width: 330px;
+
+    color: #8c98a1;
+
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.home-today-invoice-card
+.table-wrapper {
+    max-height: 380px;
+    overflow: auto;
+}
+
+.home-today-table {
+    min-width: 600px;
+}
+
+.invoice-code-link {
+    color: #30475e;
+    font-weight: 700;
+}
+
+.invoice-code-link:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.home-invoice-time {
+    color: #6f7d88;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.home-invoice-money {
+    color: #198754;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+@media (max-width: 1350px) {
+    .dashboard-summary-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+    .dashboard-summary-grid
+    .home-summary-card.revenue {
+        grid-column: span 2;
+    }
+
+    .home-day-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .dashboard-summary-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-summary-grid
+    .home-summary-card.revenue {
+        grid-column: span 2;
+    }
+
+    .home-chart-container {
+        height: 280px;
+    }
+}
+
+@media (max-width: 600px) {
+    .dashboard-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-summary-grid
+    .home-summary-card.revenue {
+        grid-column: span 1;
+    }
+
+    .home-chart-container {
+        height: 250px;
+    }
+}

@@ -1,6 +1,7 @@
 package dao;
 
 import model.HoaDon;
+import model.HoaDonTheoGio;
 import model.NguyenLieu;
 import util.DBConnect;
 
@@ -20,10 +21,11 @@ import java.util.List;
 public class HomepageDAO {
 
     private static final DateTimeFormatter DATE_TIME_FORMAT =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            DateTimeFormatter.ofPattern(
+                    "dd/MM/yyyy HH:mm"
+            );
 
     public HomepageSummary getSummary() {
-
         String sql = """
             SELECT
                 (
@@ -36,16 +38,27 @@ public class HomepageDAO {
                     SELECT COUNT(*)
                     FROM HoaDon
                     WHERE TrangThai = N'Đã thanh toán'
-                      AND CAST(NgayThanhToan AS DATE)
-                          = CAST(GETDATE() AS DATE)
+                      AND NgayThanhToan >= CONVERT(DATE, GETDATE())
+                      AND NgayThanhToan < DATEADD(
+                            DAY,
+                            1,
+                            CONVERT(DATE, GETDATE())
+                      )
                 ) AS DonHomNay,
 
                 (
-                    SELECT ISNULL(SUM(TongTien), 0)
+                    SELECT ISNULL(
+                        SUM(TongTien),
+                        0
+                    )
                     FROM HoaDon
                     WHERE TrangThai = N'Đã thanh toán'
-                      AND CAST(NgayThanhToan AS DATE)
-                          = CAST(GETDATE() AS DATE)
+                      AND NgayThanhToan >= CONVERT(DATE, GETDATE())
+                      AND NgayThanhToan < DATEADD(
+                            DAY,
+                            1,
+                            CONVERT(DATE, GETDATE())
+                      )
                 ) AS DoanhThuHomNay,
 
                 (
@@ -63,37 +76,47 @@ public class HomepageDAO {
             """;
 
         try (
-            Connection connection =
-                    DBConnect.getConnection();
+                Connection connection =
+                        DBConnect.getConnection();
 
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
+                PreparedStatement statement =
+                        connection.prepareStatement(sql);
 
-            ResultSet resultSet =
-                    statement.executeQuery()
+                ResultSet resultSet =
+                        statement.executeQuery()
         ) {
             HomepageSummary summary =
                     new HomepageSummary();
 
             if (resultSet.next()) {
                 summary.setDonChoThanhToan(
-                        resultSet.getInt("DonChoThanhToan")
+                        resultSet.getInt(
+                                "DonChoThanhToan"
+                        )
                 );
 
                 summary.setDonHomNay(
-                        resultSet.getInt("DonHomNay")
+                        resultSet.getInt(
+                                "DonHomNay"
+                        )
                 );
 
                 summary.setDoanhThuHomNay(
-                        resultSet.getBigDecimal("DoanhThuHomNay")
+                        resultSet.getBigDecimal(
+                                "DoanhThuHomNay"
+                        )
                 );
 
                 summary.setSanPhamDangBan(
-                        resultSet.getInt("SanPhamDangBan")
+                        resultSet.getInt(
+                                "SanPhamDangBan"
+                        )
                 );
 
                 summary.setNguyenLieuCanNhap(
-                        resultSet.getInt("NguyenLieuCanNhap")
+                        resultSet.getInt(
+                                "NguyenLieuCanNhap"
+                        )
                 );
             }
 
@@ -107,83 +130,109 @@ public class HomepageDAO {
         }
     }
 
-    public List<HoaDon> getDonChoThanhToan() {
-
+    public List<HoaDon> getHoaDonHomNay() {
         List<HoaDon> list =
                 new ArrayList<>();
 
         String sql = """
             SELECT TOP 8
-                   h.MaHD,
-                   h.MaTaiKhoan,
-                   tk.HoTen AS TenTaiKhoan,
-                   h.MaKH,
+                h.MaHD,
+                h.MaTaiKhoan,
+                tk.HoTen AS TenTaiKhoan,
+                h.MaKH,
 
-                   COALESCE(
-                       NULLIF(h.TenKhachHang, N''),
-                       kh.HoTen,
-                       N'Khách lẻ'
-                   ) AS TenKhachHang,
+                COALESCE(
+                    NULLIF(
+                        h.TenKhachHang,
+                        N''
+                    ),
+                    kh.HoTen,
+                    N'Khách lẻ'
+                ) AS TenKhachHang,
 
-                   h.NgayTao,
-                   h.TongTien,
-                   h.TrangThai
+                h.NgayThanhToan,
+                h.TongTien,
+                h.TrangThai
 
             FROM HoaDon h
 
-            JOIN TaiKhoan tk
-                ON tk.MaTaiKhoan = h.MaTaiKhoan
+            INNER JOIN TaiKhoan tk
+                ON tk.MaTaiKhoan =
+                   h.MaTaiKhoan
 
             LEFT JOIN KhachHang kh
-                ON kh.MaKH = h.MaKH
+                ON kh.MaKH =
+                   h.MaKH
 
-            WHERE h.TrangThai = N'Chờ thanh toán'
+            WHERE h.TrangThai = N'Đã thanh toán'
+              AND h.NgayThanhToan >= CONVERT(DATE, GETDATE())
+              AND h.NgayThanhToan < DATEADD(
+                    DAY,
+                    1,
+                    CONVERT(DATE, GETDATE())
+              )
 
-            ORDER BY h.MaHD DESC
+            ORDER BY
+                h.NgayThanhToan DESC,
+                h.MaHD DESC
             """;
 
         try (
-            Connection connection =
-                    DBConnect.getConnection();
+                Connection connection =
+                        DBConnect.getConnection();
 
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
+                PreparedStatement statement =
+                        connection.prepareStatement(sql);
 
-            ResultSet resultSet =
-                    statement.executeQuery()
+                ResultSet resultSet =
+                        statement.executeQuery()
         ) {
             while (resultSet.next()) {
                 HoaDon hoaDon =
                         new HoaDon();
 
                 hoaDon.setMaHD(
-                        resultSet.getInt("MaHD")
+                        resultSet.getInt(
+                                "MaHD"
+                        )
                 );
 
                 hoaDon.setMaTaiKhoan(
-                        resultSet.getString("MaTaiKhoan")
+                        resultSet.getString(
+                                "MaTaiKhoan"
+                        )
                 );
 
                 hoaDon.setTenTaiKhoan(
-                        resultSet.getString("TenTaiKhoan")
+                        resultSet.getString(
+                                "TenTaiKhoan"
+                        )
                 );
 
                 hoaDon.setMaKH(
-                        resultSet.getString("MaKH")
+                        resultSet.getString(
+                                "MaKH"
+                        )
                 );
 
                 hoaDon.setTenKhachHang(
-                        resultSet.getString("TenKhachHang")
+                        resultSet.getString(
+                                "TenKhachHang"
+                        )
                 );
 
-                hoaDon.setNgayTao(
+                hoaDon.setNgayThanhToan(
                         formatTimestamp(
-                                resultSet.getTimestamp("NgayTao")
+                                resultSet.getTimestamp(
+                                        "NgayThanhToan"
+                                )
                         )
                 );
 
                 BigDecimal tongTien =
-                        resultSet.getBigDecimal("TongTien");
+                        resultSet.getBigDecimal(
+                                "TongTien"
+                        );
 
                 hoaDon.setTongTien(
                         tongTien == null
@@ -192,7 +241,212 @@ public class HomepageDAO {
                 );
 
                 hoaDon.setTrangThai(
-                        resultSet.getString("TrangThai")
+                        resultSet.getString(
+                                "TrangThai"
+                        )
+                );
+
+                list.add(hoaDon);
+            }
+
+        } catch (SQLException exception) {
+            throw new IllegalStateException(
+                    "Không tải được hóa đơn trong ngày.",
+                    exception
+            );
+        }
+
+        return list;
+    }
+
+    public List<HoaDonTheoGio>
+            getBieuDoHoaDonHomNay() {
+
+        int[] soHoaDonTheoGio =
+                new int[24];
+
+        String sql = """
+            SELECT
+                DATEPART(
+                    HOUR,
+                    NgayThanhToan
+                ) AS Gio,
+
+                COUNT(*) AS SoHoaDon
+
+            FROM HoaDon
+
+            WHERE TrangThai = N'Đã thanh toán'
+              AND NgayThanhToan >= CONVERT(DATE, GETDATE())
+              AND NgayThanhToan < DATEADD(
+                    DAY,
+                    1,
+                    CONVERT(DATE, GETDATE())
+              )
+
+            GROUP BY DATEPART(
+                HOUR,
+                NgayThanhToan
+            )
+
+            ORDER BY Gio
+            """;
+
+        try (
+                Connection connection =
+                        DBConnect.getConnection();
+
+                PreparedStatement statement =
+                        connection.prepareStatement(sql);
+
+                ResultSet resultSet =
+                        statement.executeQuery()
+        ) {
+            while (resultSet.next()) {
+                int gio =
+                        resultSet.getInt(
+                                "Gio"
+                        );
+
+                if (gio >= 0 && gio <= 23) {
+                    soHoaDonTheoGio[gio] =
+                            resultSet.getInt(
+                                    "SoHoaDon"
+                            );
+                }
+            }
+
+        } catch (SQLException exception) {
+            throw new IllegalStateException(
+                    "Không tải được biểu đồ hóa đơn trong ngày.",
+                    exception
+            );
+        }
+
+        List<HoaDonTheoGio> list =
+                new ArrayList<>();
+
+        for (int gio = 0;
+                gio < 24;
+                gio++) {
+
+            list.add(
+                    new HoaDonTheoGio(
+                            gio,
+                            soHoaDonTheoGio[gio]
+                    )
+            );
+        }
+
+        return list;
+    }
+
+    public List<HoaDon> getDonChoThanhToan() {
+        List<HoaDon> list =
+                new ArrayList<>();
+
+        String sql = """
+            SELECT TOP 8
+                h.MaHD,
+                h.MaTaiKhoan,
+                tk.HoTen AS TenTaiKhoan,
+                h.MaKH,
+
+                COALESCE(
+                    NULLIF(
+                        h.TenKhachHang,
+                        N''
+                    ),
+                    kh.HoTen,
+                    N'Khách lẻ'
+                ) AS TenKhachHang,
+
+                h.NgayTao,
+                h.TongTien,
+                h.TrangThai
+
+            FROM HoaDon h
+
+            INNER JOIN TaiKhoan tk
+                ON tk.MaTaiKhoan =
+                   h.MaTaiKhoan
+
+            LEFT JOIN KhachHang kh
+                ON kh.MaKH =
+                   h.MaKH
+
+            WHERE h.TrangThai = N'Chờ thanh toán'
+
+            ORDER BY h.MaHD DESC
+            """;
+
+        try (
+                Connection connection =
+                        DBConnect.getConnection();
+
+                PreparedStatement statement =
+                        connection.prepareStatement(sql);
+
+                ResultSet resultSet =
+                        statement.executeQuery()
+        ) {
+            while (resultSet.next()) {
+                HoaDon hoaDon =
+                        new HoaDon();
+
+                hoaDon.setMaHD(
+                        resultSet.getInt(
+                                "MaHD"
+                        )
+                );
+
+                hoaDon.setMaTaiKhoan(
+                        resultSet.getString(
+                                "MaTaiKhoan"
+                        )
+                );
+
+                hoaDon.setTenTaiKhoan(
+                        resultSet.getString(
+                                "TenTaiKhoan"
+                        )
+                );
+
+                hoaDon.setMaKH(
+                        resultSet.getString(
+                                "MaKH"
+                        )
+                );
+
+                hoaDon.setTenKhachHang(
+                        resultSet.getString(
+                                "TenKhachHang"
+                        )
+                );
+
+                hoaDon.setNgayTao(
+                        formatTimestamp(
+                                resultSet.getTimestamp(
+                                        "NgayTao"
+                                )
+                        )
+                );
+
+                BigDecimal tongTien =
+                        resultSet.getBigDecimal(
+                                "TongTien"
+                        );
+
+                hoaDon.setTongTien(
+                        tongTien == null
+                                ? BigDecimal.ZERO
+                                : tongTien
+                );
+
+                hoaDon.setTrangThai(
+                        resultSet.getString(
+                                "TrangThai"
+                        )
                 );
 
                 list.add(hoaDon);
@@ -208,19 +462,20 @@ public class HomepageDAO {
         return list;
     }
 
-    public List<NguyenLieu> getNguyenLieuCanNhap() {
+    public List<NguyenLieu>
+            getNguyenLieuCanNhap() {
 
         List<NguyenLieu> list =
                 new ArrayList<>();
 
         String sql = """
             SELECT TOP 8
-                   MaNguyenLieu,
-                   TenNguyenLieu,
-                   SoLuongTon,
-                   MucNhapCoDinh,
-                   DonVi,
-                   TrangThai
+                MaNguyenLieu,
+                TenNguyenLieu,
+                SoLuongTon,
+                MucNhapCoDinh,
+                DonVi,
+                TrangThai
 
             FROM NguyenLieu
 
@@ -229,49 +484,63 @@ public class HomepageDAO {
 
             ORDER BY
                 CASE
-                    WHEN SoLuongTon = 0 THEN 0
+                    WHEN SoLuongTon = 0
+                    THEN 0
                     ELSE 1
                 END,
+
                 SoLuongTon ASC,
                 TenNguyenLieu ASC
             """;
 
         try (
-            Connection connection =
-                    DBConnect.getConnection();
+                Connection connection =
+                        DBConnect.getConnection();
 
-            PreparedStatement statement =
-                    connection.prepareStatement(sql);
+                PreparedStatement statement =
+                        connection.prepareStatement(sql);
 
-            ResultSet resultSet =
-                    statement.executeQuery()
+                ResultSet resultSet =
+                        statement.executeQuery()
         ) {
             while (resultSet.next()) {
                 NguyenLieu nguyenLieu =
                         new NguyenLieu();
 
                 nguyenLieu.setMaNguyenLieu(
-                        resultSet.getString("MaNguyenLieu")
+                        resultSet.getString(
+                                "MaNguyenLieu"
+                        )
                 );
 
                 nguyenLieu.setTenNguyenLieu(
-                        resultSet.getString("TenNguyenLieu")
+                        resultSet.getString(
+                                "TenNguyenLieu"
+                        )
                 );
 
                 nguyenLieu.setSoLuongTon(
-                        resultSet.getInt("SoLuongTon")
+                        resultSet.getInt(
+                                "SoLuongTon"
+                        )
                 );
 
                 nguyenLieu.setMucNhapCoDinh(
-                        resultSet.getInt("MucNhapCoDinh")
+                        resultSet.getInt(
+                                "MucNhapCoDinh"
+                        )
                 );
 
                 nguyenLieu.setDonVi(
-                        resultSet.getString("DonVi")
+                        resultSet.getString(
+                                "DonVi"
+                        )
                 );
 
                 nguyenLieu.setTrangThai(
-                        resultSet.getBoolean("TrangThai")
+                        resultSet.getBoolean(
+                                "TrangThai"
+                        )
                 );
 
                 list.add(nguyenLieu);

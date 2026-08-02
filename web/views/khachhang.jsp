@@ -20,7 +20,10 @@
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
         <link rel="stylesheet"
-              href="${pageContext.request.contextPath}/css/app.css?v=80">
+              href="${pageContext.request.contextPath}/css/app.css?v=90">
+
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/store.css?v=90">
 
     </head>
 
@@ -149,13 +152,17 @@
                                                 <td>
 
                                                     <strong>
+
                                                         <c:out value="${kh.maKH}"/>
+
                                                     </strong>
 
                                                 </td>
 
                                                 <td>
+
                                                     <c:out value="${kh.hoTen}"/>
+
                                                 </td>
 
                                                 <td>
@@ -163,7 +170,9 @@
                                                     <c:choose>
 
                                                         <c:when test="${not empty kh.sdt}">
+
                                                             <c:out value="${kh.sdt}"/>
+
                                                         </c:when>
 
                                                         <c:otherwise>
@@ -228,7 +237,7 @@
                                                            href="${pageContext.request.contextPath}/khachhang?action=delete&maKH=${kh.maKH}"
                                                            title="Xóa"
                                                            onclick="return confirm(
-                                                               'Xác nhận xóa khách hàng ${kh.hoTen}?'
+                                                               'Xác nhận xóa khách hàng này?'
                                                            )">
 
                                                             <i class="fa-solid fa-trash-can"></i>

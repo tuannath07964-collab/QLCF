@@ -37,7 +37,9 @@ public class HomepageServlet
 
         if (
             session == null
-            || session.getAttribute("maNV") == null
+            || session.getAttribute(
+                    "maNV"
+            ) == null
         ) {
             response.sendRedirect(
                     request.getContextPath()
@@ -54,13 +56,26 @@ public class HomepageServlet
             );
 
             request.setAttribute(
+                    "hoaDonHomNay",
+                    homepageDAO.getHoaDonHomNay()
+            );
+
+            request.setAttribute(
+                    "bieuDoHoaDonHomNay",
+                    homepageDAO
+                            .getBieuDoHoaDonHomNay()
+            );
+
+            request.setAttribute(
                     "donChoThanhToan",
-                    homepageDAO.getDonChoThanhToan()
+                    homepageDAO
+                            .getDonChoThanhToan()
             );
 
             request.setAttribute(
                     "nguyenLieuCanNhap",
-                    homepageDAO.getNguyenLieuCanNhap()
+                    homepageDAO
+                            .getNguyenLieuCanNhap()
             );
 
         } catch (Exception exception) {
