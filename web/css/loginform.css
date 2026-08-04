@@ -94,52 +94,29 @@ button {
 
 .brand {
     position: absolute;
-    top: 30px;
-    left: 38px;
+    top: 18px;
+    left: 28px;
     z-index: 5;
 
     display: flex;
     align-items: center;
 }
 
-.brand-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.brand-logo {
+    display: block;
 
-    width: 56px;
-    height: 56px;
-    margin-right: 11px;
+    width: 112px;
+    height: 112px;
 
-    border-radius: 50%;
+    border: 1px solid rgba(48, 71, 94, 0.12);
+    border-radius: 18px;
 
-    background-color: #30475e;
-    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.96);
+
+    object-fit: contain;
 
     box-shadow:
-        0 8px 20px rgba(48, 71, 94, 0.24);
-
-    font-size: 22px;
-}
-
-.brand-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.brand-text strong {
-    color: #30475e;
-
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.brand-text span {
-    margin-top: 2px;
-
-    color: #6f7d88;
-
-    font-size: 11px;
+        0 10px 25px rgba(32, 48, 64, 0.18);
 }
 
 /* TRANG TRÍ */
@@ -667,20 +644,48 @@ button {
     }
 
     .brand {
-        top: 22px;
-        left: 22px;
+        position: absolute;
+        top: 18px;
+        left: 24px;
+        z-index: 5;
+
+        display: flex;
+        align-items: center;
     }
 
-    .brand-icon {
-        width: 48px;
-        height: 48px;
+    .brand-logo {
+        display: block;
+
+        width: 60px !important;
+        min-width: 60px;
+        max-width: 60px;
+
+        height: 60px !important;
+        min-height: 60px;
+        max-height: 60px;
+
+        border: 1px solid rgba(48, 71, 94, 0.12);
+        border-radius: 12px;
+
+        background: #ffffff;
+
+        object-fit: contain;
+
+        box-shadow: 0 6px 15px rgba(32, 48, 64, 0.14);
     }
 
     .introduction {
-        padding:
-            95px
-            22px
-            25px;
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        flex: 1.15;
+        flex-direction: column;
+        justify-content: center;
+
+        min-width: 0;
+
+        padding: 90px 35px 30px 68px;
     }
 
     .introduction h1 {
@@ -701,28 +706,5 @@ button {
 
     .login-header h2 {
         font-size: 31px;
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .introduction h1 {
-        font-size: 30px;
-    }
-
-    .introduction p {
-        font-size: 13px;
-    }
-
-    .coffee-image {
-        height: 250px;
-    }
-
-    .login-header h2 {
-        font-size: 27px;
-    }
-
-    .input-wrapper input,
-    .login-button {
-        height: 49px;
     }
 }

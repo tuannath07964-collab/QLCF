@@ -21,16 +21,16 @@
        value="${requestScope.tenKhachHangDaNhap ne null
                 ? requestScope.tenKhachHangDaNhap
                 : (empty hoaDon.maKH
-                   and hoaDon.tenKhachHang != 'Khách lẻ'
-                   ? hoaDon.tenKhachHang
-                   : '')}"/>
+                and hoaDon.tenKhachHang != 'Khách lẻ'
+                ? hoaDon.tenKhachHang
+                : '')}"/>
 
 <c:set var="guestCustomerPhone"
        value="${requestScope.sdtKhachHangDaNhap ne null
                 ? requestScope.sdtKhachHangDaNhap
                 : (empty hoaDon.maKH
-                   ? hoaDon.sdtKhachHang
-                   : '')}"/>
+                ? hoaDon.sdtKhachHang
+                : '')}"/>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -210,8 +210,8 @@
                                                 data-name="${sanPham.tenSanPham}"
                                                 data-price="${sanPham.giaBan}"
                                                 data-search="${sanPham.maSanPham}
-                                                             ${sanPham.tenSanPham}
-                                                             ${sanPham.tenDanhMuc}"
+                                                ${sanPham.tenSanPham}
+                                                ${sanPham.tenDanhMuc}"
                                                 ${not sanPham.coTheBan
                                                   or hoaDon.daKetThuc
                                                   ? 'disabled'
@@ -309,9 +309,8 @@
                                                         <strong>
                                                             Khách hàng đã lưu
                                                         </strong>
-
                                                         <small>
-                                                            Chọn khách có sẵn và sử dụng voucher
+                                                            Tìm theo mã, tên hoặc số điện thoại
                                                         </small>
 
                                                     </span>
@@ -336,11 +335,11 @@
                                                     <span>
 
                                                         <strong>
-                                                            Khách lẻ / khách mới
+                                                            Khách hàng mới
                                                         </strong>
 
                                                         <small>
-                                                            Nhập tên và số điện thoại
+                                                            Nhập thông tin để lưu và tích điểm
                                                         </small>
 
                                                     </span>
@@ -358,45 +357,147 @@
                                                   ? ''
                                                   : 'hidden'}">
 
+                                        <input type="hidden"
+                                               id="selectedCustomerCodeInput"
+                                               name="maKH"
+                                               value="${selectedCustomerCode}">
+
                                         <div class="form-group">
 
                                             <label class="form-label">
-                                                Chọn khách hàng đã lưu
+                                                Tìm kiếm khách hàng đã lưu
                                             </label>
 
-                                            <select class="form-control"
-                                                    id="customerSelect"
-                                                    name="maKH">
+                                            <div class="customer-search-bar">
 
-                                                <option value="">
-                                                    -- Chọn khách hàng --
-                                                </option>
+                                                <input class="form-control"
+                                                       type="search"
+                                                       id="customerSearchInput"
+                                                       autocomplete="off"
+                                                       placeholder="Nhập mã, tên hoặc số điện thoại khách hàng">
+
+                                                <button class="btn btn-primary"
+                                                        type="button"
+                                                        id="customerSearchButton">
+
+                                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                                    Tìm kiếm
+
+                                                </button>
+
+                                            </div>
+
+                                            <small class="form-help-text"
+                                                   id="customerSearchHelp">
+
+                                                Nhập mã, họ tên hoặc số điện thoại để tìm khách hàng.
+
+                                            </small>
+
+                                            <div class="customer-search-results hidden"
+                                                 id="customerSearchResults">
 
                                                 <c:forEach var="khachHang"
                                                            items="${khachHangList}">
 
-                                                    <option value="${khachHang.maKH}"
+                                                    <button type="button"
+                                                            class="customer-search-item"
+                                                            data-code="${khachHang.maKH}"
+                                                            data-name="${khachHang.hoTen}"
                                                             data-phone="${khachHang.sdt}"
-                                                            ${customerModeValue == 'saved'
-                                                              and selectedCustomerCode == khachHang.maKH
-                                                              ? 'selected'
-                                                              : ''}>
+                                                            data-points="${khachHang.diemTichLuy}">
 
-                                                        ${khachHang.maKH}
-                                                        -
-                                                        ${khachHang.hoTen}
-                                                        -
-                                                        ${empty khachHang.sdt
-                                                          ? 'Chưa có SĐT'
-                                                          : khachHang.sdt}
+                                                        <span class="customer-search-icon">
 
-                                                        (${khachHang.diemTichLuy} điểm)
+                                                            <i class="fa-solid fa-user"></i>
 
-                                                    </option>
+                                                        </span>
+
+                                                        <span class="customer-search-info">
+
+                                                            <strong>
+                                                                ${khachHang.hoTen}
+                                                            </strong>
+
+                                                            <small>
+
+                                                                ${khachHang.maKH}
+
+                                                                ·
+
+                                                                ${empty khachHang.sdt
+                                                                  ? 'Chưa có số điện thoại'
+                                                                  : khachHang.sdt}
+
+                                                            </small>
+
+                                                        </span>
+
+                                                        <span class="customer-search-points">
+
+                                                            ${khachHang.diemTichLuy} điểm
+
+                                                        </span>
+
+                                                    </button>
 
                                                 </c:forEach>
 
-                                            </select>
+                                                <div class="customer-search-empty hidden"
+                                                     id="customerSearchEmpty">
+
+                                                    <i class="fa-solid fa-user-slash"></i>
+                                                    Không tìm thấy khách hàng phù hợp.
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="selected-customer-card hidden"
+                                                 id="selectedCustomerCard">
+
+                                                <div class="selected-customer-main">
+
+                                                    <span class="selected-customer-avatar">
+
+                                                        <i class="fa-solid fa-user-check"></i>
+
+                                                    </span>
+
+                                                    <div>
+
+                                                        <small>Khách hàng đã tìm thấy</small>
+
+                                                        <strong id="selectedCustomerName">
+                                                            —
+                                                        </strong>
+
+                                                        <span id="selectedCustomerDetail">
+                                                            —
+                                                        </span>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="selected-customer-actions">
+
+                                                    <strong id="selectedCustomerPoints">
+                                                        0 điểm
+                                                    </strong>
+
+                                                    <button type="button"
+                                                            class="btn btn-light btn-sm"
+                                                            id="clearSelectedCustomerButton">
+
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                        Bỏ chọn
+
+                                                    </button>
+
+                                                </div>
+
+                                            </div>
 
                                         </div>
 
@@ -409,8 +510,13 @@
 
                                         <div class="form-group">
 
-                                            <label class="form-label">
-                                                Tên khách lẻ hoặc khách hàng mới
+                                            <label class="form-label"
+                                                   for="newCustomerName">
+
+                                                Tên khách hàng mới
+
+                                                <span class="required-mark">*</span>
+
                                             </label>
 
                                             <input class="form-control"
@@ -419,14 +525,21 @@
                                                    name="tenKhachHang"
                                                    value="${guestCustomerName}"
                                                    maxlength="100"
-                                                   placeholder="Có thể để trống nếu là khách lẻ">
+                                                   autocomplete="name"
+                                                   required
+                                                   placeholder="Nhập tên khách hàng mới">
 
                                         </div>
 
                                         <div class="form-group">
 
-                                            <label class="form-label">
+                                            <label class="form-label"
+                                                   for="newCustomerPhone">
+
                                                 Số điện thoại
+
+                                                <span class="required-mark">*</span>
+
                                             </label>
 
                                             <input class="form-control"
@@ -436,31 +549,56 @@
                                                    value="${guestCustomerPhone}"
                                                    maxlength="11"
                                                    inputmode="numeric"
+                                                   autocomplete="tel"
                                                    pattern="0[0-9]{8,10}"
+                                                   required
                                                    placeholder="Ví dụ: 0988123456">
+
+                                            <small class="form-help-text">
+
+                                                Số điện thoại phải bắt đầu bằng 0 và có từ 9 đến 11 số.
+
+                                            </small>
 
                                         </div>
 
-                                        <label class="checkbox-item invoice-customer-save">
+                                        <label class="save-customer-option">
 
                                             <input type="checkbox"
                                                    id="saveCustomerCheckbox"
-                                                   name="luuKhachMoi"
-                                                   ${luuKhachMoiDaChon
-                                                     ? 'checked'
-                                                     : ''}>
+                                                   value="true"
+                                                   checked
+                                                   tabindex="-1"
+                                                   aria-checked="true"
+                                                   onclick="return false;"
+                                                   onkeydown="return false;">
 
-                                            Lưu thành khách hàng mới để tích điểm
+                                            <span>
+
+                                                <strong>
+                                                    Lưu thành khách hàng mới để tích điểm
+                                                </strong>
+
+                                                <small>
+                                                    Khách hàng mới sẽ được tạo tự động khi thanh toán.
+                                                </small>
+
+                                            </span>
 
                                         </label>
+
+                                        <input type="hidden"
+                                               id="saveCustomerHiddenInput"
+                                               name="luuKhachMoi"
+                                               value="true">
 
                                     </div>
 
                                     <div id="voucherSection"
                                          class="form-group invoice-voucher-box
-                                                ${customerModeValue == 'saved'
-                                                  ? ''
-                                                  : 'hidden'}">
+                                         ${customerModeValue == 'saved'
+                                           ? ''
+                                           : 'hidden'}">
 
                                         <label class="form-label">
                                             Voucher của khách hàng
@@ -510,7 +648,7 @@
                                         <small id="voucherHelpText"
                                                class="form-help-text">
 
-                                            Chọn khách hàng để xem voucher.
+                                            Tìm kiếm khách hàng để xem voucher còn hiệu lực.
 
                                         </small>
 

@@ -7,12 +7,21 @@
 <aside class="app-sidebar">
 
     <div class="sidebar-brand">
-        <i class="fa-solid fa-mug-hot"></i>
 
-        <div>
-            <strong>QLCF</strong>
-            <span>Quản lý bán hàng</span>
+        <img class="sidebar-brand-logo"
+             src="${pageContext.request.contextPath}/image/logo-cafe-manager-icon.png?v=101"
+             width="44"
+             height="44"
+             alt="">
+
+        <div class="sidebar-brand-text">
+
+            <strong>Cafe Manager</strong>
+
+            <span>Quản lý quán Cafe</span>
+
         </div>
+
     </div>
 
     <ul class="sidebar-menu">
