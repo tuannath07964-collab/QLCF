@@ -53,6 +53,8 @@
         <link rel="stylesheet"
               href="${pageContext.request.contextPath}/css/store.css?v=80">
 
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/cafe-theme.css?v=2">
     </head>
 
     <body>

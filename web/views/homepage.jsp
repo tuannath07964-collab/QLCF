@@ -31,6 +31,9 @@
         <link rel="stylesheet"
               href="${pageContext.request.contextPath}/css/homepage-dashboard.css?v=90">
 
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/cafe-theme.css?v=2">
+
     </head>
 
     <body>
@@ -747,7 +750,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <script src="${pageContext.request.contextPath}/js/homepage.js?v=90"></script>
+        <script src="${pageContext.request.contextPath}/js/homepage.js?v=107"></script>
 
     </body>
 

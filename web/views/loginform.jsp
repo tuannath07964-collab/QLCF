@@ -23,6 +23,9 @@
 
         <link rel="stylesheet"
               href="${pageContext.request.contextPath}/css/loginform.css?v=102">
+
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/cafe-theme.css?v=2">
     </head>
 
     <body>

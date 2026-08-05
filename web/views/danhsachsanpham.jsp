@@ -9,7 +9,9 @@
 
 <!DOCTYPE html>
 <html lang="vi">
+
     <head>
+
         <meta charset="UTF-8">
 
         <meta name="viewport"
@@ -21,27 +23,35 @@
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
         <link rel="stylesheet"
-              href="${pageContext.request.contextPath}/css/app.css?v=50">
+              href="${pageContext.request.contextPath}/css/app.css?v=120">
 
         <link rel="stylesheet"
-              href="${pageContext.request.contextPath}/css/store.css?v=50">
+              href="${pageContext.request.contextPath}/css/store.css?v=120">
+
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/cafe-theme.css?v=4">
+
     </head>
 
     <body>
 
         <jsp:include page="/views/components/sidebar.jsp">
+
             <jsp:param name="active"
                        value="productList"/>
+
         </jsp:include>
 
         <main class="app-main">
 
             <jsp:include page="/views/components/topbar.jsp">
+
                 <jsp:param name="title"
                            value="Danh sách sản phẩm"/>
 
                 <jsp:param name="subtitle"
                            value="Các sản phẩm hiện đang được phép bán"/>
+
             </jsp:include>
 
             <div class="app-content">
@@ -49,12 +59,14 @@
                 <div class="page-header">
 
                     <div>
+
                         <h2>Sản phẩm đang bán</h2>
 
                         <p>
-                            Số phần có thể bán được tính tự động
-                            dựa trên công thức và lượng tồn kho.
+                            Ảnh, giá và số phần có thể bán
+                            được lấy từ thông tin quản lý sản phẩm.
                         </p>
+
                     </div>
 
                 </div>
@@ -74,6 +86,7 @@
                                    value="${param.keyword}"
                                    placeholder="Nhập tên hoặc mã sản phẩm..."
                                    autocomplete="off">
+
                         </div>
 
                         <select class="form-control toolbar-select"
@@ -87,12 +100,12 @@
                                        items="${danhMucList}">
 
                                 <option value="${danhMuc.maDanhMuc}"
-                                        ${param.maDanhMuc
-                                          == danhMuc.maDanhMuc
+                                        ${param.maDanhMuc == danhMuc.maDanhMuc
                                           ? 'selected'
                                           : ''}>
 
-                                    ${danhMuc.tenDanhMuc}
+                                    <c:out value="${danhMuc.tenDanhMuc}"/>
+
                                 </option>
 
                             </c:forEach>
@@ -103,7 +116,9 @@
                                 type="submit">
 
                             <i class="fa-solid fa-magnifying-glass"></i>
+
                             Tìm kiếm
+
                         </button>
 
                     </div>
@@ -124,53 +139,96 @@
                                            ? ''
                                            : 'unavailable'}">
 
-                                    <div class="product-display-icon">
-                                        <i class="fa-solid fa-mug-saucer"></i>
-                                    </div>
+                                    <div class="product-display-media">
 
-                                    <div class="product-display-category">
-                                        <c:out value="${sanPham.tenDanhMuc}"/>
-                                    </div>
+                                        <c:if test="${not empty sanPham.hinhAnh}">
 
-                                    <h3>
-                                        <c:out value="${sanPham.tenSanPham}"/>
-                                    </h3>
+                                            <img src="${pageContext.request.contextPath}/product-image/${sanPham.hinhAnh}"
+                                                 alt="${sanPham.tenSanPham}"
+                                                 data-product-image>
 
-                                    <small>
-                                        ${sanPham.maSanPham}
-                                    </small>
+                                        </c:if>
 
-                                    <p class="product-display-recipe">
-                                        <c:out value="${sanPham.congThucText}"/>
-                                    </p>
+                                        <div class="product-display-image-fallback
+                                             ${not empty sanPham.hinhAnh
+                                               ? 'hidden'
+                                               : ''}">
 
-                                    <div class="product-display-footer">
+                                            <i class="fa-solid fa-mug-saucer"></i>
 
-                                        <strong>
-                                            <fmt:formatNumber
-                                                value="${sanPham.giaBan}"
-                                                pattern="#,##0"/>
+                                        </div>
 
-                                            đ
-                                        </strong>
+                                        <span class="product-display-category-badge">
 
-                                        <span class="badge
-                                              ${sanPham.coTheBan
-                                                ? 'badge-success'
-                                                : 'badge-danger'}">
+                                            <c:out value="${sanPham.tenDanhMuc}"/>
 
-                                            <c:choose>
-
-                                                <c:when test="${sanPham.coTheBan}">
-                                                    ${sanPham.soLuongCoTheBan} phần
-                                                </c:when>
-
-                                                <c:otherwise>
-                                                    Hết nguyên liệu
-                                                </c:otherwise>
-
-                                            </c:choose>
                                         </span>
+
+                                    </div>
+
+                                    <div class="product-display-body">
+
+                                        <div class="product-display-category">
+
+                                            <c:out value="${sanPham.tenDanhMuc}"/>
+
+                                        </div>
+
+                                        <h3>
+
+                                            <c:out value="${sanPham.tenSanPham}"/>
+
+                                        </h3>
+
+                                        <small>
+
+                                            <c:out value="${sanPham.maSanPham}"/>
+
+                                        </small>
+
+                                        <p class="product-display-recipe">
+
+                                            <c:out value="${sanPham.congThucText}"/>
+
+                                        </p>
+
+                                        <div class="product-display-footer">
+
+                                            <strong>
+
+                                                <fmt:formatNumber
+                                                    value="${sanPham.giaBan}"
+                                                    pattern="#,##0"/>
+
+                                                đ
+
+                                            </strong>
+
+                                            <span class="badge
+                                                  ${sanPham.coTheBan
+                                                    ? 'badge-success'
+                                                    : 'badge-danger'}">
+
+                                                <c:choose>
+
+                                                    <c:when test="${sanPham.coTheBan}">
+
+                                                        ${sanPham.soLuongCoTheBan}
+                                                        phần
+
+                                                    </c:when>
+
+                                                    <c:otherwise>
+
+                                                        Hết nguyên liệu
+
+                                                    </c:otherwise>
+
+                                                </c:choose>
+
+                                            </span>
+
+                                        </div>
 
                                     </div>
 
@@ -193,6 +251,7 @@
                                 <strong>
                                     Không tìm thấy sản phẩm
                                 </strong>
+
                             </div>
 
                         </section>
@@ -205,5 +264,8 @@
 
         </main>
 
+        <script src="${pageContext.request.contextPath}/js/sanpham.js?v=1"></script>
+
     </body>
+
 </html>

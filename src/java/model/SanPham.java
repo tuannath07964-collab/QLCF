@@ -10,6 +10,7 @@ public class SanPham {
     private String tenDanhMuc;
     private BigDecimal giaBan;
     private boolean trangThai;
+    private String hinhAnh;
 
     private int soLuongCoTheBan;
     private String congThucText;
@@ -63,6 +64,14 @@ public class SanPham {
 
     public void setTrangThai(boolean trangThai) {
         this.trangThai = trangThai;
+    }
+
+    public String getHinhAnh() {
+        return hinhAnh;
+    }
+
+    public void setHinhAnh(String hinhAnh) {
+        this.hinhAnh = hinhAnh;
     }
 
     public int getSoLuongCoTheBan() {

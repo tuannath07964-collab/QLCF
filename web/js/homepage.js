@@ -1,203 +1,268 @@
 document.addEventListener(
-        "DOMContentLoaded",
-        function () {
-            const chartCanvas =
-                    document.getElementById(
-                            "invoiceTodayChart"
-                    );
+    "DOMContentLoaded",
+    function () {
+        const chartCanvas =
+            document.getElementById(
+                "invoiceTodayChart"
+            );
 
-            const chartDataContainer =
-                    document.getElementById(
-                            "invoiceTodayChartData"
-                    );
+        const chartDataContainer =
+            document.getElementById(
+                "invoiceTodayChartData"
+            );
 
-            const chartEmpty =
-                    document.getElementById(
-                            "invoiceTodayChartEmpty"
-                    );
+        const chartEmpty =
+            document.getElementById(
+                "invoiceTodayChartEmpty"
+            );
 
-            if (
-                !chartCanvas
-                || !chartDataContainer
-            ) {
-                return;
-            }
+        if (
+            !chartCanvas
+            || !chartDataContainer
+        ) {
+            return;
+        }
 
-            const points =
-                    Array.from(
-                            chartDataContainer
-                                    .querySelectorAll(
-                                            "span[data-label]"
-                                    )
-                    );
+        const points =
+            Array.from(
+                chartDataContainer.querySelectorAll(
+                    "span[data-label]"
+                )
+            );
 
-            const labels =
-                    points.map(
-                            function (point) {
-                                return point.dataset.label;
-                            }
-                    );
-
-            const values =
-                    points.map(
-                            function (point) {
-                                return Number(
-                                        point.dataset.value
-                                ) || 0;
-                            }
-                    );
-
-            const totalInvoice =
-                    values.reduce(
-                            function (total, value) {
-                                return total + value;
-                            },
-                            0
-                    );
-
-            if (totalInvoice === 0) {
-                chartCanvas.classList.add(
-                        "hidden"
-                );
-
-                if (chartEmpty) {
-                    chartEmpty.classList.remove(
-                            "hidden"
-                    );
+        const labels =
+            points.map(
+                function (point) {
+                    return point.dataset.label;
                 }
+            );
 
-                return;
+        const values =
+            points.map(
+                function (point) {
+                    return Number(
+                        point.dataset.value
+                    ) || 0;
+                }
+            );
+
+        const totalInvoice =
+            values.reduce(
+                function (total, value) {
+                    return total + value;
+                },
+                0
+            );
+
+        if (totalInvoice === 0) {
+            chartCanvas.classList.add(
+                "hidden"
+            );
+
+            if (chartEmpty) {
+                chartEmpty.classList.remove(
+                    "hidden"
+                );
             }
 
-            if (typeof Chart === "undefined") {
-                chartCanvas.classList.add(
-                        "hidden"
+            return;
+        }
+
+        if (typeof Chart === "undefined") {
+            chartCanvas.classList.add(
+                "hidden"
+            );
+
+            if (chartEmpty) {
+                chartEmpty.classList.remove(
+                    "hidden"
                 );
 
-                if (chartEmpty) {
-                    chartEmpty.classList.remove(
-                            "hidden"
-                    );
-
+                const emptyTitle =
                     chartEmpty.querySelector(
-                            "strong"
-                    ).textContent =
-                            "Không tải được biểu đồ";
-                }
+                        "strong"
+                    );
 
-                return;
+                if (emptyTitle) {
+                    emptyTitle.textContent =
+                        "Không tải được biểu đồ";
+                }
             }
 
-            new Chart(
-                    chartCanvas.getContext("2d"),
-                    {
-                        type: "bar",
+            return;
+        }
 
-                        data: {
-                            labels: labels,
+        new Chart(
+            chartCanvas.getContext("2d"),
+            {
+                type: "bar",
 
-                            datasets: [
-                                {
-                                    label: "Số hóa đơn",
+                data: {
+                    labels: labels,
 
-                                    data: values,
+                    datasets: [
+                        {
+                            label: "Số hóa đơn",
 
-                                    backgroundColor:
-                                            "rgba(48, 71, 94, 0.78)",
+                            data: values,
 
-                                    borderColor:
-                                            "#30475e",
+                            backgroundColor:
+                                "rgba(127, 152, 119, 0.32)",
 
-                                    borderWidth: 1,
+                            hoverBackgroundColor:
+                                "rgba(96, 119, 92, 0.48)",
 
-                                    borderRadius: 6,
+                            borderColor:
+                                "#6f8969",
 
-                                    borderSkipped: false,
+                            hoverBorderColor:
+                                "#5e755a",
 
-                                    maxBarThickness: 28
-                                }
-                            ]
+                            borderWidth: 1,
+
+                            borderRadius: 7,
+
+                            borderSkipped: false,
+
+                            maxBarThickness: 28
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    interaction: {
+                        intersect: false,
+                        mode: "index"
+                    },
+
+                    animation: {
+                        duration: 700,
+                        easing: "easeOutQuart"
+                    },
+
+                    plugins: {
+                        legend: {
+                            display: false
                         },
 
-                        options: {
-                            responsive: true,
+                        tooltip: {
+                            backgroundColor:
+                                "#5e4539",
 
-                            maintainAspectRatio: false,
+                            titleColor:
+                                "#fffaf0",
 
-                            interaction: {
-                                intersect: false,
-                                mode: "index"
-                            },
+                            bodyColor:
+                                "#fffaf0",
 
-                            plugins: {
-                                legend: {
-                                    display: false
+                            borderColor:
+                                "#7f9877",
+
+                            borderWidth: 1,
+
+                            padding: 12,
+
+                            displayColors: false,
+
+                            callbacks: {
+                                title: function (
+                                    tooltipItems
+                                ) {
+                                    return "Khung giờ "
+                                        + tooltipItems[0]
+                                            .label;
                                 },
 
-                                tooltip: {
-                                    callbacks: {
-                                        title: function (
-                                                tooltipItems
-                                        ) {
-                                            return "Khung giờ "
-                                                    + tooltipItems[0]
-                                                            .label;
-                                        },
+                                label: function (
+                                    context
+                                ) {
+                                    return context.raw
+                                        + " hóa đơn";
+                                }
+                            }
+                        }
+                    },
 
-                                        label: function (
-                                                context
-                                        ) {
-                                            return context.raw
-                                                    + " hóa đơn";
-                                        }
-                                    }
+                    scales: {
+                        x: {
+                            border: {
+                                color:
+                                    "rgba(218, 207, 185, 0.9)"
+                            },
+
+                            grid: {
+                                display: false
+                            },
+
+                            ticks: {
+                                color:
+                                    "#777066",
+
+                                font: {
+                                    size: 11,
+                                    weight: "500"
+                                },
+
+                                autoSkip: true,
+
+                                maxTicksLimit: 12,
+
+                                maxRotation: 0
+                            }
+                        },
+
+                        y: {
+                            beginAtZero: true,
+
+                            border: {
+                                display: false
+                            },
+
+                            grid: {
+                                color:
+                                    "rgba(218, 207, 185, 0.72)",
+
+                                drawTicks: false
+                            },
+
+                            ticks: {
+                                color:
+                                    "#777066",
+
+                                padding: 8,
+
+                                precision: 0,
+
+                                stepSize: 1,
+
+                                font: {
+                                    size: 11,
+                                    weight: "500"
                                 }
                             },
 
-                            scales: {
-                                x: {
-                                    grid: {
-                                        display: false
-                                    },
+                            title: {
+                                display: true,
 
-                                    ticks: {
-                                        color: "#6f7d88",
+                                text:
+                                    "Số hóa đơn",
 
-                                        autoSkip: true,
+                                color:
+                                    "#777066",
 
-                                        maxTicksLimit: 12,
-
-                                        maxRotation: 0
-                                    }
-                                },
-
-                                y: {
-                                    beginAtZero: true,
-
-                                    grid: {
-                                        color:
-                                                "rgba(225, 231, 235, 0.85)"
-                                    },
-
-                                    ticks: {
-                                        color: "#6f7d88",
-
-                                        precision: 0,
-
-                                        stepSize: 1
-                                    },
-
-                                    title: {
-                                        display: true,
-
-                                        text: "Số hóa đơn",
-
-                                        color: "#6f7d88"
-                                    }
+                                font: {
+                                    size: 12,
+                                    weight: "600"
                                 }
                             }
                         }
                     }
-            );
-        }
+                }
+            }
+        );
+    }
 );

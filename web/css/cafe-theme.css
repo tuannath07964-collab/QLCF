@@ -1,0 +1,1493 @@
+:root {
+    --sidebar-width: 250px;
+    --topbar-height: 68px;
+
+    --sage-dark: #60775c;
+    --sage: #7f9877;
+    --sage-medium: #91a88a;
+    --sage-light: #dfe8d8;
+    --sage-soft: #eef3e9;
+
+    --coffee-dark: #5e4539;
+    --coffee: #8d6958;
+    --coffee-medium: #a27b65;
+    --coffee-light: #c5a58f;
+    --coffee-soft: #eee2d7;
+
+    --cream: #faf5e8;
+    --cream-light: #fffaf0;
+    --cream-dark: #eee3cc;
+
+    --primary: var(--sage);
+    --primary-hover: var(--sage-dark);
+    --primary-soft: var(--sage-soft);
+
+    --blue: var(--sage);
+    --blue-hover: var(--sage-dark);
+    --blue-soft: var(--sage-soft);
+
+    --green: #6f8e68;
+    --green-soft: #e7efe1;
+
+    --orange: #b87942;
+    --orange-soft: #f7e9d8;
+
+    --red: #b95d56;
+    --red-soft: #f7e3e0;
+
+    --purple: #8c746e;
+    --purple-soft: #eee6e3;
+
+    --text: #3e3832;
+    --muted: #777066;
+    --light-text: #a0988d;
+
+    --background: #f4eddd;
+    --surface: #fffaf0;
+    --border: #e6dbc5;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 17px;
+
+    --shadow-sm:
+        0 3px 10px rgba(92, 72, 55, 0.07);
+
+    --shadow-md:
+        0 12px 30px rgba(92, 72, 55, 0.13);
+
+    --shadow-lg:
+        0 20px 48px rgba(92, 72, 55, 0.17);
+}
+
+/* ======================================================
+   TOÀN TRANG
+====================================================== */
+
+html {
+    background: var(--background);
+}
+
+body {
+    background:
+        radial-gradient(
+            circle at 92% 5%,
+            rgba(255, 255, 255, 0.7),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #f6efdf 0%,
+            #fbf7ec 52%,
+            #f3ead7 100%
+        );
+
+    color: var(--text);
+}
+
+::selection {
+    background: rgba(127, 152, 119, 0.28);
+    color: #33402f;
+}
+
+a {
+    transition:
+        color 0.18s ease,
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+/* ======================================================
+   SIDEBAR
+====================================================== */
+
+.app-sidebar {
+    background:
+        radial-gradient(
+            circle at 15% 8%,
+            rgba(255, 255, 255, 0.14),
+            transparent 25%
+        ),
+        linear-gradient(
+            180deg,
+            #789171 0%,
+            #819a79 48%,
+            #6c8567 100%
+        );
+
+    color: #ffffff;
+
+    box-shadow:
+        8px 0 28px
+        rgba(72, 91, 67, 0.16);
+}
+
+.sidebar-brand {
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, 0.16);
+}
+
+.app-sidebar
+.sidebar-brand
+.sidebar-brand-logo {
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+
+    flex: 0 0 44px;
+
+    border:
+        2px solid
+        rgba(255, 250, 240, 0.92);
+
+    border-radius: 12px;
+
+    background: #fffaf0;
+
+    object-fit: contain;
+
+    box-shadow:
+        0 6px 15px
+        rgba(50, 62, 46, 0.23);
+}
+
+.sidebar-brand-text strong,
+.sidebar-brand > div strong {
+    color: #ffffff;
+}
+
+.sidebar-brand-text span,
+.sidebar-brand > div span {
+    color:
+        rgba(255, 255, 255, 0.7);
+}
+
+.sidebar-section-title {
+    color:
+        rgba(255, 255, 255, 0.48);
+}
+
+.sidebar-link {
+    color:
+        rgba(255, 255, 255, 0.8);
+}
+
+.sidebar-link:hover {
+    background:
+        rgba(255, 250, 235, 0.13);
+
+    color: #ffffff;
+
+    transform: translateX(2px);
+}
+
+.sidebar-link.active {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(72, 94, 67, 0.6),
+            rgba(84, 108, 79, 0.44)
+        );
+
+    color: #ffffff;
+
+    box-shadow:
+        inset 3px 0 0
+        #f2ead8,
+        0 4px 12px
+        rgba(57, 74, 53, 0.13);
+}
+
+.sidebar-link.active i {
+    color: #fff8e9;
+}
+
+.sidebar-logout {
+    border-top:
+        1px solid
+        rgba(255, 255, 255, 0.16);
+}
+
+.sidebar-logout .sidebar-link {
+    color: #fff4ea;
+}
+
+.sidebar-logout .sidebar-link:hover {
+    background:
+        rgba(94, 69, 57, 0.25);
+
+    color: #ffffff;
+}
+
+/* ======================================================
+   TOPBAR
+====================================================== */
+
+.app-topbar {
+    border-bottom:
+        1px solid
+        rgba(222, 210, 188, 0.85);
+
+    background:
+        rgba(255, 250, 240, 0.94);
+
+    box-shadow:
+        0 3px 12px
+        rgba(100, 80, 61, 0.06);
+
+    backdrop-filter: blur(9px);
+}
+
+.topbar-title h1 {
+    color: #342e29;
+}
+
+.topbar-title p {
+    color: var(--muted);
+}
+
+.topbar-user {
+    border:
+        1px solid
+        #e2d4bd;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffaf0,
+            #f0e7d7
+        );
+
+    box-shadow:
+        0 3px 10px
+        rgba(99, 76, 57, 0.06);
+}
+
+.topbar-avatar {
+    background:
+        linear-gradient(
+            135deg,
+            var(--coffee),
+            var(--sage)
+        );
+
+    color: #ffffff;
+}
+
+/* ======================================================
+   NỘI DUNG CHUNG
+====================================================== */
+
+.app-content {
+    background: transparent;
+}
+
+.page-header h2,
+.card-header h3,
+.section-title h3 {
+    color: #3d342e;
+}
+
+.page-header p,
+.card-header p,
+.section-title p {
+    color: var(--muted);
+}
+
+.section-link {
+    color: var(--sage-dark);
+}
+
+.section-link:hover {
+    color: var(--coffee);
+}
+
+/* ======================================================
+   CARD
+====================================================== */
+
+.card,
+.toolbar,
+.catalog-card,
+.invoice-card,
+.product-display-card,
+.chart-card,
+.quick-card,
+.home-summary-card,
+.receipt-card,
+.table-card,
+.summary-card {
+    border:
+        1px solid
+        var(--border);
+
+    background:
+        rgba(255, 250, 240, 0.96);
+
+    box-shadow:
+        var(--shadow-sm);
+}
+
+.card,
+.toolbar,
+.quick-card,
+.home-summary-card {
+    border-radius: 15px;
+}
+
+.card:hover,
+.quick-card:hover,
+.product-display-card:hover,
+.table-card:hover {
+    box-shadow:
+        var(--shadow-md);
+}
+
+.card-header,
+.card-footer {
+    border-color: var(--border);
+}
+
+.card-header {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 252, 245, 0.94),
+            rgba(255, 249, 238, 0.75)
+        );
+}
+
+/* ======================================================
+   BUTTON
+====================================================== */
+
+.btn-primary,
+.btn-blue {
+    border-color: transparent;
+
+    background:
+        linear-gradient(
+            135deg,
+            #799273,
+            #8fa587
+        );
+
+    color: #ffffff;
+
+    box-shadow:
+        0 6px 15px
+        rgba(111, 142, 104, 0.22);
+}
+
+.btn-primary:hover,
+.btn-blue:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #647e60,
+            #789171
+        );
+
+    color: #ffffff;
+
+    box-shadow:
+        0 9px 20px
+        rgba(96, 119, 92, 0.28);
+
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    border-color: transparent;
+
+    background:
+        linear-gradient(
+            135deg,
+            #6f8e68,
+            #85a07d
+        );
+
+    color: #ffffff;
+}
+
+.btn-success:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #5f7d59,
+            #73916d
+        );
+}
+
+.btn-light {
+    border-color: #e5d8c1;
+
+    background: #f7efdf;
+
+    color: var(--coffee-dark);
+}
+
+.btn-light:hover {
+    border-color: #cfbda2;
+    background: #efe3cf;
+}
+
+.btn-outline {
+    border-color: #d9ccb4;
+
+    background: #fffaf0;
+
+    color: #574a40;
+}
+
+.btn-outline:hover {
+    border-color: var(--sage);
+
+    background: var(--sage-soft);
+
+    color: var(--sage-dark);
+}
+
+.btn-danger {
+    background: #b95d56;
+}
+
+.btn-danger:hover {
+    background: #a34e48;
+}
+
+/* ======================================================
+   FORM
+====================================================== */
+
+.form-label,
+.form-group label {
+    color: #4b4038;
+}
+
+.form-control,
+.search-box input,
+.toolbar-select,
+.status-select {
+    border-color: #ded1ba;
+
+    background: #fffdf7;
+
+    color: var(--text);
+}
+
+.form-control::placeholder,
+.search-box input::placeholder {
+    color: #aca397;
+}
+
+.form-control:hover,
+.search-box input:hover,
+.toolbar-select:hover {
+    border-color: #baa98e;
+}
+
+.form-control:focus,
+.search-box input:focus,
+.toolbar-select:focus {
+    border-color: var(--sage);
+
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(127, 152, 119, 0.16);
+}
+
+.form-control[readonly],
+.form-control:disabled {
+    background: #f0e8d9;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: var(--sage-dark);
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.table-wrapper {
+    scrollbar-color:
+        #a6b49d
+        #eee5d6;
+}
+
+.data-table th,
+.invoice-cart-table th {
+    border-color: var(--border);
+
+    background:
+        linear-gradient(
+            180deg,
+            #f8f0df,
+            #f1e6d1
+        );
+
+    color: #66594e;
+}
+
+.data-table td,
+.invoice-cart-table td {
+    border-color: var(--border);
+}
+
+.data-table tbody tr:hover,
+.invoice-cart-table tbody tr:hover {
+    background: #f8f2e5;
+}
+
+.table-action {
+    color: var(--sage-dark);
+}
+
+.table-action:hover {
+    border-color: var(--sage);
+
+    background: var(--sage-soft);
+
+    color: var(--sage-dark);
+}
+
+.invoice-code-link {
+    color: var(--sage-dark);
+}
+
+.invoice-code-link:hover {
+    color: var(--coffee);
+}
+
+.home-invoice-time {
+    color: var(--muted);
+}
+
+.home-invoice-money {
+    color: #66805f;
+}
+
+/* ======================================================
+   BADGE
+====================================================== */
+
+.badge {
+    border: 1px solid transparent;
+}
+
+.badge-success {
+    border-color: #cdddc6;
+
+    background: #e7efe1;
+
+    color: #587451;
+}
+
+.badge-warning {
+    border-color: #ead1af;
+
+    background: #faedda;
+
+    color: #a86631;
+}
+
+.badge-danger {
+    border-color: #e6c1bd;
+
+    background: #f7e3e0;
+
+    color: #a74f49;
+}
+
+.badge-blue,
+.badge-muted {
+    border-color: #d5dfcf;
+
+    background: #edf2e9;
+
+    color: #667a61;
+}
+
+.badge-purple {
+    border-color: #dfd1cc;
+
+    background: #eee6e3;
+
+    color: #755f59;
+}
+
+/* ======================================================
+   TRANG CHỦ - HERO
+====================================================== */
+
+.home-hero,
+.welcome-panel {
+    position: relative;
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(125, 92, 72, 0.2);
+
+    background:
+        radial-gradient(
+            circle at 90% 25%,
+            rgba(255, 240, 220, 0.17),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #8c6756 0%,
+            #a07a65 48%,
+            #8e6959 100%
+        );
+
+    color: #ffffff;
+
+    box-shadow:
+        0 14px 34px
+        rgba(109, 77, 60, 0.2);
+}
+
+.home-hero::after,
+.welcome-panel::after {
+    content: "";
+
+    position: absolute;
+    right: 55px;
+    top: 18px;
+
+    width: 210px;
+    height: 150px;
+
+    opacity: 0.12;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 50%,
+            transparent 28%,
+            #fff5e4 30%,
+            transparent 32%
+        );
+
+    transform: rotate(-18deg);
+
+    pointer-events: none;
+}
+
+.home-hero > *,
+.welcome-panel > * {
+    position: relative;
+    z-index: 1;
+}
+
+.home-hero-label {
+    color:
+        rgba(255, 247, 232, 0.8);
+}
+
+.home-hero h2,
+.welcome-panel h2 {
+    color: #ffffff;
+}
+
+.home-hero p,
+.welcome-panel p {
+    color:
+        rgba(255, 250, 240, 0.79);
+}
+
+.home-hero-button {
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.32);
+
+    background:
+        linear-gradient(
+            135deg,
+            #829b7b,
+            #94aa8c
+        );
+
+    color: #ffffff;
+
+    box-shadow:
+        0 7px 18px
+        rgba(65, 78, 60, 0.23);
+}
+
+.home-hero-button:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #70896a,
+            #829a7a
+        );
+
+    color: #ffffff;
+}
+
+/* ======================================================
+   THẺ THỐNG KÊ TRANG CHỦ
+====================================================== */
+
+.home-summary-grid {
+    gap: 14px;
+}
+
+.home-summary-card {
+    position: relative;
+    overflow: hidden;
+
+    min-height: 98px;
+
+    border-color: #e5d9c3;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 251, 242, 0.98),
+            rgba(250, 243, 230, 0.98)
+        );
+}
+
+.home-summary-card::after {
+    content: "";
+
+    position: absolute;
+    inset: auto -22px -28px auto;
+
+    width: 85px;
+    height: 85px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(127, 152, 119, 0.055);
+}
+
+.home-summary-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.home-summary-card > div span {
+    color: var(--muted);
+}
+
+.home-summary-card > div strong {
+    color: #3c342e;
+}
+
+.home-summary-icon {
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.48);
+
+    box-shadow:
+        0 5px 13px
+        rgba(82, 73, 59, 0.09);
+}
+
+.home-summary-icon.green {
+    background:
+        linear-gradient(
+            135deg,
+            #dce8d6,
+            #8ea786
+        );
+
+    color: #ffffff;
+}
+
+.home-summary-icon.blue {
+    background:
+        linear-gradient(
+            135deg,
+            #e7ded4,
+            #a1816e
+        );
+
+    color: #ffffff;
+}
+
+.home-summary-icon.orange {
+    background:
+        linear-gradient(
+            135deg,
+            #f1dfc8,
+            #bd8757
+        );
+
+    color: #ffffff;
+}
+
+.home-summary-icon.purple {
+    background:
+        linear-gradient(
+            135deg,
+            #e5d8d1,
+            #9a7969
+        );
+
+    color: #ffffff;
+}
+
+/* ======================================================
+   QUICK ACTION
+====================================================== */
+
+.quick-grid {
+    gap: 14px;
+}
+
+.quick-card {
+    border-color: #e5d9c4;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffaf0,
+            #f8f0e2
+        );
+}
+
+.quick-card:hover {
+    border-color: #b9c8b2;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffdf7,
+            #edf2e9
+        );
+
+    transform: translateY(-2px);
+}
+
+.quick-card > span,
+.quick-action-icon {
+    background:
+        linear-gradient(
+            135deg,
+            #a5816d,
+            #8f6c5a
+        );
+
+    color: #ffffff;
+
+    box-shadow:
+        0 5px 12px
+        rgba(105, 77, 61, 0.16);
+}
+
+.quick-card:nth-child(3) > span {
+    background:
+        linear-gradient(
+            135deg,
+            #8ea586,
+            #718a6b
+        );
+}
+
+.quick-card strong {
+    color: #453b34;
+}
+
+.quick-card small {
+    color: var(--muted);
+}
+
+/* ======================================================
+   BIỂU ĐỒ VÀ HÓA ĐƠN TRONG NGÀY
+====================================================== */
+
+.home-chart-card,
+.home-today-invoice-card {
+    border-color: #e4d8c2;
+
+    background:
+        rgba(255, 250, 240, 0.97);
+}
+
+.home-chart-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.home-chart-card::after {
+    content: "";
+
+    position: absolute;
+    right: -30px;
+    bottom: -45px;
+
+    width: 190px;
+    height: 190px;
+
+    border:
+        18px double
+        rgba(127, 152, 119, 0.045);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.home-chart-container {
+    position: relative;
+    z-index: 1;
+}
+
+.home-chart-empty {
+    color: var(--muted);
+}
+
+.home-chart-empty i {
+    color: var(--coffee);
+}
+
+.home-chart-empty strong {
+    color: #463d36;
+}
+
+/* ======================================================
+   CẢNH BÁO KHO
+====================================================== */
+
+.warning-stock-item {
+    border-color: #e0d5bf;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff9ed,
+            #f5eddd
+        );
+}
+
+.warning-stock-item:hover {
+    border-color: #bdac90;
+}
+
+.warning-stock-value {
+    color: #9b6740;
+}
+
+/* ======================================================
+   SẢN PHẨM
+====================================================== */
+
+.product-display-card,
+.product-pick,
+.menu-item,
+.catalog-card {
+    border-color: #e3d7c1;
+
+    background: #fffaf0;
+}
+
+.product-display-card:hover,
+.product-pick:not(:disabled):hover,
+.menu-item:not(.disabled):hover {
+    border-color: var(--sage);
+
+    background: #f3f6ef;
+}
+
+.product-display-icon,
+.product-pick-icon,
+.menu-item-icon,
+.menu-detail-icon {
+    background:
+        linear-gradient(
+            135deg,
+            #e4ecdf,
+            #c8d8c2
+        );
+
+    color: var(--sage-dark);
+}
+
+.product-display-category,
+.menu-card-category {
+    color: var(--sage-dark);
+}
+
+.product-display-footer > strong,
+.product-pick-content > span,
+.menu-card-price,
+.menu-detail-price {
+    color: #946146;
+}
+
+/* ======================================================
+   HÓA ĐƠN
+====================================================== */
+
+.invoice-card {
+    border-top:
+        3px solid
+        var(--sage);
+}
+
+.invoice-code {
+    color: var(--sage-dark);
+}
+
+.filter-button.active,
+.filter-button:hover,
+.tab.active,
+.tab:hover,
+.zone-tab.active,
+.zone-tab:hover {
+    border-color: var(--sage);
+
+    background: var(--sage);
+
+    color: #ffffff;
+}
+
+.invoice-total-box {
+    border-color: #dfd2bc;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff9ed,
+            #f5ecdd
+        );
+}
+
+.grand-total-row {
+    border-color: #dccab1;
+}
+
+.grand-total-row strong,
+.invoice-total {
+    color: #80604e;
+}
+
+.payment-default-notice {
+    border-color: #cfdac9;
+
+    background: #edf3e9;
+}
+
+.payment-default-notice > i {
+    background: #d6e3d0;
+
+    color: var(--sage-dark);
+}
+
+/* ======================================================
+   LOẠI KHÁCH HÀNG
+====================================================== */
+
+.customer-mode-item > span {
+    border-color: #dfd3bf;
+
+    background: #fffaf1;
+}
+
+.customer-mode-item > input:checked + span {
+    border-color: var(--sage);
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef3e9,
+            #e0e9da
+        );
+
+    box-shadow:
+        0 0 0 3px
+        rgba(127, 152, 119, 0.12);
+}
+
+.customer-mode-item
+> input:checked
++ span
+> i,
+.customer-mode-item
+> input:checked
++ span
+strong {
+    color: var(--sage-dark);
+}
+
+/* ======================================================
+   TÌM KIẾM KHÁCH HÀNG
+====================================================== */
+
+.customer-search-results {
+    border-color: #dbcfb9;
+
+    background: #fffaf0;
+
+    box-shadow:
+        0 13px 30px
+        rgba(90, 73, 56, 0.13);
+}
+
+.customer-search-item {
+    border-color: #eee4d3;
+
+    background: #fffaf0;
+
+    color: var(--text);
+}
+
+.customer-search-item:hover {
+    background: #edf2e9;
+}
+
+.customer-search-icon,
+.selected-customer-avatar {
+    background:
+        linear-gradient(
+            135deg,
+            #dfe9da,
+            #c8d8c2
+        );
+
+    color: var(--sage-dark);
+}
+
+.customer-search-points,
+.selected-customer-actions strong {
+    color: var(--sage-dark);
+}
+
+.selected-customer-card {
+    border-color: #bfcfb9;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f1f5ed,
+            #e6eee1
+        );
+}
+
+/* ======================================================
+   VOUCHER
+====================================================== */
+
+.voucher-point-card,
+.voucher-rule-card,
+.voucher-option,
+.invoice-voucher-box {
+    border-color: #ded2bd;
+
+    background: #fff9ee;
+}
+
+.voucher-point-icon {
+    background: #dfe9da;
+
+    color: var(--sage-dark);
+}
+
+.selected-voucher-preview,
+.used-voucher-box {
+    border-color: #c8b095;
+
+    background: #f8eddd;
+}
+
+.selected-voucher-preview > i,
+.used-voucher-box > i {
+    color: var(--coffee);
+}
+
+.selected-voucher-preview strong,
+.used-voucher-box strong {
+    color: var(--coffee-dark);
+}
+
+/* ======================================================
+   THỐNG KÊ
+====================================================== */
+
+.statistics-summary-grid .summary-card {
+    border-color: #e2d6c1;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffaf0,
+            #f6edde
+        );
+}
+
+.chart-card,
+.revenue-chart-card {
+    background: #fffaf0;
+}
+
+.best-seller-rank {
+    background: var(--sage-soft);
+
+    color: var(--sage-dark);
+}
+
+.best-seller-revenue {
+    color: var(--coffee);
+}
+
+/* ======================================================
+   MODAL
+====================================================== */
+
+.modal-overlay {
+    background:
+        rgba(60, 49, 39, 0.54);
+}
+
+.modal-dialog,
+.modal-card,
+.modal-content {
+    border-color: var(--border);
+
+    background: #fffaf0;
+
+    box-shadow: var(--shadow-lg);
+}
+
+/* ======================================================
+   ALERT
+====================================================== */
+
+.alert-success {
+    border-color: #cadbc4;
+
+    background: #e7efe1;
+
+    color: #52704d;
+}
+
+.alert-warning {
+    border-color: #e5cda9;
+
+    background: #faedda;
+
+    color: #9b6437;
+}
+
+.alert-danger {
+    border-color: #e3c0bc;
+
+    background: #f7e3e0;
+
+    color: #a34f49;
+}
+
+/* ======================================================
+   LOGIN
+====================================================== */
+
+.background-left {
+    background:
+        radial-gradient(
+            circle at 18% 15%,
+            rgba(255, 255, 255, 0.16),
+            transparent 30%
+        ),
+        linear-gradient(
+            155deg,
+            #718a6b 0%,
+            #829a79 54%,
+            #667e61 100%
+        );
+}
+
+.background-right {
+    background:
+        linear-gradient(
+            135deg,
+            #f4eddd,
+            #faf6eb
+        );
+}
+
+.login-card {
+    border:
+        1px solid
+        #e1d5bf;
+
+    background:
+        rgba(255, 250, 240, 0.98);
+
+    box-shadow:
+        0 24px 65px
+        rgba(82, 66, 51, 0.2);
+}
+
+.brand-logo {
+    border-color: #ded0b9;
+
+    background: #fffaf0;
+}
+
+.introduction-label {
+    color: var(--sage-dark);
+}
+
+.introduction h1,
+.login-header h2 {
+    color: #39322c;
+}
+
+.introduction h1 span {
+    color: var(--coffee);
+}
+
+.introduction p,
+.login-header p,
+.login-note {
+    color: var(--muted);
+}
+
+.coffee-image {
+    border-color: var(--sage-dark);
+
+    background: var(--sage-soft);
+
+    box-shadow:
+        0 18px 38px
+        rgba(83, 101, 77, 0.23);
+}
+
+.welcome-icon {
+    background:
+        linear-gradient(
+            135deg,
+            #dfe9da,
+            #c5d5bf
+        );
+
+    color: var(--sage-dark);
+}
+
+.input-wrapper input {
+    border-color: #ded1bb;
+
+    background: #fffdf8;
+}
+
+.input-wrapper input:hover {
+    border-color: #b7aa91;
+}
+
+.input-wrapper input:focus {
+    border-color: var(--sage);
+
+    box-shadow:
+        0 0 0 4px
+        rgba(127, 152, 119, 0.14);
+}
+
+.input-icon,
+.password-toggle {
+    color: #988e80;
+}
+
+.remember-option
+input:checked
++ .checkbox-design {
+    border-color: var(--sage);
+
+    background: var(--sage);
+}
+
+.login-button {
+    background:
+        linear-gradient(
+            135deg,
+            #708a69,
+            #879f80
+        );
+
+    box-shadow:
+        0 10px 23px
+        rgba(99, 126, 93, 0.26);
+}
+
+.login-button:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #5e7959,
+            #748d6e
+        );
+
+    box-shadow:
+        0 14px 28px
+        rgba(86, 109, 81, 0.31);
+}
+
+.login-note i {
+    color: var(--sage-dark);
+}
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+}
+
+::-webkit-scrollbar-track {
+    background: #eee5d5;
+}
+
+::-webkit-scrollbar-thumb {
+    border:
+        2px solid
+        #eee5d5;
+
+    border-radius: 999px;
+
+    background: #a5b59e;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #809779;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 900px) {
+    .home-hero {
+        padding: 23px;
+    }
+
+    .home-hero::after {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .home-summary-card {
+        min-height: 86px;
+    }
+
+    .quick-card {
+        min-height: 72px;
+    }
+}

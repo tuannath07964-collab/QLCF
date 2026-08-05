@@ -25,6 +25,8 @@
         <link rel="stylesheet"
               href="${pageContext.request.contextPath}/css/store.css?v=90">
 
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/cafe-theme.css?v=2">
     </head>
 
     <body>
@@ -146,8 +148,8 @@
 
                                             <tr class="customer-row"
                                                 data-search="${kh.maKH}
-                                                             ${kh.hoTen}
-                                                             ${kh.sdt}">
+                                                ${kh.hoTen}
+                                                ${kh.sdt}">
 
                                                 <td>
 
@@ -217,9 +219,9 @@
                                                                 class="table-action"
                                                                 title="Cập nhật"
                                                                 onclick="openCustomerModal(
-                                                                    '${pageContext.request.contextPath}/khachhang?action=loadForm&maKH=${kh.maKH}',
-                                                                    'Cập nhật khách hàng'
-                                                                )">
+                                                                                '${pageContext.request.contextPath}/khachhang?action=loadForm&maKH=${kh.maKH}',
+                                                                                                'Cập nhật khách hàng'
+                                                                                                )">
 
                                                             <i class="fa-solid fa-pen"></i>
 
@@ -237,8 +239,8 @@
                                                            href="${pageContext.request.contextPath}/khachhang?action=delete&maKH=${kh.maKH}"
                                                            title="Xóa"
                                                            onclick="return confirm(
-                                                               'Xác nhận xóa khách hàng này?'
-                                                           )">
+                                                                           'Xác nhận xóa khách hàng này?'
+                                                                           )">
 
                                                             <i class="fa-solid fa-trash-can"></i>
 
@@ -329,31 +331,31 @@
             const customerModal =
                     document.getElementById(
                             "customerModal"
-                    );
+                            );
 
             function openCustomerModal(
                     url,
                     title
-            ) {
+                    ) {
                 document.getElementById(
                         "customerModalTitle"
-                ).textContent = title;
+                        ).textContent = title;
 
                 document.getElementById(
                         "customerModalBody"
-                ).innerHTML =
+                        ).innerHTML =
                         '<div class="loading-state">Đang tải...</div>';
 
                 customerModal.classList.add(
                         "show"
-                );
+                        );
 
                 fetch(url)
                         .then(function (response) {
                             if (!response.ok) {
                                 throw new Error(
                                         "Không tải được biểu mẫu."
-                                );
+                                        );
                             }
 
                             return response.text();
@@ -361,12 +363,12 @@
                         .then(function (html) {
                             document.getElementById(
                                     "customerModalBody"
-                            ).innerHTML = html;
+                                    ).innerHTML = html;
                         })
                         .catch(function (error) {
                             document.getElementById(
                                     "customerModalBody"
-                            ).innerHTML =
+                                    ).innerHTML =
                                     '<div class="alert alert-danger">'
                                     + error.message
                                     + '</div>';
@@ -376,16 +378,16 @@
             function closeCustomerModal() {
                 customerModal.classList.remove(
                         "show"
-                );
+                        );
             }
 
             customerModal.addEventListener(
                     "click",
                     function (event) {
                         if (
-                            event.target
-                            === customerModal
-                        ) {
+                                event.target
+                                === customerModal
+                                ) {
                             closeCustomerModal();
                         }
                     }
@@ -393,35 +395,35 @@
 
             document.getElementById(
                     "customerSearch"
-            ).addEventListener(
+                    ).addEventListener(
                     "input",
                     function () {
                         const keyword =
                                 this.value
-                                        .toLowerCase()
-                                        .normalize("NFD")
-                                        .replace(
-                                                /[\u0300-\u036f]/g,
-                                                ""
+                                .toLowerCase()
+                                .normalize("NFD")
+                                .replace(
+                                        /[\u0300-\u036f]/g,
+                                        ""
                                         );
 
                         document.querySelectorAll(
                                 ".customer-row"
-                        ).forEach(
+                                ).forEach(
                                 function (row) {
                                     const text =
                                             row.dataset.search
-                                                    .toLowerCase()
-                                                    .normalize("NFD")
-                                                    .replace(
-                                                            /[\u0300-\u036f]/g,
-                                                            ""
+                                            .toLowerCase()
+                                            .normalize("NFD")
+                                            .replace(
+                                                    /[\u0300-\u036f]/g,
+                                                    ""
                                                     );
 
                                     row.style.display =
                                             text.includes(
                                                     keyword
-                                            )
+                                                    )
                                             ? ""
                                             : "none";
                                 }

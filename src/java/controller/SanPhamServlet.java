@@ -2,20 +2,33 @@ package controller;
 
 import dao.DanhMucSanPhamDAO;
 import dao.SanPhamDAO;
+import dao.SanPhamHinhAnhDAO;
 import dao.khoDAO;
 
 import model.SanPham;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 
 import java.io.IOException;
+import java.io.InputStream;
+
 import java.math.BigDecimal;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 @WebServlet(
         urlPatterns = {
@@ -23,10 +36,18 @@ import java.math.BigDecimal;
             "/san-pham/danh-sach"
         }
 )
+@MultipartConfig(
+        maxFileSize = 5 * 1024 * 1024,
+        maxRequestSize = 6 * 1024 * 1024
+)
 public class SanPhamServlet
         extends HttpServlet {
 
+    private static final long MAX_IMAGE_SIZE =
+            5L * 1024L * 1024L;
+
     private SanPhamDAO sanPhamDAO;
+    private SanPhamHinhAnhDAO hinhAnhDAO;
     private DanhMucSanPhamDAO danhMucDAO;
     private khoDAO nguyenLieuDAO;
 
@@ -36,6 +57,9 @@ public class SanPhamServlet
 
         sanPhamDAO =
                 new SanPhamDAO();
+
+        hinhAnhDAO =
+                new SanPhamHinhAnhDAO();
 
         danhMucDAO =
                 new DanhMucSanPhamDAO();
@@ -55,9 +79,8 @@ public class SanPhamServlet
         }
 
         if (
-            "/san-pham/danh-sach"
-                .equals(
-                    request.getServletPath()
+                "/san-pham/danh-sach".equals(
+                        request.getServletPath()
                 )
         ) {
             loadDanhSach(
@@ -80,14 +103,32 @@ public class SanPhamServlet
                                 "id"
                         );
 
-                if (
-                    id != null
-                    && !id.isBlank()
-                ) {
+                boolean edit =
+                        id != null
+                        && !id.isBlank();
+
+                request.setAttribute(
+                        "sanPhamFormEdit",
+                        edit
+                );
+
+                if (edit) {
+                    SanPham sanPham =
+                            sanPhamDAO.findById(id);
+
+                    if (sanPham == null) {
+                        throw new IllegalArgumentException(
+                                "Không tìm thấy sản phẩm."
+                        );
+                    }
+
+                    sanPham.setHinhAnh(
+                            hinhAnhDAO.findHinhAnh(id)
+                    );
+
                     request.setAttribute(
                             "sanPhamEdit",
-                            sanPhamDAO
-                                .findById(id)
+                            sanPham
                     );
                 }
 
@@ -120,7 +161,7 @@ public class SanPhamServlet
                 request.setAttribute(
                         "congThucMap",
                         sanPhamDAO
-                            .getCongThucMap(id)
+                                .getCongThucMap(id)
                 );
 
                 request.setAttribute(
@@ -139,12 +180,12 @@ public class SanPhamServlet
                     response
             );
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
 
             request.setAttribute(
                     "errorMessage",
-                    e.getMessage()
+                    getErrorMessage(exception)
             );
 
             loadQuanLy(
@@ -168,12 +209,24 @@ public class SanPhamServlet
             return;
         }
 
-        String action =
-                request.getParameter(
-                        "action"
-                );
+        String hinhAnhMoiDaLuu =
+                null;
+
+        String hinhAnhCu =
+                null;
+
+        SanPham sanPham =
+                null;
+
+        boolean edit =
+                false;
 
         try {
+            String action =
+                    request.getParameter(
+                            "action"
+                    );
+
             if ("toggle".equals(action)) {
                 sanPhamDAO.toggleStatus(
                         request.getParameter(
@@ -212,54 +265,57 @@ public class SanPhamServlet
                 return;
             }
 
-            SanPham sanPham =
-                    new SanPham();
+            sanPham =
+                    readSanPham(request);
 
-            sanPham.setMaSanPham(
-                    request.getParameter(
-                            "maSanPham"
-                    )
-            );
-
-            sanPham.setTenSanPham(
-                    request.getParameter(
-                            "tenSanPham"
-                    )
-            );
-
-            sanPham.setMaDanhMuc(
-                    request.getParameter(
-                            "maDanhMuc"
-                    )
-            );
-
-            try {
-                sanPham.setGiaBan(
-                        new BigDecimal(
-                            request.getParameter(
-                                "giaBan"
-                            )
-                        )
-                );
-
-            } catch (Exception e) {
-                throw new IllegalArgumentException(
-                        "Giá sản phẩm không hợp lệ."
-                );
-            }
-
-            sanPham.setTrangThai(
-                    request.getParameter(
-                            "trangThai"
-                    ) != null
-            );
-
-            boolean edit =
+            edit =
                     "edit".equals(
                             request.getParameter(
                                     "mode"
                             )
                     );
+
+            if (edit) {
+                hinhAnhCu =
+                        hinhAnhDAO.findHinhAnh(
+                                sanPham.getMaSanPham()
+                        );
+            }
+
+            boolean xoaHinhAnh =
+                    "true".equals(
+                            request.getParameter(
+                                    "xoaHinhAnh"
+                            )
+                    );
+
+            Part hinhAnhPart =
+                    request.getPart(
+                            "hinhAnhFile"
+                    );
+
+            if (
+                    hinhAnhPart != null
+                    && hinhAnhPart.getSize() > 0
+            ) {
+                hinhAnhMoiDaLuu =
+                        saveImage(
+                                hinhAnhPart,
+                                sanPham.getMaSanPham()
+                        );
+
+                sanPham.setHinhAnh(
+                        hinhAnhMoiDaLuu
+                );
+
+            } else if (xoaHinhAnh) {
+                sanPham.setHinhAnh(null);
+
+            } else {
+                sanPham.setHinhAnh(
+                        hinhAnhCu
+                );
+            }
 
             if (edit) {
                 sanPhamDAO.update(
@@ -272,19 +328,69 @@ public class SanPhamServlet
                 );
             }
 
+            hinhAnhDAO.updateHinhAnh(
+                    sanPham.getMaSanPham(),
+                    sanPham.getHinhAnh()
+            );
+
+            if (
+                    hinhAnhMoiDaLuu != null
+                    && hinhAnhCu != null
+                    && !hinhAnhCu.equals(
+                            hinhAnhMoiDaLuu
+                    )
+            ) {
+                deleteImage(hinhAnhCu);
+            }
+
+            if (
+                    hinhAnhMoiDaLuu == null
+                    && sanPham.getHinhAnh() == null
+                    && hinhAnhCu != null
+            ) {
+                deleteImage(hinhAnhCu);
+            }
+
             redirectSuccess(
                     request,
                     response,
                     "save"
             );
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
+            if (hinhAnhMoiDaLuu != null) {
+                deleteImage(
+                        hinhAnhMoiDaLuu
+                );
+            }
 
             request.setAttribute(
                     "errorMessage",
-                    e.getMessage()
+                    getErrorMessage(exception)
             );
+
+            request.setAttribute(
+                    "showSanPhamModal",
+                    true
+            );
+
+            request.setAttribute(
+                    "sanPhamFormEdit",
+                    edit
+            );
+
+            if (sanPham != null) {
+                sanPham.setHinhAnh(
+                        hinhAnhCu
+                );
+
+                request.setAttribute(
+                        "sanPhamEdit",
+                        sanPham
+                );
+            }
 
             loadQuanLy(
                     request,
@@ -293,28 +399,226 @@ public class SanPhamServlet
         }
     }
 
+    private SanPham readSanPham(
+            HttpServletRequest request
+    ) {
+        SanPham sanPham =
+                new SanPham();
+
+        sanPham.setMaSanPham(
+                trim(
+                        request.getParameter(
+                                "maSanPham"
+                        )
+                )
+        );
+
+        sanPham.setTenSanPham(
+                trim(
+                        request.getParameter(
+                                "tenSanPham"
+                        )
+                )
+        );
+
+        sanPham.setMaDanhMuc(
+                trim(
+                        request.getParameter(
+                                "maDanhMuc"
+                        )
+                )
+        );
+
+        try {
+            sanPham.setGiaBan(
+                    new BigDecimal(
+                            request.getParameter(
+                                    "giaBan"
+                            )
+                    )
+            );
+
+        } catch (Exception exception) {
+            throw new IllegalArgumentException(
+                    "Giá sản phẩm không hợp lệ."
+            );
+        }
+
+        sanPham.setTrangThai(
+                request.getParameter(
+                        "trangThai"
+                ) != null
+        );
+
+        return sanPham;
+    }
+
+    private String saveImage(
+            Part imagePart,
+            String maSanPham
+    ) throws IOException {
+
+        if (imagePart.getSize() > MAX_IMAGE_SIZE) {
+            throw new IllegalArgumentException(
+                    "Ảnh sản phẩm không được lớn hơn 5 MB."
+            );
+        }
+
+        String contentType =
+                imagePart.getContentType();
+
+        String extension =
+                getImageExtension(
+                        contentType
+                );
+
+        if (extension == null) {
+            throw new IllegalArgumentException(
+                    "Chỉ được chọn ảnh JPG, JPEG, PNG hoặc WEBP."
+            );
+        }
+
+        String safeProductCode =
+                maSanPham
+                        .replaceAll(
+                                "[^a-zA-Z0-9_-]",
+                                ""
+                        );
+
+        if (safeProductCode.isBlank()) {
+            safeProductCode =
+                    "san-pham";
+        }
+
+        String fileName =
+                safeProductCode
+                + "-"
+                + UUID.randomUUID()
+                + extension;
+
+        Path uploadDirectory =
+                getUploadDirectory();
+
+        Files.createDirectories(
+                uploadDirectory
+        );
+
+        Path targetFile =
+                uploadDirectory
+                        .resolve(fileName)
+                        .normalize();
+
+        if (!targetFile.startsWith(uploadDirectory)) {
+            throw new IOException(
+                    "Đường dẫn lưu ảnh không hợp lệ."
+            );
+        }
+
+        try (
+                InputStream inputStream =
+                        imagePart.getInputStream()
+        ) {
+            Files.copy(
+                    inputStream,
+                    targetFile,
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+        }
+
+        return fileName;
+    }
+
+    private String getImageExtension(
+            String contentType
+    ) {
+        if (contentType == null) {
+            return null;
+        }
+
+        return switch (
+                contentType
+                        .toLowerCase(
+                                Locale.ROOT
+                        )
+        ) {
+            case "image/jpeg",
+                 "image/jpg" ->
+                ".jpg";
+
+            case "image/png" ->
+                ".png";
+
+            case "image/webp" ->
+                ".webp";
+
+            default ->
+                null;
+        };
+    }
+
+    private Path getUploadDirectory() {
+        return Path.of(
+                System.getProperty(
+                        "user.home"
+                ),
+                "QLCF_uploads",
+                "sanpham"
+        ).toAbsolutePath().normalize();
+    }
+
+    private void deleteImage(
+            String fileName
+    ) {
+        if (
+                fileName == null
+                || fileName.isBlank()
+        ) {
+            return;
+        }
+
+        try {
+            Path uploadDirectory =
+                    getUploadDirectory();
+
+            Path imageFile =
+                    uploadDirectory
+                            .resolve(fileName)
+                            .normalize();
+
+            if (imageFile.startsWith(uploadDirectory)) {
+                Files.deleteIfExists(
+                        imageFile
+                );
+            }
+
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
     private void loadQuanLy(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        String keyword =
-                request.getParameter(
-                        "keyword"
+        List<SanPham> sanPhamList =
+                sanPhamDAO.getAll(
+                        request.getParameter(
+                                "keyword"
+                        ),
+                        request.getParameter(
+                                "maDanhMuc"
+                        ),
+                        true
                 );
 
-        String maDanhMuc =
-                request.getParameter(
-                        "maDanhMuc"
-                );
+        hinhAnhDAO.boSungHinhAnh(
+                sanPhamList
+        );
 
         request.setAttribute(
                 "sanPhamList",
-                sanPhamDAO.getAll(
-                        keyword,
-                        maDanhMuc,
-                        true
-                )
+                sanPhamList
         );
 
         request.setAttribute(
@@ -335,8 +639,7 @@ public class SanPhamServlet
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        request.setAttribute(
-                "sanPhamList",
+        List<SanPham> sanPhamList =
                 sanPhamDAO.getAll(
                         request.getParameter(
                                 "keyword"
@@ -345,13 +648,21 @@ public class SanPhamServlet
                                 "maDanhMuc"
                         ),
                         false
-                )
+                );
+
+        hinhAnhDAO.boSungHinhAnh(
+                sanPhamList
+        );
+
+        request.setAttribute(
+                "sanPhamList",
+                sanPhamList
         );
 
         request.setAttribute(
                 "danhMucList",
                 danhMucDAO
-                    .getDangHoatDong()
+                        .getDangHoatDong()
         );
 
         request.getRequestDispatcher(
@@ -385,10 +696,10 @@ public class SanPhamServlet
                 request.getSession(false);
 
         if (
-            session == null
-            || session.getAttribute(
-                    "maNV"
-            ) == null
+                session == null
+                || session.getAttribute(
+                        "maNV"
+                ) == null
         ) {
             response.sendRedirect(
                     request.getContextPath()
@@ -399,5 +710,26 @@ public class SanPhamServlet
         }
 
         return true;
+    }
+
+    private String trim(
+            String value
+    ) {
+        return value == null
+                ? null
+                : value.trim();
+    }
+
+    private String getErrorMessage(
+            Exception exception
+    ) {
+        if (
+                exception.getMessage() == null
+                || exception.getMessage().isBlank()
+        ) {
+            return "Đã xảy ra lỗi khi xử lý sản phẩm.";
+        }
+
+        return exception.getMessage();
     }
 }
