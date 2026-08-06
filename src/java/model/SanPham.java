@@ -10,10 +10,12 @@ public class SanPham {
     private String tenDanhMuc;
     private BigDecimal giaBan;
     private boolean trangThai;
-    private String hinhAnh;
 
     private int soLuongCoTheBan;
     private String congThucText;
+
+    private boolean coHinhAnh;
+    private long hinhAnhVersion;
 
     public SanPham() {
     }
@@ -22,7 +24,9 @@ public class SanPham {
         return maSanPham;
     }
 
-    public void setMaSanPham(String maSanPham) {
+    public void setMaSanPham(
+            String maSanPham
+    ) {
         this.maSanPham = maSanPham;
     }
 
@@ -30,7 +34,9 @@ public class SanPham {
         return tenSanPham;
     }
 
-    public void setTenSanPham(String tenSanPham) {
+    public void setTenSanPham(
+            String tenSanPham
+    ) {
         this.tenSanPham = tenSanPham;
     }
 
@@ -38,7 +44,9 @@ public class SanPham {
         return maDanhMuc;
     }
 
-    public void setMaDanhMuc(String maDanhMuc) {
+    public void setMaDanhMuc(
+            String maDanhMuc
+    ) {
         this.maDanhMuc = maDanhMuc;
     }
 
@@ -46,7 +54,9 @@ public class SanPham {
         return tenDanhMuc;
     }
 
-    public void setTenDanhMuc(String tenDanhMuc) {
+    public void setTenDanhMuc(
+            String tenDanhMuc
+    ) {
         this.tenDanhMuc = tenDanhMuc;
     }
 
@@ -54,7 +64,9 @@ public class SanPham {
         return giaBan;
     }
 
-    public void setGiaBan(BigDecimal giaBan) {
+    public void setGiaBan(
+            BigDecimal giaBan
+    ) {
         this.giaBan = giaBan;
     }
 
@@ -62,35 +74,57 @@ public class SanPham {
         return trangThai;
     }
 
-    public void setTrangThai(boolean trangThai) {
+    public void setTrangThai(
+            boolean trangThai
+    ) {
         this.trangThai = trangThai;
-    }
-
-    public String getHinhAnh() {
-        return hinhAnh;
-    }
-
-    public void setHinhAnh(String hinhAnh) {
-        this.hinhAnh = hinhAnh;
     }
 
     public int getSoLuongCoTheBan() {
         return soLuongCoTheBan;
     }
 
-    public void setSoLuongCoTheBan(int soLuongCoTheBan) {
-        this.soLuongCoTheBan = soLuongCoTheBan;
+    public void setSoLuongCoTheBan(
+            int soLuongCoTheBan
+    ) {
+        this.soLuongCoTheBan =
+                soLuongCoTheBan;
     }
 
     public String getCongThucText() {
         return congThucText;
     }
 
-    public void setCongThucText(String congThucText) {
-        this.congThucText = congThucText;
+    public void setCongThucText(
+            String congThucText
+    ) {
+        this.congThucText =
+                congThucText;
+    }
+
+    public boolean isCoHinhAnh() {
+        return coHinhAnh;
+    }
+
+    public void setCoHinhAnh(
+            boolean coHinhAnh
+    ) {
+        this.coHinhAnh = coHinhAnh;
+    }
+
+    public long getHinhAnhVersion() {
+        return hinhAnhVersion;
+    }
+
+    public void setHinhAnhVersion(
+            long hinhAnhVersion
+    ) {
+        this.hinhAnhVersion =
+                hinhAnhVersion;
     }
 
     public boolean isCoTheBan() {
-        return trangThai && soLuongCoTheBan > 0;
+        return trangThai
+                && soLuongCoTheBan > 0;
     }
 }

@@ -31,6 +31,9 @@
         <link rel="stylesheet"
               href="${pageContext.request.contextPath}/css/cafe-theme.css?v=4">
 
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/product-image.css?v=1">
+
     </head>
 
     <body>
@@ -50,7 +53,7 @@
                            value="Quản lý sản phẩm"/>
 
                 <jsp:param name="subtitle"
-                           value="Thêm, sửa, hình ảnh, trạng thái và công thức"/>
+                           value="Thêm, sửa, ngừng bán và cấu hình công thức"/>
 
             </jsp:include>
 
@@ -111,8 +114,8 @@
                         <h2>Quản lý sản phẩm</h2>
 
                         <p>
-                            Thêm ảnh đại diện, giá bán, danh mục
-                            và công thức nguyên liệu của sản phẩm.
+                            Công thức quyết định số lượng nguyên liệu
+                            bị trừ khi thanh toán hóa đơn.
                         </p>
 
                     </div>
@@ -225,22 +228,33 @@
 
                                                     <div class="product-table-image">
 
-                                                        <c:if test="${not empty sanPham.hinhAnh}">
+                                                        <c:choose>
 
-                                                            <img src="${pageContext.request.contextPath}/product-image/${sanPham.hinhAnh}"
-                                                                 alt="${sanPham.tenSanPham}"
-                                                                 data-product-image>
+                                                            <c:when test="${sanPham.coHinhAnh}">
 
-                                                        </c:if>
+                                                                <img src="${pageContext.request.contextPath}/image/products/${sanPham.maSanPham}.png?v=${sanPham.hinhAnhVersion}"
+                                                                     alt="${sanPham.tenSanPham}"
+                                                                     data-product-image>
 
-                                                        <span class="product-image-fallback
-                                                              ${not empty sanPham.hinhAnh
-                                                                ? 'hidden'
-                                                                : ''}">
+                                                                <span class="product-image-fallback hidden">
 
-                                                            <i class="fa-solid fa-mug-saucer"></i>
+                                                                    <i class="fa-solid fa-mug-saucer"></i>
 
-                                                        </span>
+                                                                </span>
+
+                                                            </c:when>
+
+                                                            <c:otherwise>
+
+                                                                <span class="product-image-fallback">
+
+                                                                    <i class="fa-solid fa-mug-saucer"></i>
+
+                                                                </span>
+
+                                                            </c:otherwise>
+
+                                                        </c:choose>
 
                                                     </div>
 
@@ -249,7 +263,7 @@
                                                 <td>
 
                                                     <strong>
-                                                        <c:out value="${sanPham.maSanPham}"/>
+                                                        ${sanPham.maSanPham}
                                                     </strong>
 
                                                 </td>
@@ -257,7 +271,9 @@
                                                 <td>
 
                                                     <strong>
+
                                                         <c:out value="${sanPham.tenSanPham}"/>
+
                                                     </strong>
 
                                                 </td>
@@ -295,20 +311,37 @@
 
                                                 <td>
 
-                                                    <span class="badge
-                                                          ${sanPham.trangThai
-                                                            ? 'badge-success'
-                                                            : 'badge-danger'}">
+                                                    <c:choose>
 
-                                                        ${sanPham.trangThai
-                                                          ? 'Đang bán'
-                                                          : 'Ngừng bán'}
+                                                        <c:when test="${not sanPham.trangThai}">
 
-                                                    </span>
+                                                            <span class="badge badge-muted">
+                                                                Ngừng bán
+                                                            </span>
+
+                                                        </c:when>
+
+                                                        <c:when test="${sanPham.coTheBan}">
+
+                                                            <span class="badge badge-success">
+                                                                Đang bán
+                                                            </span>
+
+                                                        </c:when>
+
+                                                        <c:otherwise>
+
+                                                            <span class="badge badge-danger">
+                                                                Hết nguyên liệu
+                                                            </span>
+
+                                                        </c:otherwise>
+
+                                                    </c:choose>
 
                                                 </td>
 
-                                                <td class="product-recipe-cell">
+                                                <td class="recipe-text">
 
                                                     <c:out value="${sanPham.congThucText}"/>
 
@@ -319,24 +352,23 @@
                                                     <div class="table-actions">
 
                                                         <a class="table-action"
-                                                           title="Sửa sản phẩm"
-                                                           href="${pageContext.request.contextPath}/san-pham/quan-ly?action=form&id=${sanPham.maSanPham}">
+                                                           href="${pageContext.request.contextPath}/san-pham/quan-ly?action=form&id=${sanPham.maSanPham}"
+                                                           title="Sửa sản phẩm">
 
                                                             <i class="fa-solid fa-pen"></i>
 
                                                         </a>
 
                                                         <a class="table-action"
-                                                           title="Cấu hình công thức"
-                                                           href="${pageContext.request.contextPath}/san-pham/quan-ly?action=recipe&id=${sanPham.maSanPham}">
+                                                           href="${pageContext.request.contextPath}/san-pham/quan-ly?action=recipe&id=${sanPham.maSanPham}"
+                                                           title="Công thức">
 
                                                             <i class="fa-solid fa-flask"></i>
 
                                                         </a>
 
                                                         <form action="${pageContext.request.contextPath}/san-pham/quan-ly"
-                                                              method="post"
-                                                              class="inline-form">
+                                                              method="post">
 
                                                             <input type="hidden"
                                                                    name="action"
@@ -348,9 +380,7 @@
 
                                                             <button class="table-action"
                                                                     type="submit"
-                                                                    title="${sanPham.trangThai
-                                                                             ? 'Ngừng bán'
-                                                                             : 'Cho phép bán'}">
+                                                                    title="Đổi trạng thái">
 
                                                                 <i class="fa-solid fa-power-off"></i>
 
@@ -436,66 +466,52 @@
 
                         <input type="hidden"
                                name="mode"
-                               value="${sanPhamFormEdit
-                                        ? 'edit'
-                                        : 'add'}">
+                               value="${sanPhamFormEdit ? 'edit' : 'add'}">
 
                         <div class="form-grid">
 
                             <div class="form-group">
 
-                                <label class="form-label"
-                                       for="productCode">
-
+                                <label class="form-label">
                                     Mã sản phẩm
-
                                 </label>
 
                                 <input class="form-control"
-                                       id="productCode"
                                        type="text"
                                        name="maSanPham"
                                        value="${sanPhamEdit.maSanPham}"
                                        maxlength="20"
-                                       placeholder="Ví dụ: M21"
-                                       ${sanPhamFormEdit
-                                         ? 'readonly'
-                                         : ''}
+                                       readonly
                                        required>
+
+                                <span class="form-hint">
+                                    Mã được hệ thống tạo tự động.
+                                </span>
 
                             </div>
 
                             <div class="form-group">
 
-                                <label class="form-label"
-                                       for="productName">
-
+                                <label class="form-label">
                                     Tên sản phẩm
-
                                 </label>
 
                                 <input class="form-control"
-                                       id="productName"
                                        type="text"
                                        name="tenSanPham"
                                        value="${sanPhamEdit.tenSanPham}"
                                        maxlength="255"
-                                       placeholder="Nhập tên sản phẩm"
                                        required>
 
                             </div>
 
                             <div class="form-group">
 
-                                <label class="form-label"
-                                       for="productCategory">
-
+                                <label class="form-label">
                                     Danh mục
-
                                 </label>
 
                                 <select class="form-control"
-                                        id="productCategory"
                                         name="maDanhMuc"
                                         required>
 
@@ -503,7 +519,8 @@
                                                items="${danhMucList}">
 
                                         <option value="${danhMuc.maDanhMuc}"
-                                                ${sanPhamEdit.maDanhMuc == danhMuc.maDanhMuc
+                                                ${sanPhamEdit.maDanhMuc
+                                                  == danhMuc.maDanhMuc
                                                   ? 'selected'
                                                   : ''}>
 
@@ -519,21 +536,16 @@
 
                             <div class="form-group">
 
-                                <label class="form-label"
-                                       for="productPrice">
-
+                                <label class="form-label">
                                     Giá bán
-
                                 </label>
 
                                 <input class="form-control"
-                                       id="productPrice"
                                        type="number"
                                        name="giaBan"
                                        value="${sanPhamEdit.giaBan}"
                                        min="0"
                                        step="1000"
-                                       placeholder="Ví dụ: 25000"
                                        required>
 
                             </div>
@@ -549,25 +561,23 @@
                                     <div class="product-image-preview"
                                          id="productImagePreview">
 
-                                        <c:if test="${not empty sanPhamEdit.hinhAnh}">
+                                        <c:if test="${sanPhamEdit.coHinhAnh}">
 
-                                            <img src="${pageContext.request.contextPath}/product-image/${sanPhamEdit.hinhAnh}"
-                                                 alt="${sanPhamEdit.tenSanPham}"
-                                                 id="productImagePreviewElement"
-                                                 data-original-src="${pageContext.request.contextPath}/product-image/${sanPhamEdit.hinhAnh}">
+                                            <img id="productImagePreviewElement"
+                                                 src="${pageContext.request.contextPath}/image/products/${sanPhamEdit.maSanPham}.png?v=${sanPhamEdit.hinhAnhVersion}"
+                                                 data-original-src="${pageContext.request.contextPath}/image/products/${sanPhamEdit.maSanPham}.png?v=${sanPhamEdit.hinhAnhVersion}"
+                                                 alt="${sanPhamEdit.tenSanPham}">
 
                                         </c:if>
 
                                         <div class="product-image-preview-placeholder
-                                             ${not empty sanPhamEdit.hinhAnh
-                                               ? 'hidden'
-                                               : ''}"
+                                             ${sanPhamEdit.coHinhAnh ? 'hidden' : ''}"
                                              id="productImagePreviewPlaceholder">
 
                                             <i class="fa-solid fa-image"></i>
 
                                             <span>
-                                                Chưa chọn ảnh
+                                                Chưa có ảnh sản phẩm
                                             </span>
 
                                         </div>
@@ -588,18 +598,23 @@
                                         <input type="file"
                                                id="productImageInput"
                                                name="hinhAnhFile"
-                                               accept="image/jpeg,image/png,image/webp"
+                                               accept="image/jpeg,image/png"
                                                hidden>
 
                                         <small>
 
-                                            Hỗ trợ JPG, PNG, WEBP.
-                                            Dung lượng tối đa 5 MB.
+                                            Ảnh được lưu tại
+
+                                            <strong>
+                                                web/image/products
+                                            </strong>
+
+                                            theo mã sản phẩm và có thể commit lên Git.
+                                            Hỗ trợ JPG, JPEG, PNG; tối đa 5 MB.
 
                                         </small>
 
-                                        <c:if test="${sanPhamFormEdit
-                                                      and not empty sanPhamEdit.hinhAnh}">
+                                        <c:if test="${sanPhamFormEdit and sanPhamEdit.coHinhAnh}">
 
                                             <label class="checkbox-item product-remove-image">
 
@@ -680,11 +695,11 @@
 
                         <p>
 
-                            <c:out value="${sanPhamCongThuc.maSanPham}"/>
+                            ${sanPhamCongThuc.maSanPham}
 
                             -
 
-                            <c:out value="${sanPhamCongThuc.tenSanPham}"/>
+                            ${sanPhamCongThuc.tenSanPham}
 
                         </p>
 
@@ -763,9 +778,7 @@
                                                placeholder="0">
 
                                         <span class="recipe-unit">
-
                                             ${nguyenLieu.donVi}
-
                                         </span>
 
                                     </div>

@@ -1,9 +1,12 @@
 package controller;
 
 import dao.DanhMucSanPhamDAO;
+import dao.MaTuDongDAO;
+
 import model.DanhMucSanPham;
 
 import jakarta.servlet.ServletException;
+
 import jakarta.servlet.annotation.WebServlet;
 
 import jakarta.servlet.http.HttpServlet;
@@ -18,12 +21,17 @@ public class DanhMucSanPhamServlet
         extends HttpServlet {
 
     private DanhMucSanPhamDAO dao;
+    private MaTuDongDAO maTuDongDAO;
 
     @Override
     public void init()
             throws ServletException {
 
-        dao = new DanhMucSanPhamDAO();
+        dao =
+                new DanhMucSanPhamDAO();
+
+        maTuDongDAO =
+                new MaTuDongDAO();
     }
 
     @Override
@@ -48,9 +56,23 @@ public class DanhMucSanPhamServlet
                                 "id"
                         );
 
+                DanhMucSanPham danhMuc =
+                        dao.findById(id);
+
+                if (danhMuc == null) {
+                    throw new IllegalArgumentException(
+                            "Không tìm thấy danh mục."
+                    );
+                }
+
+                request.setAttribute(
+                        "danhMucFormEdit",
+                        true
+                );
+
                 request.setAttribute(
                         "danhMucEdit",
-                        dao.findById(id)
+                        danhMuc
                 );
 
                 request.setAttribute(
@@ -60,6 +82,28 @@ public class DanhMucSanPhamServlet
             }
 
             if ("add".equals(action)) {
+                DanhMucSanPham danhMuc =
+                        new DanhMucSanPham();
+
+                danhMuc.setMaDanhMuc(
+                        maTuDongDAO
+                                .taoMaDanhMuc()
+                );
+
+                danhMuc.setTrangThai(
+                        true
+                );
+
+                request.setAttribute(
+                        "danhMucFormEdit",
+                        false
+                );
+
+                request.setAttribute(
+                        "danhMucEdit",
+                        danhMuc
+                );
+
                 request.setAttribute(
                         "showDanhMucModal",
                         true
@@ -71,12 +115,12 @@ public class DanhMucSanPhamServlet
                     response
             );
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
 
             request.setAttribute(
                     "errorMessage",
-                    e.getMessage()
+                    getErrorMessage(exception)
             );
 
             loadPage(
@@ -105,35 +149,86 @@ public class DanhMucSanPhamServlet
                         "action"
                 );
 
+        if ("toggle".equals(action)) {
+            handleToggle(
+                    request,
+                    response
+            );
+
+            return;
+        }
+
+        handleSave(
+                request,
+                response
+        );
+    }
+
+    private void handleToggle(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws ServletException, IOException {
+
         try {
-            if ("toggle".equals(action)) {
-                dao.toggleStatus(
-                        request.getParameter(
-                                "id"
-                        )
-                );
-
-                response.sendRedirect(
-                        request.getContextPath()
-                        + "/danh-muc-san-pham"
-                        + "?success=toggle"
-                );
-
-                return;
-            }
-
-            DanhMucSanPham danhMuc =
-                    new DanhMucSanPham();
-
-            danhMuc.setMaDanhMuc(
+            dao.toggleStatus(
                     request.getParameter(
-                            "maDanhMuc"
+                            "id"
                     )
             );
 
+            response.sendRedirect(
+                    request.getContextPath()
+                    + "/danh-muc-san-pham"
+                    + "?success=toggle"
+            );
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
+            request.setAttribute(
+                    "errorMessage",
+                    getErrorMessage(exception)
+            );
+
+            loadPage(
+                    request,
+                    response
+            );
+        }
+    }
+
+    private void handleSave(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws ServletException, IOException {
+
+        boolean edit =
+                "edit".equals(
+                        request.getParameter(
+                                "mode"
+                        )
+                );
+
+        DanhMucSanPham danhMuc =
+                new DanhMucSanPham();
+
+        try {
+            danhMuc.setMaDanhMuc(
+                    edit
+                    ? trim(
+                            request.getParameter(
+                                    "maDanhMuc"
+                            )
+                    )
+                    : maTuDongDAO
+                            .taoMaDanhMuc()
+            );
+
             danhMuc.setTenDanhMuc(
-                    request.getParameter(
-                            "tenDanhMuc"
+                    trim(
+                            request.getParameter(
+                                    "tenDanhMuc"
+                            )
                     )
             );
 
@@ -143,18 +238,15 @@ public class DanhMucSanPhamServlet
                     ) != null
             );
 
-            boolean edit =
-                    "edit".equals(
-                            request.getParameter(
-                                    "mode"
-                            )
-                    );
-
             if (edit) {
-                dao.update(danhMuc);
+                dao.update(
+                        danhMuc
+                );
 
             } else {
-                dao.insert(danhMuc);
+                dao.insert(
+                        danhMuc
+                );
             }
 
             response.sendRedirect(
@@ -163,12 +255,22 @@ public class DanhMucSanPhamServlet
                     + "?success=save"
             );
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
 
             request.setAttribute(
                     "errorMessage",
-                    e.getMessage()
+                    getErrorMessage(exception)
+            );
+
+            request.setAttribute(
+                    "danhMucFormEdit",
+                    edit
+            );
+
+            request.setAttribute(
+                    "danhMucEdit",
+                    danhMuc
             );
 
             request.setAttribute(
@@ -210,10 +312,10 @@ public class DanhMucSanPhamServlet
                 request.getSession(false);
 
         if (
-            session == null
-            || session.getAttribute(
-                    "maNV"
-            ) == null
+                session == null
+                || session.getAttribute(
+                        "maNV"
+                ) == null
         ) {
             response.sendRedirect(
                     request.getContextPath()
@@ -224,5 +326,26 @@ public class DanhMucSanPhamServlet
         }
 
         return true;
+    }
+
+    private String trim(
+            String value
+    ) {
+        return value == null
+                ? null
+                : value.trim();
+    }
+
+    private String getErrorMessage(
+            Exception exception
+    ) {
+        if (
+                exception.getMessage() == null
+                || exception.getMessage().isBlank()
+        ) {
+            return "Đã xảy ra lỗi khi xử lý danh mục.";
+        }
+
+        return exception.getMessage();
     }
 }

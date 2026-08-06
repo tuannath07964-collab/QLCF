@@ -31,6 +31,9 @@
         <link rel="stylesheet"
               href="${pageContext.request.contextPath}/css/cafe-theme.css?v=4">
 
+        <link rel="stylesheet"
+              href="${pageContext.request.contextPath}/css/product-image.css?v=1">
+
     </head>
 
     <body>
@@ -63,8 +66,8 @@
                         <h2>Sản phẩm đang bán</h2>
 
                         <p>
-                            Ảnh, giá và số phần có thể bán
-                            được lấy từ thông tin quản lý sản phẩm.
+                            Số phần có thể bán được tính tự động
+                            dựa trên công thức và lượng tồn kho.
                         </p>
 
                     </div>
@@ -141,32 +144,37 @@
 
                                     <div class="product-display-media">
 
-                                        <c:if test="${not empty sanPham.hinhAnh}">
+                                        <c:choose>
 
-                                            <img src="${pageContext.request.contextPath}/product-image/${sanPham.hinhAnh}"
-                                                 alt="${sanPham.tenSanPham}"
-                                                 data-product-image>
+                                            <c:when test="${sanPham.coHinhAnh}">
 
-                                        </c:if>
+                                                <img src="${pageContext.request.contextPath}/image/products/${sanPham.maSanPham}.png?v=${sanPham.hinhAnhVersion}"
+                                                     alt="${sanPham.tenSanPham}"
+                                                     data-product-image>
 
-                                        <div class="product-display-image-fallback
-                                             ${not empty sanPham.hinhAnh
-                                               ? 'hidden'
-                                               : ''}">
+                                                <div class="product-display-image-fallback hidden">
 
-                                            <i class="fa-solid fa-mug-saucer"></i>
+                                                    <i class="fa-solid fa-mug-saucer"></i>
 
-                                        </div>
+                                                </div>
 
-                                        <span class="product-display-category-badge">
+                                            </c:when>
 
-                                            <c:out value="${sanPham.tenDanhMuc}"/>
+                                            <c:otherwise>
 
-                                        </span>
+                                                <div class="product-display-image-fallback">
+
+                                                    <i class="fa-solid fa-mug-saucer"></i>
+
+                                                </div>
+
+                                            </c:otherwise>
+
+                                        </c:choose>
 
                                     </div>
 
-                                    <div class="product-display-body">
+                                    <div class="product-display-content">
 
                                         <div class="product-display-category">
 
@@ -181,9 +189,7 @@
                                         </h3>
 
                                         <small>
-
-                                            <c:out value="${sanPham.maSanPham}"/>
-
+                                            ${sanPham.maSanPham}
                                         </small>
 
                                         <p class="product-display-recipe">

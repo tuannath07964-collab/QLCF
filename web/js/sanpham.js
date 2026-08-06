@@ -44,9 +44,7 @@ document.addEventListener(
             }
         }
 
-        function showPreviewImage(
-            source
-        ) {
+        function showImage(source) {
             if (!previewContainer) {
                 return;
             }
@@ -99,19 +97,18 @@ document.addEventListener(
                         return;
                     }
 
-                    const validTypes = [
+                    const allowedTypes = [
                         "image/jpeg",
-                        "image/png",
-                        "image/webp"
+                        "image/png"
                     ];
 
                     if (
-                        !validTypes.includes(
+                        !allowedTypes.includes(
                             file.type
                         )
                     ) {
                         alert(
-                            "Chỉ được chọn ảnh JPG, PNG hoặc WEBP."
+                            "Chỉ được chọn ảnh JPG, JPEG hoặc PNG."
                         );
 
                         imageInput.value = "";
@@ -143,7 +140,7 @@ document.addEventListener(
                     reader.addEventListener(
                         "load",
                         function () {
-                            showPreviewImage(
+                            showImage(
                                 reader.result
                             );
                         }
@@ -177,12 +174,10 @@ document.addEventListener(
 
                     if (
                         previewImage
-                        && previewImage.dataset
-                            .originalSrc
+                        && previewImage.dataset.originalSrc
                     ) {
-                        showPreviewImage(
-                            previewImage.dataset
-                                .originalSrc
+                        showImage(
+                            previewImage.dataset.originalSrc
                         );
                     }
                 }
