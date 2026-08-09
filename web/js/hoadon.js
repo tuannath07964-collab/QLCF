@@ -1,134 +1,177 @@
 document.addEventListener("DOMContentLoaded", function () {
+
     const invoiceForm = document.getElementById("invoiceForm");
-    const productSearch = document.getElementById("productPickerSearch");
-    const cartTableBody = document.getElementById("cartTableBody");
-    const emptyCart = document.getElementById("emptyCart");
 
-    const customerModeRadios = Array.from(
-            document.querySelectorAll('input[name="customerMode"]')
-            );
+    const productSearch =
+            document.getElementById("productPickerSearch");
 
-    const savedCustomerSection = document.getElementById(
-            "savedCustomerSection"
-            );
+    const cartTableBody =
+            document.getElementById("cartTableBody");
 
-    const newCustomerSection = document.getElementById(
-            "newCustomerSection"
-            );
+    const emptyCart =
+            document.getElementById("emptyCart");
 
-    const guestCustomerSection = document.getElementById(
-            "guestCustomerSection"
-            );
+    const customerModeRadios =
+            Array.from(
+                    document.querySelectorAll(
+                            'input[name="customerMode"]'
+                            )
+                    );
 
-    const customerSearchInput = document.getElementById(
-            "customerSearchInput"
-            );
+    const savedCustomerSection =
+            document.getElementById(
+                    "savedCustomerSection"
+                    );
 
-    const customerSearchButton = document.getElementById(
-            "customerSearchButton"
-            );
+    const newCustomerSection =
+            document.getElementById(
+                    "newCustomerSection"
+                    );
 
-    const customerSearchResults = document.getElementById(
-            "customerSearchResults"
-            );
+    const guestCustomerSection =
+            document.getElementById(
+                    "guestCustomerSection"
+                    );
 
-    const customerSearchEmpty = document.getElementById(
-            "customerSearchEmpty"
-            );
+    const selectedCustomerCodeInput =
+            document.getElementById(
+                    "selectedCustomerCodeInput"
+                    );
 
-    const customerSearchHelp = document.getElementById(
-            "customerSearchHelp"
-            );
+    const customerSearchInput =
+            document.getElementById(
+                    "customerSearchInput"
+                    );
 
-    const selectedCustomerCodeInput = document.getElementById(
-            "selectedCustomerCodeInput"
-            );
+    const customerSearchButton =
+            document.getElementById(
+                    "customerSearchButton"
+                    );
 
-    const selectedCustomerCard = document.getElementById(
-            "selectedCustomerCard"
-            );
+    const customerSearchResults =
+            document.getElementById(
+                    "customerSearchResults"
+                    );
 
-    const selectedCustomerName = document.getElementById(
-            "selectedCustomerName"
-            );
+    const customerSearchEmpty =
+            document.getElementById(
+                    "customerSearchEmpty"
+                    );
 
-    const selectedCustomerDetail = document.getElementById(
-            "selectedCustomerDetail"
-            );
+    const customerSearchHelp =
+            document.getElementById(
+                    "customerSearchHelp"
+                    );
 
-    const selectedCustomerPoints = document.getElementById(
-            "selectedCustomerPoints"
-            );
+    const selectedCustomerCard =
+            document.getElementById(
+                    "selectedCustomerCard"
+                    );
 
-    const clearSelectedCustomerButton = document.getElementById(
-            "clearSelectedCustomerButton"
-            );
+    const selectedCustomerName =
+            document.getElementById(
+                    "selectedCustomerName"
+                    );
 
-    const customerSearchItems = Array.from(
-            document.querySelectorAll(".customer-search-item")
-            );
+    const selectedCustomerDetail =
+            document.getElementById(
+                    "selectedCustomerDetail"
+                    );
 
-    const newCustomerName = document.getElementById(
-            "newCustomerName"
-            );
+    const selectedCustomerPoints =
+            document.getElementById(
+                    "selectedCustomerPoints"
+                    );
 
-    const newCustomerPhone = document.getElementById(
-            "newCustomerPhone"
-            );
+    const clearSelectedCustomerButton =
+            document.getElementById(
+                    "clearSelectedCustomerButton"
+                    );
 
-    const voucherSection = document.getElementById(
-            "voucherSection"
-            );
+    const customerSearchItems =
+            Array.from(
+                    document.querySelectorAll(
+                            ".customer-search-item"
+                            )
+                    );
 
-    const voucherSelect = document.getElementById(
-            "voucherSelect"
-            );
+    const newCustomerName =
+            document.getElementById(
+                    "newCustomerName"
+                    );
 
-    const voucherHelpText = document.getElementById(
-            "voucherHelpText"
-            );
+    const newCustomerPhone =
+            document.getElementById(
+                    "newCustomerPhone"
+                    );
 
-    const voucherPreview = document.getElementById(
-            "selectedVoucherPreview"
-            );
+    const voucherSection =
+            document.getElementById(
+                    "voucherSection"
+                    );
 
-    const voucherCodeElement = document.getElementById(
-            "selectedVoucherCode"
-            );
+    const voucherSelect =
+            document.getElementById(
+                    "voucherSelect"
+                    );
 
-    const usedVoucherValue = document.getElementById(
-            "usedVoucherValue"
-            );
+    const voucherHelpText =
+            document.getElementById(
+                    "voucherHelpText"
+                    );
 
-    const subTotalValue = document.getElementById(
-            "subTotalValue"
-            );
+    const voucherPreview =
+            document.getElementById(
+                    "selectedVoucherPreview"
+                    );
 
-    const vatValue = document.getElementById(
-            "vatValue"
-            );
+    const voucherCodeElement =
+            document.getElementById(
+                    "selectedVoucherCode"
+                    );
 
-    const voucherDiscountValue = document.getElementById(
-            "voucherDiscountValue"
-            );
+    const usedVoucherValue =
+            document.getElementById(
+                    "usedVoucherValue"
+                    );
 
-    const grandTotalValue = document.getElementById(
-            "grandTotalValue"
-            );
+    const subTotalValue =
+            document.getElementById(
+                    "subTotalValue"
+                    );
 
-    const cancelInvoiceButton = document.getElementById(
-            "cancelInvoiceButton"
-            );
+    const vatValue =
+            document.getElementById(
+                    "vatValue"
+                    );
 
-    const cancelInvoiceForm = document.getElementById(
-            "cancelInvoiceForm"
-            );
+    const voucherDiscountValue =
+            document.getElementById(
+                    "voucherDiscountValue"
+                    );
 
-    const cancelReasonInput = document.getElementById(
-            "cancelReasonInput"
-            );
+    const grandTotalValue =
+            document.getElementById(
+                    "grandTotalValue"
+                    );
 
-    const voucherOptions = voucherSelect
+    const cancelInvoiceButton =
+            document.getElementById(
+                    "cancelInvoiceButton"
+                    );
+
+    const cancelInvoiceForm =
+            document.getElementById(
+                    "cancelInvoiceForm"
+                    );
+
+    const cancelReasonInput =
+            document.getElementById(
+                    "cancelReasonInput"
+                    );
+
+    const voucherOptions =
+            voucherSelect
             ? Array.from(
                     voucherSelect.querySelectorAll(
                             "option[data-customer]"
@@ -138,7 +181,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function formatMoney(value) {
         return (Number(value) || 0)
-                .toLocaleString("vi-VN") + "đ";
+                .toLocaleString("vi-VN")
+                + "đ";
     }
 
     function normalizeText(value) {
@@ -151,16 +195,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getCustomerMode() {
-        const selectedMode = document.querySelector(
-                'input[name="customerMode"]:checked'
-                );
 
-        return selectedMode
-                ? selectedMode.value
+        const selected =
+                document.querySelector(
+                        'input[name="customerMode"]:checked'
+                        );
+
+        return selected
+                ? selected.value
                 : "guest";
     }
 
     function getCartRows() {
+
         if (!cartTableBody) {
             return [];
         }
@@ -172,13 +219,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
     }
 
-    function findCartRow(productCode) {
-        return getCartRows().find(function (row) {
-            return row.dataset.code === productCode;
-        });
-    }
-
     function updateEmptyCart() {
+
         if (!emptyCart) {
             return;
         }
@@ -190,10 +232,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getSelectedCustomerCode() {
-        if (
-                !selectedCustomerCodeInput
-                || selectedCustomerCodeInput.disabled
-                ) {
+
+        if (!selectedCustomerCodeInput) {
+            return "";
+        }
+
+        if (selectedCustomerCodeInput.disabled) {
             return "";
         }
 
@@ -202,37 +246,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 .trim();
     }
 
-    function getCustomerDisplayText(item) {
-        const code = item.dataset.code || "";
-        const name = item.dataset.name || "";
-        const phone = item.dataset.phone || "";
-
-        return [
-            code,
-            name,
-            phone
-        ]
-                .filter(Boolean)
-                .join(" - ");
-    }
-
-    function setCustomerSearchMessage(
-            message,
-            isError
-            ) {
-        if (!customerSearchHelp) {
-            return;
-        }
-
-        customerSearchHelp.textContent = message;
-
-        customerSearchHelp.classList.toggle(
-                "text-danger",
-                Boolean(isError)
-                );
-    }
-
     function hideCustomerSearchResults() {
+
         if (customerSearchResults) {
             customerSearchResults
                     .classList
@@ -240,10 +255,58 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function setCustomerSearchMessage(
+            message,
+            isError
+            ) {
+
+        if (!customerSearchHelp) {
+            return;
+        }
+
+        customerSearchHelp.textContent =
+                message;
+
+        customerSearchHelp.classList.toggle(
+                "text-danger",
+                Boolean(isError)
+                );
+    }
+
+    function clearSelectedCustomer(
+            clearSearch
+            ) {
+
+        if (selectedCustomerCodeInput) {
+            selectedCustomerCodeInput.value = "";
+        }
+
+        if (
+                clearSearch
+                && customerSearchInput
+                ) {
+            customerSearchInput.value = "";
+        }
+
+        if (selectedCustomerCard) {
+            selectedCustomerCard
+                    .classList
+                    .add("hidden");
+        }
+
+        setCustomerSearchMessage(
+                "Nhập mã, họ tên hoặc số điện thoại để tìm khách hàng.",
+                false
+                );
+
+        filterVouchers(true);
+    }
+
     function selectSavedCustomer(
             item,
             resetVoucher
             ) {
+
         if (
                 !item
                 || !selectedCustomerCodeInput
@@ -251,18 +314,33 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const code = item.dataset.code || "";
-        const name = item.dataset.name || "";
-        const phone = item.dataset.phone || "";
+        const code =
+                item.dataset.code || "";
+
+        const name =
+                item.dataset.name || "";
+
+        const phone =
+                item.dataset.phone || "";
 
         const points =
-                Number(item.dataset.points) || 0;
+                Number(
+                        item.dataset.points
+                        ) || 0;
 
-        selectedCustomerCodeInput.value = code;
+        selectedCustomerCodeInput.value =
+                code;
 
         if (customerSearchInput) {
+
             customerSearchInput.value =
-                    getCustomerDisplayText(item);
+                    [
+                        code,
+                        name,
+                        phone
+                    ]
+                    .filter(Boolean)
+                    .join(" - ");
         }
 
         if (selectedCustomerName) {
@@ -271,6 +349,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (selectedCustomerDetail) {
+
             selectedCustomerDetail.textContent =
                     code
                     + " · "
@@ -294,7 +373,7 @@ document.addEventListener("DOMContentLoaded", function () {
         hideCustomerSearchResults();
 
         setCustomerSearchMessage(
-                "Đã tìm thấy và liên kết khách hàng với hóa đơn.",
+                "Đã chọn khách hàng.",
                 false
                 );
 
@@ -303,35 +382,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
     }
 
-    function clearSelectedCustomer(
-            resetSearchText
-            ) {
-        if (selectedCustomerCodeInput) {
-            selectedCustomerCodeInput.value = "";
-        }
-
-        if (
-                resetSearchText
-                && customerSearchInput
-                ) {
-            customerSearchInput.value = "";
-        }
-
-        if (selectedCustomerCard) {
-            selectedCustomerCard
-                    .classList
-                    .add("hidden");
-        }
-
-        setCustomerSearchMessage(
-                "Nhập mã, họ tên hoặc số điện thoại để tìm khách hàng.",
-                false
-                );
-
-        filterVouchers(true);
-    }
-
     function searchSavedCustomers() {
+
         if (
                 !customerSearchInput
                 || !customerSearchResults
@@ -339,11 +391,13 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const keyword = normalizeText(
-                customerSearchInput.value
-                );
+        const keyword =
+                normalizeText(
+                        customerSearchInput.value
+                        );
 
         if (keyword === "") {
+
             hideCustomerSearchResults();
 
             setCustomerSearchMessage(
@@ -358,6 +412,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         customerSearchItems.forEach(
                 function (item) {
+
                     const searchText =
                             normalizeText(
                                     [
@@ -370,7 +425,9 @@ document.addEventListener("DOMContentLoaded", function () {
                                     );
 
                     const matched =
-                            searchText.includes(keyword);
+                            searchText.includes(
+                                    keyword
+                                    );
 
                     item.classList.toggle(
                             "hidden",
@@ -384,11 +441,12 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
         if (customerSearchEmpty) {
+
             customerSearchEmpty
                     .classList
                     .toggle(
                             "hidden",
-                            matchedCount !== 0
+                            matchedCount > 0
                             );
         }
 
@@ -397,11 +455,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 .remove("hidden");
 
         if (matchedCount === 0) {
+
             setCustomerSearchMessage(
                     "Không tìm thấy khách hàng phù hợp.",
                     true
                     );
+
         } else {
+
             setCustomerSearchMessage(
                     "Tìm thấy "
                     + matchedCount
@@ -412,25 +473,29 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function restoreSelectedCustomer() {
+
         if (!selectedCustomerCodeInput) {
             return;
         }
 
-        const customerCode =
+        const code =
                 selectedCustomerCodeInput
                 .value
                 .trim();
 
-        if (customerCode === "") {
+        if (!code) {
             return;
         }
 
-        const item = customerSearchItems.find(
-                function (customerItem) {
-                    return customerItem.dataset.code
-                            === customerCode;
-                }
-        );
+        const item =
+                customerSearchItems.find(
+                        function (customerItem) {
+
+                            return customerItem
+                                    .dataset
+                                    .code === code;
+                        }
+                );
 
         if (item) {
             selectSavedCustomer(
@@ -441,23 +506,27 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getVoucherValue() {
+
         if (
                 voucherSelect
                 && !voucherSelect.disabled
                 ) {
-            const option =
+
+            const selectedOption =
                     voucherSelect.options[
                             voucherSelect.selectedIndex
                     ];
 
-            if (option) {
+            if (selectedOption) {
+
                 return Number(
-                        option.dataset.value
+                        selectedOption.dataset.value
                         ) || 0;
             }
         }
 
         if (usedVoucherValue) {
+
             return Number(
                     usedVoucherValue.value
                     ) || 0;
@@ -467,6 +536,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateVoucherPreview() {
+
         if (
                 !voucherSelect
                 || !voucherPreview
@@ -480,21 +550,25 @@ document.addEventListener("DOMContentLoaded", function () {
                         voucherSelect.selectedIndex
                 ];
 
-        const voucherCode = option
+        const code =
+                option
                 ? option.dataset.code || ""
                 : "";
 
         if (
-                voucherCode
+                code
                 && !voucherSelect.disabled
                 ) {
+
             voucherCodeElement.textContent =
-                    voucherCode;
+                    code;
 
             voucherPreview
                     .classList
                     .remove("hidden");
+
         } else {
+
             voucherCodeElement.textContent =
                     "—";
 
@@ -504,11 +578,224 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function filterVouchers(
+            resetSelected
+            ) {
+
+        if (!voucherSelect) {
+            updateInvoiceTotal();
+            return;
+        }
+
+        const isSaved =
+                getCustomerMode() === "saved";
+
+        const customerCode =
+                isSaved
+                ? getSelectedCustomerCode()
+                : "";
+
+        let count = 0;
+
+        voucherOptions.forEach(
+                function (option) {
+
+                    const valid =
+                            customerCode !== ""
+                            && option.dataset.customer
+                            === customerCode;
+
+                    option.hidden = !valid;
+                    option.disabled = !valid;
+
+                    if (valid) {
+                        count++;
+                    }
+                }
+        );
+
+        const current =
+                voucherSelect.options[
+                        voucherSelect.selectedIndex
+                ];
+
+        if (
+                resetSelected
+                || customerCode === ""
+                || (
+                        current
+                        && current.dataset.customer
+                        && current.dataset.customer
+                        !== customerCode
+                        )
+                ) {
+            voucherSelect.value = "";
+        }
+
+        voucherSelect.disabled =
+                !isSaved
+                || customerCode === ""
+                || count === 0;
+
+        if (voucherHelpText) {
+
+            if (!isSaved) {
+
+                voucherHelpText.textContent =
+                        "Chỉ khách hàng đã lưu mới được sử dụng voucher.";
+
+            } else if (!customerCode) {
+
+                voucherHelpText.textContent =
+                        "Vui lòng chọn khách hàng.";
+
+            } else if (count === 0) {
+
+                voucherHelpText.textContent =
+                        "Khách hàng không có voucher còn hiệu lực.";
+
+            } else {
+
+                voucherHelpText.textContent =
+                        "Có "
+                        + count
+                        + " voucher còn hiệu lực.";
+            }
+        }
+
+        updateInvoiceTotal();
+    }
+
+    function syncCustomerMode(
+            resetVoucher
+            ) {
+
+        const mode =
+                getCustomerMode();
+
+        const isSaved =
+                mode === "saved";
+
+        const isNew =
+                mode === "new";
+
+        const isGuest =
+                mode === "guest";
+
+        if (savedCustomerSection) {
+
+            savedCustomerSection
+                    .classList
+                    .toggle(
+                            "hidden",
+                            !isSaved
+                            );
+        }
+
+        if (newCustomerSection) {
+
+            newCustomerSection
+                    .classList
+                    .toggle(
+                            "hidden",
+                            !isNew
+                            );
+        }
+
+        if (guestCustomerSection) {
+
+            guestCustomerSection
+                    .classList
+                    .toggle(
+                            "hidden",
+                            !isGuest
+                            );
+        }
+
+        if (selectedCustomerCodeInput) {
+
+            selectedCustomerCodeInput.disabled =
+                    !isSaved;
+        }
+
+        if (customerSearchInput) {
+
+            customerSearchInput.disabled =
+                    !isSaved;
+        }
+
+        if (customerSearchButton) {
+
+            customerSearchButton.disabled =
+                    !isSaved;
+        }
+
+        if (newCustomerName) {
+
+            newCustomerName.disabled =
+                    !isNew;
+
+            newCustomerName.required =
+                    isNew;
+        }
+
+        if (newCustomerPhone) {
+
+            newCustomerPhone.disabled =
+                    !isNew;
+
+            newCustomerPhone.required =
+                    isNew;
+        }
+
+        if (voucherSection) {
+
+            voucherSection
+                    .classList
+                    .toggle(
+                            "hidden",
+                            !isSaved
+                            );
+        }
+
+        if (!isSaved) {
+
+            hideCustomerSearchResults();
+
+            if (voucherSelect) {
+
+                voucherSelect.value = "";
+
+                voucherSelect.disabled =
+                        true;
+            }
+        }
+
+        if (
+                isNew
+                && newCustomerName
+                ) {
+
+            setTimeout(
+                    function () {
+                        newCustomerName.focus();
+                    },
+                    0
+                    );
+        }
+
+        filterVouchers(
+                Boolean(resetVoucher)
+                );
+    }
+
     function calculateSubTotal() {
+
         let subTotal = 0;
 
         getCartRows().forEach(
                 function (row) {
+
                     const price =
                             Number(
                                     row.dataset.price
@@ -519,13 +806,15 @@ document.addEventListener("DOMContentLoaded", function () {
                                     ".cart-quantity"
                                     );
 
-                    let quantity = quantityInput
+                    let quantity =
+                            quantityInput
                             ? Number(
                                     quantityInput.value
                                     ) || 1
                             : 1;
 
                     if (quantity < 1) {
+
                         quantity = 1;
 
                         if (quantityInput) {
@@ -544,8 +833,11 @@ document.addEventListener("DOMContentLoaded", function () {
                                     );
 
                     if (lineTotalElement) {
+
                         lineTotalElement.textContent =
-                                formatMoney(lineTotal);
+                                formatMoney(
+                                        lineTotal
+                                        );
                     }
                 }
         );
@@ -554,336 +846,74 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateInvoiceTotal() {
+
         const subTotal =
                 calculateSubTotal();
 
-        const vat = Math.round(
-                subTotal * 0.08
-                );
+        const vat =
+                Math.round(
+                        subTotal * 0.08
+                        );
 
-        const totalBeforeDiscount =
+        const beforeDiscount =
                 subTotal + vat;
 
-        const voucherValue =
+        const voucher =
                 getVoucherValue();
 
-        const grandTotal = Math.max(
-                0,
-                totalBeforeDiscount - voucherValue
-                );
+        const total =
+                Math.max(
+                        0,
+                        beforeDiscount - voucher
+                        );
 
         if (subTotalValue) {
+
             subTotalValue.textContent =
-                    formatMoney(subTotal);
+                    formatMoney(
+                            subTotal
+                            );
         }
 
         if (vatValue) {
+
             vatValue.textContent =
-                    formatMoney(vat);
+                    formatMoney(
+                            vat
+                            );
         }
 
         if (voucherDiscountValue) {
+
             voucherDiscountValue.textContent =
                     "-"
-                    + formatMoney(voucherValue);
-
-            voucherDiscountValue
-                    .classList
-                    .toggle(
-                            "text-danger",
-                            voucherValue
-                            > totalBeforeDiscount
+                    + formatMoney(
+                            voucher
                             );
         }
 
         if (grandTotalValue) {
+
             grandTotalValue.textContent =
-                    formatMoney(grandTotal);
+                    formatMoney(
+                            total
+                            );
         }
 
         updateVoucherPreview();
         updateEmptyCart();
     }
 
-    function filterVouchers(
-            resetSelectedVoucher
-            ) {
-        if (!voucherSelect) {
-            updateInvoiceTotal();
-            return;
-        }
-
-        const useSavedCustomer =
-                getCustomerMode() === "saved";
-
-        const customerCode =
-                useSavedCustomer
-                ? getSelectedCustomerCode()
-                : "";
-
-        let voucherCount = 0;
-
-        voucherOptions.forEach(
-                function (option) {
-                    const belongsToCustomer =
-                            customerCode !== ""
-                            && option.dataset.customer
-                            === customerCode;
-
-                    option.hidden =
-                            !belongsToCustomer;
-
-                    option.disabled =
-                            !belongsToCustomer;
-
-                    if (belongsToCustomer) {
-                        voucherCount++;
-                    }
-                }
-        );
-
-        const selectedOption =
-                voucherSelect.options[
-                        voucherSelect.selectedIndex
-                ];
-
-        const selectedBelongsToCustomer =
-                Boolean(
-                        selectedOption
-                        && selectedOption.dataset.customer
-                        && selectedOption.dataset.customer
-                        === customerCode
-                        );
-
-        if (
-                resetSelectedVoucher
-                || customerCode === ""
-                || (
-                        selectedOption
-                        && selectedOption.dataset.customer
-                        && !selectedBelongsToCustomer
-                        )
-                ) {
-            voucherSelect.value = "";
-        }
-
-        voucherSelect.disabled =
-                !useSavedCustomer
-                || customerCode === ""
-                || voucherCount === 0;
-
-        if (voucherHelpText) {
-            if (!useSavedCustomer) {
-                voucherHelpText.textContent =
-                        "Chỉ khách hàng đã lưu mới có thể sử dụng voucher.";
-            } else if (customerCode === "") {
-                voucherHelpText.textContent =
-                        "Vui lòng tìm kiếm khách hàng đã lưu để xem voucher.";
-            } else if (voucherCount === 0) {
-                voucherHelpText.textContent =
-                        "Khách hàng này không có voucher còn hiệu lực.";
-            } else {
-                voucherHelpText.textContent =
-                        "Khách hàng có "
-                        + voucherCount
-                        + " voucher còn hiệu lực.";
-            }
-        }
-
-        updateInvoiceTotal();
-    }
-
-    function syncCustomerMode(resetVoucher) {
-        const mode = getCustomerMode();
-
-        const useSavedCustomer =
-                mode === "saved";
-
-        const useNewCustomer =
-                mode === "new";
-
-        const useGuestCustomer =
-                mode === "guest";
-
-        if (savedCustomerSection) {
-            savedCustomerSection.classList.toggle(
-                    "hidden",
-                    !useSavedCustomer
-                    );
-        }
-
-        if (newCustomerSection) {
-            newCustomerSection.classList.toggle(
-                    "hidden",
-                    !useNewCustomer
-                    );
-        }
-
-        if (guestCustomerSection) {
-            guestCustomerSection.classList.toggle(
-                    "hidden",
-                    !useGuestCustomer
-                    );
-        }
-
-        if (customerSearchInput) {
-            customerSearchInput.disabled =
-                    !useSavedCustomer;
-        }
-
-        if (customerSearchButton) {
-            customerSearchButton.disabled =
-                    !useSavedCustomer;
-        }
-
-        if (selectedCustomerCodeInput) {
-            selectedCustomerCodeInput.disabled =
-                    !useSavedCustomer;
-        }
-
-        if (newCustomerName) {
-            newCustomerName.disabled =
-                    !useNewCustomer;
-
-            newCustomerName.required =
-                    useNewCustomer;
-        }
-
-        if (newCustomerPhone) {
-            newCustomerPhone.disabled =
-                    !useNewCustomer;
-
-            newCustomerPhone.required =
-                    useNewCustomer;
-        }
-
-        if (voucherSection) {
-            voucherSection.classList.toggle(
-                    "hidden",
-                    !useSavedCustomer
-                    );
-        }
-
-        if (!useSavedCustomer) {
-            hideCustomerSearchResults();
-
-            if (selectedCustomerCodeInput) {
-                selectedCustomerCodeInput.value = "";
-            }
-
-            if (selectedCustomerCard) {
-                selectedCustomerCard.classList.add(
-                        "hidden"
-                        );
-            }
-
-            if (voucherSelect) {
-                voucherSelect.value = "";
-                voucherSelect.disabled = true;
-            }
-        }
-
-        filterVouchers(resetVoucher);
-    }
-
-    function createProductCell(
-            productCode,
-            productName,
-            productPrice
-            ) {
-        const cell =
-                document.createElement("td");
-
-        const name =
-                document.createElement("strong");
-
-        const price =
-                document.createElement("small");
-
-        const hiddenInput =
-                document.createElement("input");
-
-        name.textContent = productName;
-
-        price.textContent =
-                formatMoney(productPrice);
-
-        hiddenInput.type = "hidden";
-        hiddenInput.name = "maSanPham";
-        hiddenInput.value = productCode;
-
-        cell.appendChild(name);
-        cell.appendChild(price);
-        cell.appendChild(hiddenInput);
-
-        return cell;
-    }
-
-    function createQuantityCell() {
-        const cell =
-                document.createElement("td");
-
-        const input =
-                document.createElement("input");
-
-        input.className = "cart-quantity";
-        input.type = "number";
-        input.name = "soLuong";
-        input.value = "1";
-        input.min = "1";
-        input.step = "1";
-
-        cell.appendChild(input);
-
-        return cell;
-    }
-
-    function createLineTotalCell(
-            productPrice
-            ) {
-        const cell =
-                document.createElement("td");
-
-        cell.className =
-                "cart-line-total";
-
-        cell.textContent =
-                formatMoney(productPrice);
-
-        return cell;
-    }
-
-    function createRemoveCell() {
-        const cell =
-                document.createElement("td");
-
-        const button =
-                document.createElement("button");
-
-        const icon =
-                document.createElement("i");
-
-        button.className = "cart-remove";
-        button.type = "button";
-        button.title = "Xóa sản phẩm";
-
-        icon.className =
-                "fa-solid fa-xmark";
-
-        button.appendChild(icon);
-        cell.appendChild(button);
-
-        return cell;
-    }
-
     function addProductToCart(
-            productButton
+            button
             ) {
+
         if (
-                !productButton
-                || productButton.disabled
-                || productButton.classList
-                .contains("disabled")
+                !button
+                || button.disabled
+                || button.classList.contains(
+                        "disabled"
+                        )
                 ) {
             return;
         }
@@ -892,51 +922,44 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const productCode =
-                productButton.dataset.code;
+        const code =
+                button.dataset.code;
 
-        const productName =
-                productButton.dataset.name;
+        const name =
+                button.dataset.name;
 
-        const productPrice =
+        const price =
                 Number(
-                        productButton.dataset.price
+                        button.dataset.price
                         ) || 0;
 
-        if (
-                !productCode
-                || !productName
-                || productPrice <= 0
-                ) {
-            alert(
-                    "Thông tin sản phẩm không hợp lệ."
-                    );
+        const existing =
+                getCartRows().find(
+                function (row) {
 
-            return;
-        }
+                    return row.dataset.code
+                            === code;
+                }
+        );
 
-        const existingRow =
-                findCartRow(productCode);
+        if (existing) {
 
-        if (existingRow) {
-            const quantityInput =
-                    existingRow.querySelector(
+            const quantity =
+                    existing.querySelector(
                             ".cart-quantity"
                             );
 
-            if (quantityInput) {
-                const currentQuantity =
-                        Number(
-                                quantityInput.value
-                                ) || 1;
-
-                quantityInput.value =
-                        String(
-                                currentQuantity + 1
-                                );
-            }
+            quantity.value =
+                    String(
+                            (
+                                    Number(
+                                            quantity.value
+                                            ) || 1
+                                    ) + 1
+                            );
 
             updateInvoiceTotal();
+
             return;
         }
 
@@ -944,78 +967,63 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.createElement("tr");
 
         row.className = "cart-row";
-        row.dataset.code = productCode;
-        row.dataset.name = productName;
-        row.dataset.price =
-                String(productPrice);
 
-        row.appendChild(
-                createProductCell(
-                        productCode,
-                        productName,
-                        productPrice
-                        )
-                );
+        row.dataset.code = code;
+        row.dataset.name = name;
+        row.dataset.price = String(price);
 
-        row.appendChild(
-                createQuantityCell()
-                );
+        row.innerHTML =
+                "<td>"
+                + "<strong></strong>"
+                + "<small></small>"
+                + "<input type=\"hidden\" name=\"maSanPham\">"
+                + "</td>"
+                + "<td>"
+                + "<input class=\"cart-quantity\" "
+                + "type=\"number\" name=\"soLuong\" "
+                + "value=\"1\" min=\"1\" step=\"1\">"
+                + "</td>"
+                + "<td class=\"cart-line-total\"></td>"
+                + "<td>"
+                + "<button class=\"cart-remove\" "
+                + "type=\"button\">"
+                + "<i class=\"fa-solid fa-xmark\"></i>"
+                + "</button>"
+                + "</td>";
 
-        row.appendChild(
-                createLineTotalCell(
-                        productPrice
-                        )
-                );
+        row.querySelector("strong")
+                .textContent = name;
 
-        row.appendChild(
-                createRemoveCell()
-                );
+        row.querySelector("small")
+                .textContent =
+                formatMoney(price);
+
+        row.querySelector(
+                'input[name="maSanPham"]'
+                ).value = code;
 
         cartTableBody.appendChild(row);
 
         updateInvoiceTotal();
     }
 
-    function filterProducts() {
-        if (!productSearch) {
-            return;
-        }
-
-        const keyword =
-                normalizeText(
-                        productSearch.value
-                        );
-
-        document
-                .querySelectorAll(".product-pick")
-                .forEach(function (button) {
-                    const searchText =
-                            normalizeText(
-                                    button.dataset.search
-                                    );
-
-                    button.style.display =
-                            searchText.includes(keyword)
-                            ? ""
-                            : "none";
-                });
-    }
-
     function validateCustomer() {
-        const mode = getCustomerMode();
+
+        const mode =
+                getCustomerMode();
 
         if (mode === "saved") {
+
             if (
                     getSelectedCustomerCode()
                     === ""
                     ) {
+
                 alert(
-                        "Vui lòng tìm kiếm và chọn khách hàng đã lưu."
+                        "Vui lòng tìm và chọn khách hàng đã lưu."
                         );
 
-                if (customerSearchInput) {
-                    customerSearchInput.focus();
-                }
+                customerSearchInput?.focus();
 
                 return false;
             }
@@ -1027,53 +1035,53 @@ document.addEventListener("DOMContentLoaded", function () {
             return true;
         }
 
-        const customerName =
+        const name =
                 newCustomerName
-                ? newCustomerName.value.trim()
+                ? newCustomerName
+                .value
+                .trim()
                 : "";
 
-        const customerPhone =
+        const phone =
                 newCustomerPhone
-                ? newCustomerPhone.value
+                ? newCustomerPhone
+                .value
                 .replace(/\s+/g, "")
                 : "";
 
-        if (customerName === "") {
+        if (!name) {
+
             alert(
-                    "Vui lòng nhập tên khách hàng mới."
+                    "Vui lòng nhập họ tên khách hàng mới."
                     );
 
-            if (newCustomerName) {
-                newCustomerName.focus();
-            }
+            newCustomerName?.focus();
 
             return false;
         }
 
-        if (customerPhone === "") {
+        if (!phone) {
+
             alert(
                     "Vui lòng nhập số điện thoại khách hàng mới."
                     );
 
-            if (newCustomerPhone) {
-                newCustomerPhone.focus();
-            }
+            newCustomerPhone?.focus();
 
             return false;
         }
 
         if (
                 !/^0\d{8,10}$/.test(
-                        customerPhone
+                        phone
                         )
                 ) {
+
             alert(
-                    "Số điện thoại phải bắt đầu bằng 0 và có từ 9 đến 11 số."
+                    "Số điện thoại phải bắt đầu bằng 0 và có từ 9 đến 11 chữ số."
                     );
 
-            if (newCustomerPhone) {
-                newCustomerPhone.focus();
-            }
+            newCustomerPhone?.focus();
 
             return false;
         }
@@ -1084,12 +1092,14 @@ document.addEventListener("DOMContentLoaded", function () {
     document.addEventListener(
             "click",
             function (event) {
+
                 const productButton =
                         event.target.closest(
                                 ".product-pick"
                                 );
 
                 if (productButton) {
+
                     event.preventDefault();
 
                     addProductToCart(
@@ -1105,6 +1115,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 );
 
                 if (removeButton) {
+
                     event.preventDefault();
 
                     const row =
@@ -1114,94 +1125,93 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     if (row) {
                         row.remove();
-                        updateInvoiceTotal();
                     }
 
-                    return;
-                }
-
-                if (
-                        customerSearchResults
-                        && !customerSearchResults
-                        .classList
-                        .contains("hidden")
-                        && !customerSearchResults
-                        .contains(event.target)
-                        && customerSearchInput
-                        && !customerSearchInput
-                        .contains(event.target)
-                        && customerSearchButton
-                        && !customerSearchButton
-                        .contains(event.target)
-                        ) {
-                    hideCustomerSearchResults();
+                    updateInvoiceTotal();
                 }
             }
     );
 
+    if (productSearch) {
+
+        productSearch.addEventListener(
+                "input",
+                function () {
+
+                    const keyword =
+                            normalizeText(
+                                    productSearch.value
+                                    );
+
+                    document.querySelectorAll(
+                            ".product-pick"
+                            ).forEach(
+                            function (button) {
+
+                                const text =
+                                        normalizeText(
+                                                button.dataset.search
+                                                );
+
+                                button.style.display =
+                                        text.includes(keyword)
+                                        ? ""
+                                        : "none";
+                            }
+                    );
+                }
+        );
+    }
+
     if (cartTableBody) {
+
         cartTableBody.addEventListener(
                 "input",
                 function (event) {
+
                     if (
-                            event.target.classList
+                            event.target
+                            .classList
                             .contains(
                                     "cart-quantity"
                                     )
                             ) {
+
+                        let value =
+                                Number(
+                                        event.target.value
+                                        ) || 1;
+
+                        if (value < 1) {
+                            value = 1;
+                        }
+
+                        event.target.value =
+                                String(value);
+
                         updateInvoiceTotal();
                     }
                 }
         );
-
-        cartTableBody.addEventListener(
-                "change",
-                function (event) {
-                    if (
-                            !event.target.classList
-                            .contains(
-                                    "cart-quantity"
-                                    )
-                            ) {
-                        return;
-                    }
-
-                    let quantity =
-                            Number(
-                                    event.target.value
-                                    ) || 1;
-
-                    if (quantity < 1) {
-                        quantity = 1;
-                    }
-
-                    event.target.value =
-                            String(quantity);
-
-                    updateInvoiceTotal();
-                }
-        );
-    }
-
-    if (productSearch) {
-        productSearch.addEventListener(
-                "input",
-                filterProducts
-                );
     }
 
     customerModeRadios.forEach(
             function (radio) {
+
                 radio.addEventListener(
                         "change",
                         function () {
-                            syncCustomerMode(true);
+
+                            syncCustomerMode(
+                                    true
+                                    );
                         }
                 );
             }
     );
 
     if (customerSearchButton) {
+
         customerSearchButton
                 .addEventListener(
                         "click",
@@ -1210,14 +1220,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (customerSearchInput) {
+
         customerSearchInput
                 .addEventListener(
                         "input",
                         function () {
+
                             if (
                                     getSelectedCustomerCode()
                                     !== ""
                                     ) {
+
                                 clearSelectedCustomer(
                                         false
                                         );
@@ -1231,9 +1244,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 .addEventListener(
                         "keydown",
                         function (event) {
+
                             if (
-                                    event.key === "Enter"
+                                    event.key
+                                    === "Enter"
                                     ) {
+
                                 event.preventDefault();
 
                                 searchSavedCustomers();
@@ -1243,10 +1259,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (customerSearchResults) {
+
         customerSearchResults
                 .addEventListener(
                         "click",
                         function (event) {
+
                             const item =
                                     event.target.closest(
                                             ".customer-search-item"
@@ -1265,22 +1283,23 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (clearSelectedCustomerButton) {
+
         clearSelectedCustomerButton
                 .addEventListener(
                         "click",
                         function () {
+
                             clearSelectedCustomer(
                                     true
                                     );
 
-                            if (customerSearchInput) {
-                                customerSearchInput.focus();
-                            }
+                            customerSearchInput?.focus();
                         }
                 );
     }
 
     if (voucherSelect) {
+
         voucherSelect.addEventListener(
                 "change",
                 updateInvoiceTotal
@@ -1292,10 +1311,12 @@ document.addEventListener("DOMContentLoaded", function () {
             && cancelInvoiceForm
             && cancelReasonInput
             ) {
+
         cancelInvoiceButton
                 .addEventListener(
                         "click",
                         function () {
+
                             const reason =
                                     window.prompt(
                                             "Nhập lý do hủy hóa đơn:"
@@ -1305,9 +1326,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                 return;
                             }
 
-                            if (
-                                    reason.trim() === ""
-                                    ) {
+                            if (!reason.trim()) {
+
                                 alert(
                                         "Vui lòng nhập lý do hủy."
                                         );
@@ -1332,14 +1352,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (invoiceForm) {
+
         invoiceForm.addEventListener(
                 "submit",
                 function (event) {
-                    const submitButton =
+
+                    const button =
                             event.submitter;
 
-                    const action = submitButton
-                            ? submitButton.value
+                    const action =
+                            button
+                            ? button.value
                             : "";
 
                     if (
@@ -1350,8 +1373,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
 
                     if (
-                            getCartRows().length === 0
+                            getCartRows().length
+                            === 0
                             ) {
+
                         event.preventDefault();
 
                         alert(
@@ -1362,7 +1387,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
 
                     if (!validateCustomer()) {
+
                         event.preventDefault();
+
                         return;
                     }
 
@@ -1370,62 +1397,27 @@ document.addEventListener("DOMContentLoaded", function () {
                         return;
                     }
 
-                    const voucherValue =
+                    const voucher =
                             getVoucherValue();
 
-                    const subTotal =
+                    const subtotal =
                             calculateSubTotal();
 
-                    const vat = Math.round(
-                            subTotal * 0.08
-                            );
-
-                    const totalBeforeDiscount =
-                            subTotal + vat;
+                    const vat =
+                            Math.round(
+                                    subtotal * 0.08
+                                    );
 
                     if (
-                            voucherValue
-                            > totalBeforeDiscount
+                            voucher
+                            > subtotal + vat
                             ) {
+
                         event.preventDefault();
 
                         alert(
                                 "Mệnh giá voucher lớn hơn tổng giá trị hóa đơn."
                                 );
-
-                        return;
-                    }
-
-                    if (
-                            voucherValue > 0
-                            && voucherSelect
-                            ) {
-                        const option =
-                                voucherSelect.options[
-                                        voucherSelect
-                                        .selectedIndex
-                                ];
-
-                        const voucherCode =
-                                option
-                                ? option.dataset.code
-                                || ""
-                                : "";
-
-                        const confirmed =
-                                window.confirm(
-                                        "Xác nhận dùng voucher "
-                                        + voucherCode
-                                        + " giảm "
-                                        + formatMoney(
-                                                voucherValue
-                                                )
-                                        + "?"
-                                        );
-
-                        if (!confirmed) {
-                            event.preventDefault();
-                        }
                     }
                 }
         );
@@ -1433,11 +1425,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     restoreSelectedCustomer();
 
-    if (
-            customerModeRadios.length > 0
-            ) {
-        syncCustomerMode(false);
-    } else {
-        updateInvoiceTotal();
-    }
+    syncCustomerMode(false);
+
+    updateInvoiceTotal();
 });
