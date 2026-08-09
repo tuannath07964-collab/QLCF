@@ -12,6 +12,10 @@ document.addEventListener("DOMContentLoaded", function () {
             "savedCustomerSection"
             );
 
+    const newCustomerSection = document.getElementById(
+            "newCustomerSection"
+            );
+
     const guestCustomerSection = document.getElementById(
             "guestCustomerSection"
             );
@@ -71,21 +75,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const newCustomerPhone = document.getElementById(
             "newCustomerPhone"
             );
-
-    const saveCustomerCheckbox =
-            document.getElementById(
-                    "saveCustomerCheckbox"
-                    );
-
-    const newCustomerNameRequiredMark =
-            document.getElementById(
-                    "newCustomerNameRequiredMark"
-                    );
-
-    const newCustomerPhoneRequiredMark =
-            document.getElementById(
-                    "newCustomerPhoneRequiredMark"
-                    );
 
     const voucherSection = document.getElementById(
             "voucherSection"
@@ -686,7 +675,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (voucherHelpText) {
             if (!useSavedCustomer) {
                 voucherHelpText.textContent =
-                        "Khách hàng mới chưa thể sử dụng voucher trong hóa đơn hiện tại.";
+                        "Chỉ khách hàng đã lưu mới có thể sử dụng voucher.";
             } else if (customerCode === "") {
                 voucherHelpText.textContent =
                         "Vui lòng tìm kiếm khách hàng đã lưu để xem voucher.";
@@ -704,43 +693,17 @@ document.addEventListener("DOMContentLoaded", function () {
         updateInvoiceTotal();
     }
 
-    function syncSaveCustomerOption() {
-        const useSavedCustomer =
-                getCustomerMode() === "saved";
-
-        const shouldSaveCustomer =
-                !useSavedCustomer
-                && saveCustomerCheckbox
-                && saveCustomerCheckbox.checked;
-
-        if (newCustomerName) {
-            newCustomerName.required =
-                    shouldSaveCustomer;
-        }
-
-        if (newCustomerPhone) {
-            newCustomerPhone.required =
-                    shouldSaveCustomer;
-        }
-
-        if (newCustomerNameRequiredMark) {
-            newCustomerNameRequiredMark.classList.toggle(
-                    "hidden",
-                    !shouldSaveCustomer
-                    );
-        }
-
-        if (newCustomerPhoneRequiredMark) {
-            newCustomerPhoneRequiredMark.classList.toggle(
-                    "hidden",
-                    !shouldSaveCustomer
-                    );
-        }
-    }
-
     function syncCustomerMode(resetVoucher) {
+        const mode = getCustomerMode();
+
         const useSavedCustomer =
-                getCustomerMode() === "saved";
+                mode === "saved";
+
+        const useNewCustomer =
+                mode === "new";
+
+        const useGuestCustomer =
+                mode === "guest";
 
         if (savedCustomerSection) {
             savedCustomerSection.classList.toggle(
@@ -749,10 +712,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
         }
 
+        if (newCustomerSection) {
+            newCustomerSection.classList.toggle(
+                    "hidden",
+                    !useNewCustomer
+                    );
+        }
+
         if (guestCustomerSection) {
             guestCustomerSection.classList.toggle(
                     "hidden",
-                    useSavedCustomer
+                    !useGuestCustomer
                     );
         }
 
@@ -773,24 +743,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (newCustomerName) {
             newCustomerName.disabled =
-                    useSavedCustomer;
+                    !useNewCustomer;
+
+            newCustomerName.required =
+                    useNewCustomer;
         }
 
         if (newCustomerPhone) {
             newCustomerPhone.disabled =
-                    useSavedCustomer;
+                    !useNewCustomer;
+
+            newCustomerPhone.required =
+                    useNewCustomer;
         }
-
-        if (saveCustomerCheckbox) {
-            if (!useSavedCustomer && resetVoucher) {
-                saveCustomerCheckbox.checked = true;
-            }
-
-            saveCustomerCheckbox.disabled =
-                    useSavedCustomer;
-        }
-
-        syncSaveCustomerOption();
 
         if (voucherSection) {
             voucherSection.classList.toggle(
@@ -814,12 +779,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (voucherSelect) {
                 voucherSelect.value = "";
+                voucherSelect.disabled = true;
             }
         }
 
-        syncVoucherOptions(
-                resetVoucher
-                );
+        filterVouchers(resetVoucher);
     }
 
     function createProductCell(
@@ -1059,6 +1023,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return true;
         }
 
+        if (mode === "guest") {
+            return true;
+        }
+
         const customerName =
                 newCustomerName
                 ? newCustomerName.value.trim()
@@ -1070,16 +1038,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 .replace(/\s+/g, "")
                 : "";
 
-        const shouldSaveCustomer =
-                saveCustomerCheckbox
-                && saveCustomerCheckbox.checked;
-
-        if (
-                shouldSaveCustomer
-                && customerName === ""
-                ) {
+        if (customerName === "") {
             alert(
-                    "Vui lòng nhập tên khách hàng mới để lưu khách hàng."
+                    "Vui lòng nhập tên khách hàng mới."
                     );
 
             if (newCustomerName) {
@@ -1089,12 +1050,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         }
 
-        if (
-                shouldSaveCustomer
-                && customerPhone === ""
-                ) {
+        if (customerPhone === "") {
             alert(
-                    "Vui lòng nhập số điện thoại khách hàng mới để lưu khách hàng."
+                    "Vui lòng nhập số điện thoại khách hàng mới."
                     );
 
             if (newCustomerPhone) {
@@ -1105,8 +1063,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (
-                customerPhone !== ""
-                && !/^0\d{8,10}$/.test(
+                !/^0\d{8,10}$/.test(
                         customerPhone
                         )
                 ) {
@@ -1243,13 +1200,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
             }
     );
-
-    if (saveCustomerCheckbox) {
-        saveCustomerCheckbox.addEventListener(
-                "change",
-                syncSaveCustomerOption
-                );
-    }
 
     if (customerSearchButton) {
         customerSearchButton

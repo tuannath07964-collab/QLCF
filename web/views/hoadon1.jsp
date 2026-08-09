@@ -10,7 +10,13 @@
 <c:set var="customerModeValue"
        value="${requestScope.customerModeDaChon ne null
                 ? requestScope.customerModeDaChon
-                : (not empty hoaDon.maKH ? 'saved' : 'guest')}"/>
+                : (not empty hoaDon.maKH
+                   ? 'saved'
+                   : ((not empty hoaDon.tenKhachHang
+                       and hoaDon.tenKhachHang != 'Khách lẻ')
+                      or not empty hoaDon.sdtKhachHang
+                      ? 'new'
+                      : 'guest'))}"/>
 
 <c:set var="selectedCustomerCode"
        value="${requestScope.maKHDaChon ne null
@@ -31,11 +37,6 @@
                 : (empty hoaDon.maKH
                 ? hoaDon.sdtKhachHang
                 : '')}"/>
-
-<c:set var="saveCustomerValue"
-       value="${requestScope.luuKhachMoiDaChon ne null
-                ? requestScope.luuKhachMoiDaChon
-                : true}"/>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -58,8 +59,6 @@
         <link rel="stylesheet"
               href="${pageContext.request.contextPath}/css/store.css?v=80">
 
-        <link rel="stylesheet"
-              href="${pageContext.request.contextPath}/css/cafe-theme.css?v=2">
     </head>
 
     <body>
@@ -123,9 +122,7 @@
                         </a>
 
                         <h2 class="invoice-detail-title">
-
                             ${hoaDon.maHienThi}
-
                         </h2>
 
                         <p>
@@ -316,8 +313,38 @@
                                                         <strong>
                                                             Khách hàng đã lưu
                                                         </strong>
+
                                                         <small>
                                                             Tìm theo mã, tên hoặc số điện thoại
+                                                        </small>
+
+                                                    </span>
+
+                                                </span>
+
+                                            </label>
+
+                                            <label class="customer-mode-item">
+
+                                                <input type="radio"
+                                                       name="customerMode"
+                                                       value="new"
+                                                       ${customerModeValue == 'new'
+                                                         ? 'checked'
+                                                         : ''}>
+
+                                                <span>
+
+                                                    <i class="fa-solid fa-user-plus"></i>
+
+                                                    <span>
+
+                                                        <strong>
+                                                            Khách hàng mới
+                                                        </strong>
+
+                                                        <small>
+                                                            Lưu khách hàng và tích điểm sau thanh toán
                                                         </small>
 
                                                     </span>
@@ -337,16 +364,16 @@
 
                                                 <span>
 
-                                                    <i class="fa-solid fa-user-plus"></i>
+                                                    <i class="fa-solid fa-user"></i>
 
                                                     <span>
 
                                                         <strong>
-                                                            Khách hàng mới
+                                                            Khách lẻ
                                                         </strong>
 
                                                         <small>
-                                                            Nhập thông tin để lưu và tích điểm
+                                                            Không lưu thông tin và không tích điểm
                                                         </small>
 
                                                     </span>
@@ -388,6 +415,7 @@
                                                         id="customerSearchButton">
 
                                                     <i class="fa-solid fa-magnifying-glass"></i>
+
                                                     Tìm kiếm
 
                                                 </button>
@@ -454,6 +482,7 @@
                                                      id="customerSearchEmpty">
 
                                                     <i class="fa-solid fa-user-slash"></i>
+
                                                     Không tìm thấy khách hàng phù hợp.
 
                                                 </div>
@@ -473,7 +502,9 @@
 
                                                     <div>
 
-                                                        <small>Khách hàng đã tìm thấy</small>
+                                                        <small>
+                                                            Khách hàng đã tìm thấy
+                                                        </small>
 
                                                         <strong id="selectedCustomerName">
                                                             —
@@ -498,6 +529,7 @@
                                                             id="clearSelectedCustomerButton">
 
                                                         <i class="fa-solid fa-xmark"></i>
+
                                                         Bỏ chọn
 
                                                     </button>
@@ -510,8 +542,8 @@
 
                                     </div>
 
-                                    <div id="guestCustomerSection"
-                                         class="${customerModeValue == 'guest'
+                                    <div id="newCustomerSection"
+                                         class="${customerModeValue == 'new'
                                                   ? ''
                                                   : 'hidden'}">
 
@@ -522,8 +554,7 @@
 
                                                 Tên khách hàng mới
 
-                                                <span class="required-mark"
-                                                      id="newCustomerNameRequiredMark">*</span>
+                                                <span class="required-mark">*</span>
 
                                             </label>
 
@@ -534,7 +565,10 @@
                                                    value="${guestCustomerName}"
                                                    maxlength="100"
                                                    autocomplete="name"
-                                                   placeholder="Nhập tên khách hàng mới">
+                                                   placeholder="Nhập tên khách hàng mới"
+                                                   ${customerModeValue == 'new'
+                                                     ? 'required'
+                                                     : 'disabled'}>
 
                                         </div>
 
@@ -545,8 +579,7 @@
 
                                                 Số điện thoại
 
-                                                <span class="required-mark"
-                                                      id="newCustomerPhoneRequiredMark">*</span>
+                                                <span class="required-mark">*</span>
 
                                             </label>
 
@@ -559,35 +592,36 @@
                                                    inputmode="numeric"
                                                    autocomplete="tel"
                                                    pattern="0[0-9]{8,10}"
-                                                   placeholder="Ví dụ: 0988123456">
+                                                   placeholder="Ví dụ: 0988123456"
+                                                   ${customerModeValue == 'new'
+                                                     ? 'required'
+                                                     : 'disabled'}>
 
                                             <small class="form-help-text">
+
                                                 Số điện thoại phải bắt đầu bằng 0 và có từ 9 đến 11 số.
+                                                Sau khi thanh toán thành công, khách hàng sẽ được lưu và được cộng điểm.
+
                                             </small>
 
                                         </div>
 
-                                        <label class="save-customer-option">
+                                    </div>
 
-                                            <input type="checkbox"
-                                                   id="saveCustomerCheckbox"
-                                                   name="luuKhachMoi"
-                                                   value="true"
-                                                   ${saveCustomerValue ? 'checked' : ''}>
+                                    <div id="guestCustomerSection"
+                                         class="${customerModeValue == 'guest'
+                                                  ? ''
+                                                  : 'hidden'}">
 
-                                            <span>
+                                        <div class="alert alert-info">
 
-                                                <strong>
-                                                    Lưu thành khách hàng mới để tích điểm
-                                                </strong>
+                                            <i class="fa-solid fa-circle-info"></i>
 
-                                                <small>
-                                                    Có thể bỏ tích nếu chỉ muốn thanh toán dưới dạng khách lẻ.
-                                                </small>
+                                            Khách lẻ không cần nhập thông tin,
+                                            không được lưu vào danh sách khách hàng,
+                                            không tích điểm và không sử dụng voucher.
 
-                                            </span>
-
-                                        </label>
+                                        </div>
 
                                     </div>
 
@@ -902,7 +936,9 @@
 
                                         <div>
 
-                                            <strong>Thanh toán tại quầy</strong>
+                                            <strong>
+                                                Thanh toán tại quầy
+                                            </strong>
 
                                             <span>
                                                 Hệ thống ghi nhận thanh toán bằng tiền mặt.

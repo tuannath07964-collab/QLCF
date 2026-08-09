@@ -189,9 +189,11 @@ public class HoaDonServlet extends HttpServlet {
                         request.getParameter(
                                 "sdtKhachHang"
                         ),
-                        request.getParameter(
-                                "luuKhachMoi"
-                        ) != null,
+                        "new".equals(
+                                request.getParameter(
+                                        "customerMode"
+                                )
+                        ),
                         maVoucher,
                         items
                 );
@@ -259,13 +261,6 @@ public class HoaDonServlet extends HttpServlet {
                     request.getParameter(
                             "sdtKhachHang"
                     )
-            );
-
-            request.setAttribute(
-                    "luuKhachMoiDaChon",
-                    request.getParameter(
-                            "luuKhachMoi"
-                    ) != null
             );
 
             request.setAttribute(
