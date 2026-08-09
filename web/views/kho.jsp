@@ -224,6 +224,263 @@
 
                 </div>
 
+                <details class="stock-calc-guide">
+
+                    <summary class="stock-calc-guide-button">
+
+                        <span class="stock-calc-guide-button-left">
+
+                            <span class="stock-calc-guide-icon">
+                                <i class="fa-solid fa-calculator"></i>
+                            </span>
+
+                            <span>
+                                Cách tính số phần sản phẩm có thể bán
+                            </span>
+
+                        </span>
+
+                        <i class="fa-solid fa-chevron-down stock-calc-chevron"></i>
+
+                    </summary>
+
+
+                    <div class="stock-calc-guide-content">
+
+                        <div class="stock-calc-intro">
+
+                            <i class="fa-solid fa-circle-info"></i>
+
+                            <p>
+                                Hệ thống dựa vào số lượng nguyên liệu còn trong kho
+                                và định mức nguyên liệu trong công thức của từng sản phẩm
+                                để tính số phần tối đa có thể bán.
+                            </p>
+
+                        </div>
+
+
+                        <div class="stock-calc-steps">
+
+                            <div class="stock-calc-step">
+
+                                <span class="stock-calc-step-number">
+                                    1
+                                </span>
+
+                                <div>
+
+                                    <small>Bước 1</small>
+
+                                    <strong>
+                                        Tính số phần từ từng nguyên liệu
+                                    </strong>
+
+                                    <p>
+                                        Tồn kho nguyên liệu
+                                        <b>÷</b>
+                                        định mức cần cho 1 phần.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="stock-calc-arrow">
+
+                                <i class="fa-solid fa-arrow-right"></i>
+
+                            </div>
+
+
+                            <div class="stock-calc-step">
+
+                                <span class="stock-calc-step-number">
+                                    2
+                                </span>
+
+                                <div>
+
+                                    <small>Bước 2</small>
+
+                                    <strong>
+                                        Làm tròn xuống
+                                    </strong>
+
+                                    <p>
+                                        Chỉ tính số phần hoàn chỉnh có thể pha được.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="stock-calc-arrow">
+
+                                <i class="fa-solid fa-arrow-right"></i>
+
+                            </div>
+
+
+                            <div class="stock-calc-step">
+
+                                <span class="stock-calc-step-number">
+                                    3
+                                </span>
+
+                                <div>
+
+                                    <small>Bước 3</small>
+
+                                    <strong>
+                                        Lấy kết quả nhỏ nhất
+                                    </strong>
+
+                                    <p>
+                                        Nguyên liệu hết trước sẽ giới hạn số phần bán được.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="stock-calc-example">
+
+                            <div class="stock-calc-example-title">
+
+                                <i class="fa-solid fa-mug-hot"></i>
+
+                                <strong>
+                                    Ví dụ: Cà phê sữa
+                                </strong>
+
+                            </div>
+
+
+                            <p class="stock-calc-recipe">
+
+                                Một phần cần:
+
+                                <strong>18g cà phê</strong>,
+
+                                <strong>10g đường</strong>
+
+                                và
+
+                                <strong>30ml sữa</strong>.
+
+                            </p>
+
+
+                            <div class="stock-calc-example-grid">
+
+                                <div class="stock-calc-example-item">
+
+                                    <span>
+                                        Cà phê
+                                    </span>
+
+                                    <small>
+                                        2.000g ÷ 18g
+                                    </small>
+
+                                    <strong>
+                                        111 phần
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="stock-calc-example-item">
+
+                                    <span>
+                                        Đường
+                                    </span>
+
+                                    <small>
+                                        30.000g ÷ 10g
+                                    </small>
+
+                                    <strong>
+                                        3.000 phần
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="stock-calc-example-item">
+
+                                    <span>
+                                        Sữa
+                                    </span>
+
+                                    <small>
+                                        5.000ml ÷ 30ml
+                                    </small>
+
+                                    <strong>
+                                        166 phần
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="stock-calc-result">
+
+                                <div>
+
+                                    <span>
+                                        Kết quả nhỏ nhất
+                                    </span>
+
+                                    <strong>
+                                        111 phần
+                                    </strong>
+
+                                </div>
+
+                                <i class="fa-solid fa-arrow-right"></i>
+
+                                <div class="stock-calc-result-final">
+
+                                    <span>
+                                        Tối đa có thể bán
+                                    </span>
+
+                                    <strong>
+                                        111 phần
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="stock-calc-bottom-note">
+
+                            <i class="fa-solid fa-lightbulb"></i>
+
+                            <span>
+                                Muốn pha một sản phẩm phải đủ tất cả nguyên liệu,
+                                vì vậy nguyên liệu tạo được ít phần nhất sẽ quyết định
+                                số lượng sản phẩm tối đa có thể bán.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </details>
+
                 <section class="card">
 
                     <div class="table-wrapper">
@@ -622,7 +879,7 @@
             const warehouseSearch =
                     document.getElementById(
                             "warehouseSearch"
-                    );
+                            );
 
             function normalizeText(value) {
                 return (value || "")
@@ -631,7 +888,7 @@
                         .replace(
                                 /[\u0300-\u036f]/g,
                                 ""
-                        );
+                                );
             }
 
             if (warehouseSearch) {
@@ -641,16 +898,16 @@
                             const keyword =
                                     normalizeText(
                                             this.value
-                                    );
+                                            );
 
                             document.querySelectorAll(
                                     ".warehouse-row"
-                            ).forEach(
+                                    ).forEach(
                                     function (row) {
                                         const text =
                                                 normalizeText(
                                                         row.dataset.search
-                                                );
+                                                        );
 
                                         row.style.display =
                                                 text.includes(keyword)
