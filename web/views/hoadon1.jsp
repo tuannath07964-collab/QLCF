@@ -32,6 +32,11 @@
                 ? hoaDon.sdtKhachHang
                 : '')}"/>
 
+<c:set var="saveCustomerValue"
+       value="${requestScope.luuKhachMoiDaChon ne null
+                ? requestScope.luuKhachMoiDaChon
+                : true}"/>
+
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -517,7 +522,8 @@
 
                                                 Tên khách hàng mới
 
-                                                <span class="required-mark">*</span>
+                                                <span class="required-mark"
+                                                      id="newCustomerNameRequiredMark">*</span>
 
                                             </label>
 
@@ -528,7 +534,6 @@
                                                    value="${guestCustomerName}"
                                                    maxlength="100"
                                                    autocomplete="name"
-                                                   required
                                                    placeholder="Nhập tên khách hàng mới">
 
                                         </div>
@@ -540,7 +545,8 @@
 
                                                 Số điện thoại
 
-                                                <span class="required-mark">*</span>
+                                                <span class="required-mark"
+                                                      id="newCustomerPhoneRequiredMark">*</span>
 
                                             </label>
 
@@ -553,13 +559,10 @@
                                                    inputmode="numeric"
                                                    autocomplete="tel"
                                                    pattern="0[0-9]{8,10}"
-                                                   required
                                                    placeholder="Ví dụ: 0988123456">
 
                                             <small class="form-help-text">
-
                                                 Số điện thoại phải bắt đầu bằng 0 và có từ 9 đến 11 số.
-
                                             </small>
 
                                         </div>
@@ -568,12 +571,9 @@
 
                                             <input type="checkbox"
                                                    id="saveCustomerCheckbox"
+                                                   name="luuKhachMoi"
                                                    value="true"
-                                                   checked
-                                                   tabindex="-1"
-                                                   aria-checked="true"
-                                                   onclick="return false;"
-                                                   onkeydown="return false;">
+                                                   ${saveCustomerValue ? 'checked' : ''}>
 
                                             <span>
 
@@ -582,17 +582,12 @@
                                                 </strong>
 
                                                 <small>
-                                                    Khách hàng mới sẽ được tạo tự động khi thanh toán.
+                                                    Có thể bỏ tích nếu chỉ muốn thanh toán dưới dạng khách lẻ.
                                                 </small>
 
                                             </span>
 
                                         </label>
-
-                                        <input type="hidden"
-                                               id="saveCustomerHiddenInput"
-                                               name="luuKhachMoi"
-                                               value="true">
 
                                     </div>
 
